@@ -1,17 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password reset</title>
-</head>
-<body>
-    <legend>Reset Password</legend>
+{% extends "base.html" %}
+
+{% block title %}Forgot Password{% endblock %}
+{% block bodyContent %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-sucess alert-dismissible fade show" role="alert">
+            {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    <legend>Forgot Password</legend>
     <h6>Enter your email to send a reset link!</h6>
     <form action="{{ url_for('main.resetRequest') }}" method="POST">
         <label for="email">Enter your Email</label>
-        <input type="email" name="resetEmail" id="email">
-        <input type="submit" value="Reset" class="btn-lg-danger">
+        <input type="email" name="resetEmail" id="email" required>
+        <input type="submit" value="Reset" class="btn-lg-primary">
     </form>
-</body>
-</html>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}VEC Quiz App{% endblock %}
+{% block bodyContent %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    <div class="loginBox shadow-lg p-3 mb-5 bg-body rounded">
+        <form action="/" method="POST">
+            <div class="loginForm">
+                <h2 class="logintext" class="col-form-label">Student Login</h2>
+                <label for="studName">Name</label><br>
+                <input type="text" name="studName" id="studName" required aria-placeholder="studName" autocomplete="off" style="text-transform: capitalize;"><br>
+                <label for="passwd" class="col-form-label">Password</label><br>
+                <input type="password" name="studPass" id="studPass" required aria-placeholder="Password"><br><br>
+                <button type="submit" class="btn btn-success btn-lg">Login</button><br>
+                <a href="{{ url_for('main.signup') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks ">Don't have a account? Sign up here </a><br>
+                <a href="{{ url_for('main.resetRequest') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks "> Forgot your password?</a><br>
+            </div>
+        </form>
+    </div>
+{% endblock %}

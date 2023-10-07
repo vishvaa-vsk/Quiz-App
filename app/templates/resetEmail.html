@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password reset</title>
+</head>
+<body>
+    <legend>Reset Password</legend>
+    <h6>Enter your email to send a reset link!</h6>
+    <form action="{{ url_for('main.resetRequest') }}" method="POST">
+        <label for="email">Enter your Email</label>
+        <input type="email" name="resetEmail" id="email">
+        <input type="submit" value="Reset" class="btn-lg-danger">
+    </form>
+</body>
+</html>

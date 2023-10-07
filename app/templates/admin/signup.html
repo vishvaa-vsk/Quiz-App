@@ -1,0 +1,29 @@
+{% extends "admin/base.html" %}
+{% block title %}VEC Quiz App{% endblock %}
+
+
+{% block bodyContent %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    <div class="loginBox shadow-lg p-3 mb-5 bg-body rounded">
+        <h4>Signup as a Admin at VEC Quiz App</h4>
+        <form action="{{ url_for('admin.signup') }}" method="POST">
+            <div class="loginForm">
+                <label for="adminName">Name</label><br>
+                <input type="text" name="adminName" id="adminName"><br>
+                <label for="adminEmail">Email</label><br>
+                <input type="email" name="adminEmail" id="adminEmail"><br>
+                <label for="passwd">Password</label><br>
+                <input type="password" name="adminPass" id="adminPass"><br>
+                <label for="passwd">Retype password</label><br>
+                <input type="password" name="adminRePass" id="adminRePass"><br><br>
+                <button type="submit" class="btn btn-success btn-lg">Signup</button><br>
+                <a href="{{ url_for('admin.login') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks ">Already have an account? login here!</a><br>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}VEC Quiz App{% endblock %}
+
+
+{% block bodyContent %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    <div class="loginBox shadow-lg p-3 mb-5 bg-body rounded">
+        <h4>Signup for VEC Communication English Quiz App</h4>
+        <form action="/studSignup" method="POST">
+            <div class="loginForm">
+                <label for="studName">Name</label><br>
+                <input type="text" name="studName" id="studName"><br>
+                <label for="studClass">Class & Sec</label><br>
+                <input type="text" name="studClass" id="studClass"><br>
+                <label for="studRegno">Registeration No</label><br>
+                <input type="text" name="studRegno" id="studRegno"><br>
+                <label for="passwd">Password</label><br>
+                <input type="password" name="studPass" id="studPass"><br>
+                <label for="passwd">Retype password</label><br>
+                <input type="password" name="studRePass" id="studRePass"><br><br>
+                <button type="submit" class="btn btn-success btn-lg">Signup</button><br>
+                <a href="{{ url_for('main.login') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks ">Already have an account? login here!</a><br>
+            </div>
+        </form>
+    </div>
+{% endblock %}

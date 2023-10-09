@@ -9,66 +9,49 @@ body{
     flex-direction: column;
 }
 
-
-.Navbar{
-    background-color: #F9F9F9;
-    overflow: hidden;
-    box-shadow: 2px 2px 4px black;
-}
-
-.Navbar a{
-    float: right;
-    display: block;
+.nav-link{
     background-color: #F5811F;
-    text-decoration: none;
-    padding: 14px 16px;
     color: white;
+    padding: 16px 14px;
     font-size: 20px;
-    margin: 10px;
     border-radius: 25px;
-    transition: .5s;
+    margin: 6px;
+    text-align: center;
 }
 
-
-.Navbar a:hover {
+.nav-link:hover{
     background-color: #FFC905;
     color: black;
     border: .5px solid black;
-  }
-
-.logintext{
-    margin: 10px;
-    text-align: center;
 }
 
-.loginBox{
-    padding: 12px;
-    width: 30%;
-    height: 50%;
-    background-color: #daf3ff;
-    margin: 180px auto;
+.navbar-expand-lg .navbar-collapse{
+    justify-content: flex-end;
+    align-content: center; 
+}
+
+
+.ModelBox{
+    padding: 25px;
+    width: 40%;
+    height: 70%;
+    background-color: white;
+    margin: 140px auto;
     border: 1px transparent;
-    border-radius: 20px;
+    border-radius: 25px;
     text-align: center;
-    
 }
 
-
-.loginForm label{
-    padding: 5px;
-    margin-top: 15px;
-    font-weight: 500;
-    font-size: 20px;
-    font-family:'Montserrat', sans-serif;
-}
-.loginForm input{
-    outline: none;
-    padding: 7px;
-    border:1px solid grey;
-    border-radius: 5px;
-    width: 250px;
-}
-.btn{
-    margin-bottom: 10px;
+.ModelBox form{
+    padding: 10px;
 }
 
+@media screen and (max-width: 600px) {
+    .ModelBox{
+        width: 65%;
+        margin: 75px auto;
+    }
+    .navbar-brand img{
+        width: 280px;
+    }
+}

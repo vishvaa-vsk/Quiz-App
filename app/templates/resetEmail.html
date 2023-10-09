@@ -3,18 +3,23 @@
 {% block title %}Forgot Password{% endblock %}
 {% block bodyContent %}
     {% for message in get_flashed_messages() %}
-        <div class="alert alert-sucess alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{message}}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     {% endfor %}
 
-    <legend>Forgot Password</legend>
-    <h6>Enter your email to send a reset link!</h6>
-    <form action="{{ url_for('main.resetRequest') }}" method="POST">
-        <label for="email">Enter your Email</label>
-        <input type="email" name="resetEmail" id="email" required>
-        <input type="submit" value="Reset" class="btn-lg-primary">
-    </form>
+    <div class="ModelBox shadow-lg p-3 mb-5 rounded-3">
+        <h3>Forgot Password</h3>
+        <form action="{{ url_for('main.reset_request') }}" method="POST">
+            <div class="form-text">Enter your email to send a reset link!</div><br>
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" name="resetEmail" id="floatingInput" placeholder="Email" required>
+                <label for="floatingInput">Email</label>
+            </div>  
+        </form>
+        <button type="submit" class="btn btn-lg btn-success">Send email</button>
+    </div>
+    
 
 {% endblock %}

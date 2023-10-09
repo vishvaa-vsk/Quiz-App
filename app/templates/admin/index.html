@@ -3,23 +3,32 @@
 {% block title %}VEC Quiz App{% endblock %}
 {% block bodyContent %}
     {% for message in get_flashed_messages() %}
+    {% if message == "Password Changed!" %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{message}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             {{message}}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     {% endfor %}
-    <div class="loginBox shadow-lg p-3 mb-5 bg-body rounded">
-        <form action="{{ url_for('admin.login') }}" method="POST">
-            <div class="loginForm">
-                <h2 class="logintext" class="col-form-label">Admin Login</h2>
-                <label for="adminName">Name</label><br>
-                <input type="text" name="adminName" id="adminName" required aria-placeholder="studName" autocomplete="off" style="text-transform: capitalize;"><br>
-                <label for="adminPass" class="col-form-label">Password</label><br>
-                <input type="password" name="adminPass" id="adminPass" required aria-placeholder="Password"><br><br>
-                <button type="submit" class="btn btn-success btn-lg">Login</button><br>
-                <a href="{{ url_for('admin.signup') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks ">Don't have a account? Sign up here </a><br>
-                <a href="/resetRequest" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks "> Forgot your password?</a><br>
-            </div>
+    <div class="ModelBox shadow-lg p-3 mb-5 rounded-3">
+        <h3>Admin Login</h3>
+        <form action="{{ url_for('admin.login')}}" method="POST">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="adminName" id="floatingInput" placeholder="Your Name" required>
+                <label for="floatingInput">Username</label>
+              </div>              
+              <div class="form-floating mb-3">
+                <input type="password" name="adminPass" class="form-control" id="floatingInput" placeholder="password" required>
+                <label for="floatingInput">Password</label>
+              </div>    
+            <button type="submit" class="btn btn-lg btn-success">Login</button>
         </form>
+        <a href="{{ url_for('admin.signup') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks ">Don't have a account? Sign up here </a><br>
+            <a href="{{ url_for('admin.reset_request') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks "> Forgot your password?</a><br>
     </div>
 {% endblock %}

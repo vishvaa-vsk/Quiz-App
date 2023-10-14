@@ -104,7 +104,7 @@ def verify_test(testCode):
     if request.method == "POST":
         if testCode in mongo.db.list_collection_names():
             return jsonify({'url':f'/test/{testCode}'})
-    return ""
+    return "Redirecting to test!"
 
 
 @main.route("/test/<testCode>",methods=['GET', 'POST'])

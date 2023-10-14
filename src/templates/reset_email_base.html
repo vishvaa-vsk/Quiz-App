@@ -1,0 +1,11 @@
+<h1>Hello {{username}},</h1>
+    
+<p><strong style="font-size: medium;">A request has been received to change the password for your VEC Quiz app account.</strong></p>
+<br>
+<a href="{{ url_for('main.reset_password_verify',token=reset_token,_external=True) }}" style="text-align: center;text-decoration: none;background-color: #F5811F;padding: 15px;color: white;border-radius: 5px;"><strong>Reset Password</strong></a>
+    <br><br>
+<p>If you did not initiate this request, please contact us immediately at communicative english lab!
+</p><br>
+<p style="font-style: italic;color: rgb(245, 245, 245);">Thank you,<br>
+The Communicative English Team</p>
+

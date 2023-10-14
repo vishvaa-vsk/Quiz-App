@@ -1,0 +1,58 @@
+{% extends "admin/base.html" %}
+{% block title %}Add Questions{% endblock %}
+{% block customCSS %}
+<link rel="stylesheet" href="/app/static/quiz.css">
+{% endblock %}
+    
+{% block bodyContent %}
+    <div id="counter" class="d-flex justify-content-end me-3">
+    </div>
+    <div>
+        <p>TEST CODE: {{testCode}}</p>
+    </div><br>
+    <div class="quizBox">
+        <form action="{{ url_for('admin.add_questions',testCode = testCode) }}" method="POST">
+            <div class="d-flex justify-content-end" id="addButtonBox"></div><br>
+            <div class="form-floating mb-3">
+                <input type="number" class="form-control" id="floatingInput" placeholder="Question No" name="question_no" min="1" required>
+                <label for="floatingInput" >Question No</label>
+            </div>
+            <div class="form-floating mb-3">
+                <textarea class="form-control" placeholder="Question" id="floatingTextarea" style="height:70px;" name="question"></textarea required>
+                <label for="floatingTextarea">Question</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="floatingInput" placeholder="Choice 1" name="choice1" required>
+                <label for="floatingInput">Choice 1</label>
+            </div>        
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="floatingInput" placeholder="Choice 2" name="choice2" required>
+                <label for="floatingInput">Choice 2</label>
+            </div>              
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="floatingInput" placeholder="Choice 3" name="choice3" required>
+                <label for="floatingInput">Choice 3</label>
+            </div>             
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="floatingInput" placeholder="Choice 4" name="choice4" required>
+                <label for="floatingInput">Choice 4</label>
+            </div>
+            <select class="form-select form-select-lg mb-4" aria-label="Answer select" name="choice_select" required>
+                <option selected disabled>Select the correct answer</option>
+                <option value="1">Choice 1</option>
+                <option value="2">Choice 2</option>
+                <option value="3">Choice 3</option>
+                <option value="4">Choice 4</option>
+            </select>
+            <div class="d-flex justify-content-between">
+                <input type="submit" value="Next" class="btn btn-primary btn-lg">
+            </div><br>
+            <button type="button" class="btn btn-outline-primary btn-lg"><i class="bi bi-plus-circle" onclick="triggerAudioInput()"></i></button>
+        </form>
+    </div>
+
+    {% block customJS %}
+        <script src="/app/static/quiz.js"></script>
+    {% endblock %}
+    
+{% endblock %}

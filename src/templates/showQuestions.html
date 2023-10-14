@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Test {{testCode}}{% endblock %}
+
+{% block bodyContent %}
+
+<div>
+    <form action="" method="POST">
+    {% for i in testDetails %}
+      <div>
+          <div>
+            <p>{{i['question_no']}}. {{i['question']}}</p><br>
+          </div>
+          <div class="form-check">
+              <input class="form-check-input" type="radio" name="options" id="flexRadioDefault1" value="{{i['choice1']}}">
+              <label class="form-check-label" for="flexRadioDefault1">
+                {{i['choice1']}}
+              </label>
+          </div>
+          <div class="form-check">
+              <input class="form-check-input" type="radio" name="options" id="flexRadioDefault1" value="{{i['choice2']}}">
+              <label class="form-check-label" for="flexRadioDefault1">
+                {{i['choice2']}}
+              </label>
+          </div>
+          <div class="form-check">
+              <input class="form-check-input" type="radio" name="options" id="flexRadioDefault1" value="{{i['choice3']}}">
+              <label class="form-check-label" for="flexRadioDefault1">
+                {{i['choice3']}}
+              </label>
+          </div>
+          <div class="form-check">
+              <input class="form-check-input" type="radio" name="options" id="flexRadioDefault1" value="{{i['choice4']}}">
+              <label class="form-check-label" for="flexRadioDefault1">
+                {{i['choice4']}}
+              </label>
+          </div>
+      </div>
+    {% endfor %}
+    <div class="d-flex justify-content-between">
+      <button type="submit" value="Submit" class="btn btn-lg btn-success">Submit</button>
+    </div>
+    </form>
+</div>
+
+
+{% endblock %}

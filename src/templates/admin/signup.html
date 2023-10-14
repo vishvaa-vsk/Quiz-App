@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% block title %}VEC Quiz App{% endblock %}
+
+
+{% block bodyContent %}
+    <br>
+    {% for message in get_flashed_messages() %}
+    {% if message == "Registered successfully!" %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div> 
+    {% endfor %}
+    <div class="ModelBox shadow-lg p-3 mb-5 rounded-3">
+        <h3>Sign up as a admin</h3>
+        <form action="{{ url_for('admin.signup') }}" method="POST">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="adminName" id="floatingInput" placeholder="Your Name" required>
+                <label for="floatingInput">Username</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control" name="adminEmail" id="floatingInput" placeholder="Email" required>
+                <label for="floatingInput">Email Address</label>
+              </div>           
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="adminPass" id="floatingInput" placeholder="password" required>
+                <label for="floatingInput">Password</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="adminRePass" id="floatingInput" placeholder="password" required>
+                <label for="floatingInput">Confirm Password</label>
+              </div> 
+            <button type="submit" class="btn btn-lg btn-primary">Register</button>
+        </form>
+        <a href="{{ url_for('admin.signup') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks ">Already have an account? Login here </a><br>
+    </div>
+{% endblock %}

@@ -1,0 +1,12 @@
+.quizBox{
+    width: 45%;
+
+    margin: 100px auto;
+    padding: 25px;
+
+}
+
+html{
+    padding: 0;
+    margin: 0;
+}

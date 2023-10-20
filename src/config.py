@@ -26,3 +26,4 @@ class Config:
     MAIL_USERNAME = "testvec26@gmail.com"
     MAIL_PASSWORD = "uuue qirf lwtf bouz"
     MAIL_DEFAULT_SENDER = 'testvec26@gmail.com' 
+    UPLOAD_FOLDER = 'static/audios'

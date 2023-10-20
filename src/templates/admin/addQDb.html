@@ -6,16 +6,19 @@
 {% block bodyContent %}
 
 <div class="container-lg">
-    <form action='{{ url_for("admin.get_test_code") }}' method="POST">
+    <!-- action='{{ url_for("admin.get_test_code") }}' -->
+    <form method="POST" enctype="multipart/form-data">
+        <br>
         <div>
             <p>Suggestion : <span class="badge text-bg-light" style="font-size: 25px;">{{testCode}}</span></p>
         </div>
-        <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="floatingInput" placeholder="Test Code" name="test_code">
-            <label for="floatingInput">Test Code</label>
-        </div>
+        {{ form.hidden_tag() }}
+        {{ form.test_code.label(class="form-label") }}
+        {{ form.test_code(class="form-control mb-3",autocomplete="off") }}
+        {{ form.audio_file.label(class="form-label") }}
+        {{ form.audio_file(class="form-control mb-3",accept='audio/*') }}     
         <div class="d-flex justify-content-center">
-            <button type="submit" class="btn btn-lg btn-primary" value="Create Test">Create Test</button>
+            {{form.submit(class="btn btn-success")}}
         </div>
     </form>
 </div>

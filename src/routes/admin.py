@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint,flash,render_template,url_for,session,redirect,request,jsonify
 from werkzeug.security import generate_password_hash,check_password_hash
 
@@ -6,11 +7,23 @@ from ..helper import generate_token,verify_token,send_email_admin
 from bson.objectid import ObjectId
 import string , random
 
+from flask_wtf import FlaskForm
+from wtforms import StringField,SubmitField,FileField
+from wtforms.validators import DataRequired,InputRequired,regexp
+from werkzeug.utils import secure_filename
 
 admin = Blueprint("admin",__name__,url_prefix="/admin")
 
 gen_testCode = ''.join(random.sample(string.ascii_uppercase+string.digits,
     k=8))
+
+class AddAudioForm(FlaskForm):
+    test_code = StringField("Enter the test code",validators=[DataRequired()])
+    audio_file = FileField("Audio File",validators=[InputRequired()])
+    submit = SubmitField("Submit")
+
+
+
 
 @admin.route("/",methods=['GET', 'POST'])
 def login():
@@ -104,11 +117,15 @@ def reset_password(userId):
 @admin.route("/get_testCode",methods=['GET', 'POST'])
 def get_test_code():
     testCode = gen_testCode
+    form = AddAudioForm()
     if request.method == "POST":
-        test_code = request.form['test_code']
+        if form.validate_on_submit():
+            test_code = str(form.test_code.data)
+            file = request.files['audio_file']
+            filename = secure_filename(file.filename)
+            file.save(os.path.join('src/static/audios',filename))
         return redirect(url_for('admin.add_questions',testCode = test_code))
-    return render_template("admin/addQDb.html",testCode = testCode)
-
+    return render_template("admin/addQDb.html",testCode = testCode ,form=form)
 
 @admin.route("/add_questions/<testCode>",methods=['GET', 'POST'])
 def add_questions(testCode):

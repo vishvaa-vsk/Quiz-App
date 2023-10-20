@@ -20,7 +20,7 @@ def login():
         if mongo.db.admin.find_one({"username":username}):
             storedPasswd = mongo.db.admin.find_one({"username":username})["passwd"]
             if check_password_hash(storedPasswd,passwd):
-                session["username"] = username
+                session["adminUsername"] = username
                 return redirect(url_for('admin.dashboard'))
             flash("Username or password incorrect")
         else:

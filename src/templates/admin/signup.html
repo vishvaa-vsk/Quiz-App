@@ -26,7 +26,8 @@
               <div class="form-floating mb-3">
                 <input type="email" class="form-control" name="adminEmail" id="floatingInput" placeholder="Email" required>
                 <label for="floatingInput">Email Address</label>
-              </div>           
+              </div>
+                        
               <div class="form-floating mb-3">
                 <input type="password" class="form-control" name="adminPass" id="floatingInput" placeholder="password" required>
                 <label for="floatingInput">Password</label>
@@ -37,6 +38,6 @@
               </div> 
             <button type="submit" class="btn btn-lg btn-primary">Register</button>
         </form>
-        <a href="{{ url_for('admin.signup') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks ">Already have an account? Login here </a><br>
+        <a href="{{ url_for('admin.login') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks ">Already have an account? Login here </a><br>
     </div>
 {% endblock %}

@@ -35,7 +35,7 @@ def signup():
                 hashed_value = generate_password_hash(passwd,method='scrypt')
                 try:
                     addUser = {"username":username,"class":Class,"regno":regno,"email":email,"passwd":hashed_value}
-                    mongo.mongo.users.insert_one(addUser)
+                    mongo.db.users.insert_one(addUser)
                     flash("Register Successfull")
                     return redirect(url_for("main.login"))
                 except Exception as e:
@@ -109,5 +109,9 @@ def verify_test(testCode):
 
 @main.route("/test/<testCode>",methods=['GET', 'POST'])
 def write_test(testCode):
-    testDetails = list(mongo.db[testCode].find({},{"_id":0}))
+    testDetails = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
+    correct_ans = list(mongo.db[testCode].find({},{'correct_ans':1}))
+    if request.method == "POST":
+        answer = request.form['options']
+        print(answer)
     return render_template("showQuestions.html",testDetails=testDetails)

@@ -8,6 +8,11 @@ from ..helper import send_email
 
 main = Blueprint("main",__name__)
 
+def check_login():
+    if session["username"] is not None:
+        return True
+    return False
+
 @main.route("/",methods=["GET","POST"])
 def login():
     if request.method == "POST":
@@ -48,8 +53,12 @@ def signup():
 
 @main.route('/home',methods=["GET","POST"])
 def dashboard():
-    studName = session['username']
-    return render_template('studentDashboard.html',studName=studName)
+    if check_login():
+        studName = session['username']
+        return render_template('studentDashboard.html',studName=studName)
+    else:
+        return redirect(url_for('main.login'))
+    
 
 @main.route("/reset_request",methods=['GET', 'POST'])
 def reset_request():
@@ -109,20 +118,23 @@ def verify_test(testCode):
 
 @main.route("/test/<testCode>",methods=['GET', 'POST'])
 def write_test(testCode):
-    testDetails = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
-    questions = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,}))
-    correct_answers = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,"correct_ans":1}))
-    totalQuestions = []
-    for i in questions:
-        totalQuestions.append(int(i['question_no']))
-    if request.method == "POST":
-        for j in totalQuestions:
-            user_answer = request.form[f"option-{j}"]
-            print(f"{j}.{user_answer}")
-            for i in correct_answers:
-                if i['question_no'] == str(j):
-                    if i['correct_ans'] == user_answer:
-                        print("YES")
-                    else:
-                        print("NO")
-    return render_template("showQuestions.html",testDetails=testDetails)
+    if check_login():
+        testDetails = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
+        questions = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,}))
+        correct_answers = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,"correct_ans":1}))
+        totalQuestions = []
+        for i in questions:
+            totalQuestions.append(int(i['question_no']))
+        if request.method == "POST":
+            for j in totalQuestions:
+                user_answer = request.form[f"option-{j}"]
+                print(f"{j}.{user_answer}")
+                for i in correct_answers:
+                    if i['question_no'] == str(j):
+                        if i['correct_ans'] == user_answer:
+                            print("YES")
+                        else:
+                            print("NO")
+        return render_template("showQuestions.html",testDetails=testDetails)
+    else:
+        return redirect(url_for("main.login"))

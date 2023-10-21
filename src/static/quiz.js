@@ -43,6 +43,7 @@ function progressBar(minutes){
 }
 
 window.onload = function () {
+    setInterval(function(){document.getElementById("staticBackdrop").style.display = "block";},2000)
     var fiveMinutes = 60 * 0.5,
     display = document.getElementById('counter');
     startTimer(fiveMinutes, display);

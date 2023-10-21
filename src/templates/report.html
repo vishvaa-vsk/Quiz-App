@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{Student}}'s Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <style>
+        .Heading{
+            background-color: #FFA33C;
+            width: 100%;
+            height: 40%;
+            padding: 20px;
+            color: black;
+            font-family: 'Noto Sans';
+        }
+        .date-time{
+            display: flex;
+            flex-direction: column;
+            align-items:flex-end;
+            flex-wrap: wrap;
+        }
+        hr{
+            margin: 0;
+            padding: 0;
+            border: 3px solid grey;
+            opacity: 1;
+        }
+        .Student-info{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content:space-between;
+            padding: 20px;
+        }
+        .report{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content:space-around;
+            padding: 20px;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div class="Heading">
+        <div class="date-time">
+            <h4>{{Date}}</h4>
+            <h4>{{Time}}</h4>
+        </div>
+        <h1>{{TestCode}} Summary Report</h1>
+    </div>
+    <hr>
+    <div class="Student-info">
+        <h3>Student Name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{Student Name}}</h3>
+        <h3>Class & Sec: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{Class & Sec}}</h3>
+        <h3>Test Code: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{Test Code}}</h3>
+        <h3>Email: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{Email}}</h3>
+    </div>
+    <hr>
+    <div class="report">
+        <h3>Test Status - &nbsp;&nbsp;&nbsp;{{Status}}</h3>
+        <h3>Total Possible Score - &nbsp;&nbsp;&nbsp;{{Total Score}} </h3>
+        <h3>Your Score - &nbsp;&nbsp;&nbsp;{{Score}}</h3>
+        <h3>Your Score(percentage) - &nbsp;&nbsp;&nbsp;{{Score}}%</h3>
+    </div>
+    <hr>
+    <div class="signature">
+        <h3>Professor's signature</h3>
+        <br>
+        <br>
+        <br>
+    </div>
+    <hr>
+</body>
+</html>

@@ -20,7 +20,7 @@
 
     <div class="content">
         <h1>Hello, {{studName}}</h1><br>
-        <p>Welcome to VEC Communication English Quiz App</p>
+        <p>Welcome to VEC Communicative English Quiz App</p>
         <div class="prevResults">
             <h5>Your Previous Performance</h5>
             <h6>Test : XyAsD12345</h6>
@@ -31,13 +31,40 @@
             </p>
         </div>
     </div>
+
+      <div class="modal" tabindex="-1" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Instructions for writing the test!</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ol>
+                    <li>Finish the test at the specified time.</li>
+                    <li>Audio will play automatically.</li>
+                    <li>You can't write the test after the time is over.</li>
+                    <li>Make sure to click the submit button to submit the test.</li>
+                    <li>After completing the test, the report will be generated.</li>
+                </ol>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="confirmButton">Okay</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
 {% endblock %}
 
 {% block customJS %}
 <script>
     var writeTest = (input)=>{
         if(event.key == 'Enter'){
-            var testCode = input.value
+            var testCode = input.value;
+            document.querySelector('.modal').style.display = "block";
+            var confirmButton = document.querySelector("#confirmButton");
+            confirmButton.addEventListener('click',function(){
             $.ajax({
                 url : `/verify_test/${testCode}`,
                 type:'POST',
@@ -45,9 +72,9 @@
                 success: function(response) { 
                     window.location.href = response.url;
                 }
-            }
-            )
-        }
+            })
+            });
+        };
     }
 </script>
 

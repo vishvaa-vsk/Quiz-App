@@ -110,8 +110,19 @@ def verify_test(testCode):
 @main.route("/test/<testCode>",methods=['GET', 'POST'])
 def write_test(testCode):
     testDetails = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
-    correct_ans = list(mongo.db[testCode].find({},{'correct_ans':1}))
+    questions = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,}))
+    correct_answers = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,"correct_ans":1}))
+    totalQuestions = []
+    for i in questions:
+        totalQuestions.append(int(i['question_no']))
     if request.method == "POST":
-        answer = request.form['options']
-        print(answer)
+        for j in totalQuestions:
+            user_answer = request.form[f"option-{j}"]
+            print(f"{j}.{user_answer}")
+            for i in correct_answers:
+                if i['question_no'] == str(j):
+                    if i['correct_ans'] == user_answer:
+                        print("YES")
+                    else:
+                        print("NO")
     return render_template("showQuestions.html",testDetails=testDetails)

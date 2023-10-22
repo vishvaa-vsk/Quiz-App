@@ -1,17 +1,20 @@
-from flask import Blueprint,flash,render_template,url_for,session,redirect,request,jsonify
+from flask import Blueprint,make_response,flash,render_template,url_for,session,redirect,request,jsonify,send_file
 from werkzeug.security import generate_password_hash,check_password_hash
 from ..extensions import mongo,mail
 from ..helper import generate_token,verify_token
 from bson.objectid import ObjectId
 from ..helper import send_email
-
+import pdfkit
 
 main = Blueprint("main",__name__)
 
+
 def check_login():
-    if session["username"] is not None:
-        return True
-    return False
+    try:
+        if session["username"] is not None:
+            return True
+    except:
+        return False
 
 @main.route("/",methods=["GET","POST"])
 def login():
@@ -138,3 +141,13 @@ def write_test(testCode):
         return render_template("showQuestions.html",testDetails=testDetails)
     else:
         return redirect(url_for("main.login"))
+    
+@main.route("/report",methods=['GET', 'POST'])
+def generate_report():
+    if check_login():
+        name = session['username']
+        template = render_template("report.html")
+        pdfkit.from_string(template,"report.pdf")
+        return "<h1> Downloaded PDF </h1>"
+    else:
+        return redirect(url_for('main.login'))

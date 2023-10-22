@@ -24,7 +24,6 @@ def create_app(config_class=Config):
     mail.init_app(app)
     mongo.init_app(app)
 
-
     app.register_blueprint(main)
     app.register_blueprint(admin)
 

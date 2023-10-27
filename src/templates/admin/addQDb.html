@@ -10,12 +10,24 @@
         <br>
         <div>
             <p>Suggestion : <span class="badge text-bg-light" style="font-size: 25px;">{{testCode}}</span></p>
-        </div>
+        </div><br>
         {{ form.hidden_tag() }}
+        
         {{ form.test_code.label(class="form-label") }}
         {{ form.test_code(class="form-control mb-3",autocomplete="off") }}
+        
+        {{ form.time.label(class="form-label") }}
+        {{ form.time(class="form-control mb-3") }}
+
+        {{ form.lab_session.label(class="form-label") }}
+        {{ form.lab_session(class="form-control mb-3") }}
+        
+        {{ form.audio_no.label(class="form-label") }}
+        {{ form.audio_no(class="form-control mb-3") }}
+
         {{ form.audio_file.label(class="form-label") }}
         {{ form.audio_file(class="form-control mb-3",accept='audio/*') }}     
+        
         <div class="d-flex justify-content-center">
             {{form.submit(class="btn btn-success")}}
         </div>

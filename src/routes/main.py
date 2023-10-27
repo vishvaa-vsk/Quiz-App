@@ -1,10 +1,13 @@
+import os
 from flask import Blueprint,make_response,flash,render_template,url_for,session,redirect,request,jsonify,send_file
 from werkzeug.security import generate_password_hash,check_password_hash
 from ..extensions import mongo,mail
-from ..helper import generate_token,verify_token
+from ..helper import generate_token,verify_token,create_report
 from bson.objectid import ObjectId
 from ..helper import send_email
 import pdfkit
+from datetime import datetime,date
+from flask_mail import Message
 
 main = Blueprint("main",__name__)
 
@@ -15,6 +18,14 @@ def check_login():
             return True
     except:
         return False
+
+def send_report(userEmail,username,testCode,filename):
+    msg = Message(f"{username}'s {testCode} Report",sender='testvec26@gmail.com',recipients=[userEmail],)
+    msg.body = f"""Hi {username},
+    Your summary report for your {testCode} has been generated!"""
+    with main.open_resource(os.path.join(os.path.abspath("reports"),filename)) as file:
+        msg.attach(f"{filename}","application/pdf",file.read())
+    mail.send(msg)
 
 @main.route("/",methods=["GET","POST"])
 def login():
@@ -122,32 +133,68 @@ def verify_test(testCode):
 @main.route("/test/<testCode>",methods=['GET', 'POST'])
 def write_test(testCode):
     if check_login():
-        testDetails = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
+        
+        if mongo.db[f"{testCode}-result"].find_one({'name':session["username"]}):
+            return f"<h1> Hi {session['username']}, <br> You have already took this test! <br> Try checking your previous report..<br> Contact professors if you don't have an idea about this.."
+        else:
+            test_details = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
         questions = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,}))
+        testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
         correct_answers = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,"correct_ans":1}))
-        totalQuestions = []
+        total_questions = []
+        total_correct_answer = 0
         for i in questions:
-            totalQuestions.append(int(i['question_no']))
+            total_questions.append(int(i['question_no']))
         if request.method == "POST":
-            for j in totalQuestions:
-                user_answer = request.form[f"option-{j}"]
-                print(f"{j}.{user_answer}")
-                for i in correct_answers:
-                    if i['question_no'] == str(j):
-                        if i['correct_ans'] == user_answer:
-                            print("YES")
-                        else:
-                            print("NO")
-        return render_template("showQuestions.html",testDetails=testDetails)
+            try:
+                for j in total_questions:
+                    user_answer = request.form[f"option-{j}"]
+                    for i in correct_answers:
+                        if i['question_no'] == str(j):
+                            if i['correct_ans'] == user_answer:
+                                total_correct_answer+=1
+                percentage = (total_correct_answer/len(total_questions))*100
+                user_class = mongo.db.users.find_one({"username":session['username']})['class']
+                add_user_result = {"name":session["username"],
+                                "class":"",
+                               "test_code":testCode,"score":(total_correct_answer/len(total_questions))*100,"percentage":percentage,
+                               "status":"Pass" if percentage >= 50 else "Fail"}
+            except:
+                add_user_result = {"name":session["username"],
+                               "test_code":testCode,"score":0,"percentage":0,
+                               "status":"Pass" if percentage >= 50 else "Fail"}
+            try:
+                mongo.db[f"{testCode}-result"].insert_one(add_user_result)
+                return redirect(url_for('main.generate_report',testCode=testCode,name=session["username"]))
+            except Exception as e:
+                flash(e)
+                flash("Internal error occured!")
+        return render_template("showQuestions.html",testDetails=test_details,audio=testdetails['audio_name'],time=testdetails['test_time'])
     else:
         return redirect(url_for("main.login"))
     
-@main.route("/report",methods=['GET', 'POST'])
-def generate_report():
+
+@main.route("/report/<testCode>/<name>",methods=['GET', 'POST'])
+def generate_report(testCode,name):
     if check_login():
-        name = session['username']
-        template = render_template("report.html")
-        pdfkit.from_string(template,"report.pdf")
-        return "<h1> Downloaded PDF </h1>"
+        if mongo.db.users.find_one({"username":name}) and mongo.db[f"{testCode}-result"].find_one({'name':name}):
+            testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
+            user_details = mongo.db.users.find_one({"username":name})
+            user_test_report = mongo.db[f"{testCode}-result"].find_one({'name':name})
+            
+            email_template = create_report(
+            name=name,testCode=testCode,class_and_sec=user_details['class'],regno=user_details['regno'],status=user_test_report['status'],score=user_test_report['score'],percentage=user_test_report['percentage'],lab_session=testdetails["lab_session"],audio_no=testdetails["audio_no"]
+            ,file="report_base.html")
+            
+            template = create_report(
+            name=name,testCode=testCode,class_and_sec=user_details['class'],regno=user_details['regno'],status=user_test_report['status'],score=user_test_report['score'],percentage=user_test_report['percentage'],lab_session=testdetails["lab_session"],audio_no=testdetails["audio_no"]
+            ,file="report.html")
+            filename = f"{name}'s_{testCode}_report.pdf"
+            
+            pdfkit.from_string(email_template,os.path.join(os.path.abspath("reports"),filename))
+            if os.path.isfile(os.path.join(os.path.abspath("reports"),filename)):
+                send_report(username=name,userEmail=user_details["email"],testCode=testCode,filename=filename)
+                flash("The report has been delivered to your inbox!")
+        return template
     else:
         return redirect(url_for('main.login'))

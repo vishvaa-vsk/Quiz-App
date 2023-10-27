@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 import string , random
 
 from flask_wtf import FlaskForm
-from wtforms import StringField,SubmitField,FileField
+from wtforms import StringField,SubmitField,FileField,IntegerField
 from wtforms.validators import DataRequired,InputRequired,regexp
 from werkzeug.utils import secure_filename
 
@@ -18,12 +18,19 @@ gen_testCode = ''.join(random.sample(string.ascii_uppercase+string.digits,
     k=8))
 
 class AddAudioForm(FlaskForm):
-    test_code = StringField("Enter the test code",validators=[DataRequired()])
+    test_code = StringField("Test code",validators=[DataRequired(),InputRequired()])
+    time = IntegerField("Time (in minutes)",validators=[DataRequired(),InputRequired()],render_kw={"step":"10"})
+    lab_session = IntegerField("Lab Session",validators=[DataRequired(),InputRequired()])
+    audio_no = IntegerField("Audio number",validators=[DataRequired(),InputRequired()])
     audio_file = FileField("Audio File",validators=[InputRequired()])
     submit = SubmitField("Submit")
 
-
-
+def check_login():
+    try:
+        if session["adminUsername"] is not None:
+            return True
+    except:
+        return False
 
 @admin.route("/",methods=['GET', 'POST'])
 def login():
@@ -68,7 +75,10 @@ def signup():
 
 @admin.route("/dashboard",methods=['GET', 'POST'])
 def dashboard():
-    return "<h1>Admin Dashboard!</h1>"
+    if check_login():
+        return "<h1>Admin Dashboard!</h1>"
+    else:
+        return redirect(url_for("admin.login"))
 
 
 @admin.route('/reset_request',methods=['GET', 'POST'])
@@ -116,42 +126,69 @@ def reset_password(userId):
 
 @admin.route("/get_testCode",methods=['GET', 'POST'])
 def get_test_code():
-    testCode = gen_testCode
-    form = AddAudioForm()
-    if request.method == "POST":
-        if form.validate_on_submit():
-            test_code = str(form.test_code.data)
-            file = request.files['audio_file']
-            filename = secure_filename(file.filename)
-            file.save(os.path.join('src/static/audios',filename))
-        return redirect(url_for('admin.add_questions',testCode = test_code))
-    return render_template("admin/addQDb.html",testCode = testCode ,form=form)
-
+    if check_login():
+        testCode = gen_testCode
+        form = AddAudioForm()
+        if request.method == "POST":
+            if form.validate_on_submit():
+                test_code = str(form.test_code.data)
+                test_time = str(form.time.data)
+                lab_session = str(form.lab_session.data)
+                audio_no = str(form.audio_no.data)
+                file = request.files['audio_file']
+                filename = secure_filename(file.filename)
+                file.save(os.path.join('src/static/audios',filename))
+                try:
+                    mongo.db.testDetails.insert_one({
+                    "test_code":test_code,
+                    "audio_name":filename,
+                    "test_time": test_time,
+                    "lab_session":lab_session,
+                    "audio_no":audio_no 
+                })
+                except Exception as e:
+                    flash(e)
+            return redirect(url_for('admin.add_questions',testCode = test_code))
+        return render_template("admin/addQDb.html",testCode = testCode ,form=form)
+    else:
+        return redirect(url_for("admin.login"))
 @admin.route("/add_questions/<testCode>",methods=['GET', 'POST'])
 def add_questions(testCode):
-    if request.method == "POST":
-        question_no,question,choice1,choice2,choice3,choice4,correct_answer, =request.form['question_no'],request.form['question'],request.form['choice1'],request.form['choice2'],request.form['choice3'],request.form['choice4'],request.form.get('choice_select')
-        try:
-            final_answer = ""
-            match correct_answer:
-                case '1':
-                    final_answer = choice1
-                case '2':
-                    final_answer = choice2
-                case '3':
-                    final_answer = choice3
-                case '4':
-                    final_answer = choice4
-            mongo.db[testCode].insert_one({
-                "question_no":question_no,
-                "question":question,
-                "choice1":choice1,
-                "choice2":choice2,
-                "choice3":choice3,
-                "choice4":choice4,
-                "correct_ans":final_answer
-            })
-        except:
-            flash("Internal Error!")
-        
-    return render_template("admin/addQuiz.html",testCode = testCode)
+    if check_login():
+        if request.method == "POST":
+            question_no,question,choice1,choice2,choice3,choice4,correct_answer, =request.form['question_no'],request.form['question'],request.form['choice1'],request.form['choice2'],request.form['choice3'],request.form['choice4'],request.form.get('choice_select')
+            try:
+                final_answer = ""
+                match correct_answer:
+                    case '1':
+                        final_answer = choice1
+                    case '2':
+                        final_answer = choice2
+                    case '3':
+                        final_answer = choice3
+                    case '4':
+                        final_answer = choice4
+                mongo.db[testCode].insert_one({
+                    "question_no":question_no,
+                    "question":question,
+                    "choice1":choice1,
+                    "choice2":choice2,
+                    "choice3":choice3,
+                    "choice4":choice4,
+                    "correct_ans":final_answer
+                })
+            except:
+                flash("Internal Error!")
+            
+        return render_template("admin/addQuiz.html",testCode = testCode)
+    else:
+        return redirect(url_for("admin.login"))
+    
+@admin.route("/get_sections/<dept>",methods=['GET', 'POST'])
+def get_sections(dept):
+    sections = []
+
+
+@admin.route("/show_reports",methods=['GET', 'POST'])
+def show_report():
+    pass

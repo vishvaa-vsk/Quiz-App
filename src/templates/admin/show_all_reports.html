@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test report</title>
+</head>
+<body>
+    <div>
+        <form action="#" method="POST" id="reportForm">
+            <label for="test-code">Test Code</label><br>
+            <input id="test-code" name="test_code" type="text" autocomplete="off">
+            <br><br>
+            <select name="dept" id="dept">
+                <option selected disabled>Select Department</option>
+                <option value="CSE">CSE</option>
+                <option value="IT">IT</option>
+                <option value="AI-DS">AI-DS</option>
+                <option value="AE">AUTOMOBILE</option>
+                <option value="CE">CIVIL</option>
+                <option value="MECH">MECH</option>
+                <option value="EEE">EEE</option>
+                <option value="ECE">ECE</option>
+                <option value="EIE">EIE</option>
+                <option value="CSE-CS">CYBER-SECURITY</option>
+            </select>
+            <select name="class-{{dept}}" id="class">
+                <option selected disabled>Select Class</option>
+            </select>
+            <button type="submit">Sumbit</button>
+        </form>
+    </div>
+
+<script>
+        let deptSelect = document.getElementById('dept');
+        let classSelect = document.getElementById("class");
+
+        deptSelect.onchange = function(){
+            dept = deptSelect.value;
+            let optionHTML = '';
+            let sections = ["A","B","C","D"]
+            for(let section of sections){
+                optionHTML += `<option value="I-${dept}-${section}">${dept}-${section}</option>`;
+            }
+            classSelect.innerHTML = optionHTML;
+        }
+
+</script>
+</body>
+</html>

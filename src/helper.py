@@ -1,5 +1,5 @@
 import jwt
-import datetime
+from datetime import datetime,date
 import os
 from os import path
 from dotenv import load_dotenv
@@ -27,7 +27,15 @@ def verify_token(token,userId):
         return True
     if jwt.ExpiredSignatureError:
         return False
-    
+
+def create_report(name,class_and_sec,testCode,regno,status,score,percentage,lab_session,audio_no,file):
+    today = date.today()
+    now = datetime.now()
+    todays_date = today.strftime("%d %B %Y")
+    todays_time = now.strftime("%H:%M %p")
+    template = render_template(f"{file}",name=name,Class=class_and_sec,TestCode=testCode,regno=regno,status=status,score=score,percentage=percentage,time=todays_time,Date=todays_date,lab_session=lab_session,audio_no=audio_no)
+    return template
+
 def send_email(token,userEmail,username):
     msg = Message('Password Reset Request For VEC Quiz App',sender='testvec26@gmail.com',recipients=[userEmail],)
     msg.body = f"""Hello {username},

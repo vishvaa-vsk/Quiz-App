@@ -49,6 +49,3 @@ window.onload = function () {
     startTimer(fiveMinutes, display);
     progressBar(fiveMinutes);
 };
-
-
-var myAudio = document.getElementById("myAudio");

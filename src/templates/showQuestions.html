@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Test {{testCode}}{% endblock %}
+{% block title %}{{testCode}} Test{% endblock %}
 
 {% block bodyContent %}
 
+
 <div>
-  <audio controls id="myAudio" preload="auto">
-    <source src="../static/audios/Kannodu_Kanbathellam_Remixaudiosong.in.mp3"> 
+  <iframe src="../static/audios/silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
+  <audio controls id="player" autoplay>
+    <source src="../static/audios/{{audio}}"> 
   </audio>
 </div>
 
@@ -59,7 +61,66 @@
 </div>
 
 {% block customJS %}
-<script src="../static/quiz.js"></script>
+<!-- <script src="../static/quiz.js"></script> -->
+<script>
+  function startTimer(duration, display) {
+    var timer = duration, minutes, seconds;
+    var counter = setInterval(function () {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = minutes + ":" + seconds;
+
+        if (--timer < 0) {
+            timer = duration;
+            function enable_disable(){
+                // not("#sumbitButton")
+                $("#Quiz :input").prop("disabled",true);
+            };
+            enable_disable();
+            clearInterval(counter);
+            alert("Time Up!")
+        }
+
+        if(minutes < 1){
+            display.style.color = 'red'
+        }
+    }, 1000);
+}
+
+
+function progressBar(minutes){
+    value = minutes;
+    var progress = setInterval(function(){
+        value--;
+        document.querySelector(".progress-bar").style.width= `${value}%`;
+        if(document.querySelector(".progress-bar").style.width == "10%"){
+            document.querySelector(".progress-bar").classList.remove("bg-success");
+            document.querySelector(".progress-bar").classList.add("bg-danger");
+        }
+    },1000);
+    if (value <= 0){
+        clearInterval(progress);
+    }
+}
+
+window.onload = function () {
+  var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+  if (!isChrome){
+      $('#iframeAudio').remove()
+  }
+  else {
+      $('#playAudio').remove() // just to make sure that it will not have 2x audio in the background 
+  }
+    var fiveMinutes = 60 * parseFloat("{{time}}");
+    display = document.getElementById('counter');
+    startTimer(fiveMinutes, display);
+    progressBar(fiveMinutes);
+};
+</script>
 {% endblock %}
 
 {% endblock %}

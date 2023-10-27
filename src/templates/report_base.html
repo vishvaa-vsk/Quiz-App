@@ -43,13 +43,6 @@
 
 </head>
 <body>
-    {% for message in get_flashed_messages() %}
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            {{message}}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    {% endfor %}
-
     <div class="Heading">
         <div class="date-time">
             <h4>{{Date}}</h4>
@@ -70,18 +63,19 @@
     <div class="report">
         <h3>Test Status- &nbsp;&nbsp;<b>{{status}}</b></h3>
         <h3>Total Possible Score-&nbsp;&nbsp;<b>100</b></h3>
+        <h3>Passing Score-&nbsp;&nbsp;<b>50%</b></h3>
         <h3>Your Score-&nbsp;&nbsp;<b>{{score}}</b></h3>
         <h3>Your Score(percentage)-&nbsp;&nbsp;<b>{{percentage}}%</b></h3>
     </div>
     <hr>
     <div class="signature">
         <br>
-        <h3>Professor's signature</h3>
+        <h3>Faculty-in-charge's signature</h3>
         <br>
         <br>
         <br>
     </div>
     <hr>
-    <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+    
 </body>
 </html>

@@ -3,10 +3,7 @@ from datetime import datetime,date
 import os
 from os import path
 from dotenv import load_dotenv
-from flask_mail import Message
-from .extensions import mail
-from flask import url_for,render_template
-
+from flask import render_template
 
 token_secret_key = os.environ.get("TOKEN_SECRET_KEY")
 
@@ -36,35 +33,11 @@ def create_report(name,class_and_sec,testCode,regno,status,score,percentage,lab_
     template = render_template(f"{file}",name=name,Class=class_and_sec,TestCode=testCode,regno=regno,status=status,score=score,percentage=percentage,time=todays_time,Date=todays_date,lab_session=lab_session,audio_no=audio_no)
     return template
 
-def send_email(token,userEmail,username):
-    msg = Message('Password Reset Request For VEC Quiz App',sender='testvec26@gmail.com',recipients=[userEmail],)
-    msg.body = f"""Hello {username},
-      
-A request has been received to change the password for your VEC Quiz app account.
 
-Click this link to reset your password: {url_for('main.reset_password_verify',token=token,_external=True)}
-      
-If you did not initiate this request, please contact us immediately in communicative english lab!
-      
-Thank you,
-The Communicative English Team
-"""
-    msg.html = render_template('reset_email_base.html',username=username,reset_token=token)
-    mail.send(msg)
-
-def send_email_admin(token,userEmail,username):
-    msg = Message('Password Reset Request For VEC Quiz App',sender='testvec26@gmail.com',recipients=[userEmail],)
-    msg.body = f"""Hello {username},
-      
-A request has been received to change the password for your VEC Quiz app account.
-
-Click this link to reset your password: {url_for('admin.reset_admin_password_verify',token=token,_external=True)}
-      
-If you did not initiate this request, please contact us immediately in communicative english lab!
-      
-Thank you,
-The Communicative English Team
-"""
-    msg.html = render_template('admin/reset_email_base.html',username=username,reset_token=token)
-    mail.send(msg)
-
+def create_csv(filename,report_details):
+    import csv
+    fields = ['name','score','percentage','status']
+    with open(os.path.join(os.path.abspath("admin_reports"),filename),"w+") as csvfile:
+        writer = csv.DictWriter(csvfile,fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(report_details)

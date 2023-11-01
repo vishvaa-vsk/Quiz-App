@@ -1,5 +1,6 @@
 *.env
-*env/
-*__pycache__/
-*src/static/audios/*
+env/
+__pycache__/
+src/static/audios/*
 *.pdf
+admin_reports/

@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
+    
+    .report-table{
+        /* display: flex;
+        justify-content: center;
+        align-items: center; */
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -150%);
+    }
+
+    .heading{
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -320%);
+    }
+
+    .styled-table {
+        overflow: auto;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 0.9em;
+        font-family: "Lato",sans-serif;
+        font-size: 15px;
+        padding: 15px;
+        line-height: 1.4;
+        min-width: 600px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);}
+    
+    .styled-table thead tr {
+    background-color: #6C7AE0;
+    color: #ffffff;
+    text-align: left;
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px;
+    }
+        .styled-table th,
+    .styled-table td {
+        padding: 12px 15px;
+    }
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #F8F6FF;
+    }
+
+    .styled-table tbody tr:last-of-type {
+        border-bottom: 2px solid #6C7AE0;
+    }
+
+
+    h1{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }

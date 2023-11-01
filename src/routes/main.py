@@ -1,16 +1,14 @@
 import os
-from flask import Blueprint,make_response,flash,render_template,url_for,session,redirect,request,jsonify,send_file
+from flask import Blueprint,flash,render_template,url_for,session,redirect,request,jsonify,send_file
 from werkzeug.security import generate_password_hash,check_password_hash
-from ..extensions import mongo,mail
+from ..extensions import mongo
 from ..helper import generate_token,verify_token,create_report
 from bson.objectid import ObjectId
-from ..helper import send_email
+from ..send_email import send_reset_email
 import pdfkit
-from datetime import datetime,date
-from flask_mail import Message
+from ..send_email import send_report
 
 main = Blueprint("main",__name__)
-
 
 def check_login():
     try:
@@ -18,14 +16,6 @@ def check_login():
             return True
     except:
         return False
-
-def send_report(userEmail,username,testCode,filename):
-    msg = Message(f"{username}'s {testCode} Report",sender='testvec26@gmail.com',recipients=[userEmail],)
-    msg.body = f"""Hi {username},
-    Your summary report for your {testCode} has been generated!"""
-    with main.open_resource(os.path.join(os.path.abspath("reports"),filename)) as file:
-        msg.attach(f"{filename}","application/pdf",file.read())
-    mail.send(msg)
 
 @main.route("/",methods=["GET","POST"])
 def login():
@@ -55,7 +45,7 @@ def signup():
                 try:
                     addUser = {"username":username,"class":Class,"regno":regno,"email":email,"passwd":hashed_value}
                     mongo.db.users.insert_one(addUser)
-                    flash("Register Successfull")
+                    flash("Register Successful!")
                     return redirect(url_for("main.login"))
                 except Exception as e:
                     flash(e)
@@ -82,7 +72,7 @@ def reset_request():
         forgot_users = mongo.db.forgot_users
         if user:
             token = generate_token(userId=str(user['_id']))
-            send_email(userEmail=email,token=token,username=user['username'])
+            send_reset_email(userEmail=email,token=token,username=user['username'])
             flash("A link has been send to your email for password reset! click that to reset your password")
             if not forgot_users.find_one({"token":token}):
                 mongo.db.forgot_users.insert_one({"token":token,"userId":user['_id']})
@@ -129,6 +119,10 @@ def verify_test(testCode):
             return jsonify({'url':f'/test/{testCode}'})
     return "Redirecting to test!"
 
+@main.route("/logout",methods=['GET', 'POST'])
+def logout():
+    session.pop('username')
+    return redirect(url_for("main.login"))
 
 @main.route("/test/<testCode>",methods=['GET', 'POST'])
 def write_test(testCode):
@@ -156,7 +150,7 @@ def write_test(testCode):
                 percentage = (total_correct_answer/len(total_questions))*100
                 user_class = mongo.db.users.find_one({"username":session['username']})['class']
                 add_user_result = {"name":session["username"],
-                                "class":"",
+                                "class":user_class,
                                "test_code":testCode,"score":(total_correct_answer/len(total_questions))*100,"percentage":percentage,
                                "status":"Pass" if percentage >= 50 else "Fail"}
             except:
@@ -170,6 +164,41 @@ def write_test(testCode):
                 flash(e)
                 flash("Internal error occured!")
         return render_template("showQuestions.html",testDetails=test_details,audio=testdetails['audio_name'],time=testdetails['test_time'])
+    else:
+        return redirect(url_for("main.login"))
+    
+
+@main.route("/download/<testCode>/<name>",methods=['GET', 'POST'])
+def download(testCode,name):
+    path = os.path.join(os.path.abspath("reports"),f"{name}'s_{testCode}_report.pdf")
+    return send_file(path,as_attachment=True)
+
+
+@main.route("/previous_result",methods=['GET', 'POST'])
+def get_previous_result():
+    if check_login():
+        import pymongo
+        name = session["username"]
+        if request.method == "POST":
+            last_test = list(mongo.db.testDetails.find({},{"_id":0},sort=[('_id',pymongo.ASCENDING)]))
+            test_code = last_test[0]['test_code']
+            latest_result = mongo.db[f"{test_code}-result"].find_one    ({"name":name},{"_id":0})
+            return latest_result
+    else:
+        return redirect(url_for("main.login"))
+    
+@main.route("/download_prev_result",methods=['GET', 'POST'])
+def download_prev_result():
+    if check_login():
+        name = session["username"]
+        if request.method == "POST":
+            testCode = request.form["testCode"]
+            if mongo.db[f"{testCode}-result"].find_one({"name":name}):
+                try:
+                    return download(testCode=testCode,name=name)
+                except:
+                    return "FILE NOT FOUND!"
+        return render_template("previous_result.html",name=name)
     else:
         return redirect(url_for("main.login"))
     

@@ -1,0 +1,19 @@
+body{
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-brand{
+    font-size: 30px;
+    padding: 16px 14px;
+}
+
+.nav-link{
+    padding: 16px 14px;
+    font-size: 20px;
+    border-radius: 25px;
+    margin: 6px;
+    text-align: center;
+}

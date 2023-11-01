@@ -18,8 +18,6 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     MONGO_URI = os.environ.get('MONGO_URI')
     UPLOAD_FOLDER ='static/img'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
     MAIL_USE_SSL = True

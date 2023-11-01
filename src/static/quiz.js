@@ -43,7 +43,14 @@ function progressBar(minutes){
 }
 
 window.onload = function () {
-    setInterval(function(){document.getElementById("staticBackdrop").style.display = "block";},2000)
+    var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+  if (!isChrome){
+      $('#iframeAudio').remove()
+  }
+  else {
+      $('#playAudio').remove() // just to make sure that it will not have 2x audio in the background 
+  }
+    
     var fiveMinutes = 60 * 0.5,
     display = document.getElementById('counter');
     startTimer(fiveMinutes, display);

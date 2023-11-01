@@ -1,0 +1,24 @@
+.options{
+    margin: 10px;
+    font-size: large;
+}
+
+.options label{
+    margin-left: 10px;
+}
+
+.form-label{
+    font-size: larger;
+    font-weight: bold;
+}
+
+.questions{
+    margin:12px
+}
+
+.Counter{
+    font-size:x-large;
+    text-align: center;
+    float: right;
+    width: 150px;
+}

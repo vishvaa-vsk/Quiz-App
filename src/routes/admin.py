@@ -1,9 +1,11 @@
 import os
-from flask import Blueprint,flash,render_template,url_for,session,redirect,request,jsonify
+import bson
+from flask import Blueprint,flash,render_template, send_file,url_for,session,redirect,request,jsonify
 from werkzeug.security import generate_password_hash,check_password_hash
 
 from ..extensions import mongo
-from ..helper import generate_token,verify_token,send_email_admin
+from ..helper import generate_token,verify_token,create_csv
+from ..send_email import send_email_admin
 from bson.objectid import ObjectId
 import string , random
 
@@ -76,7 +78,7 @@ def signup():
 @admin.route("/dashboard",methods=['GET', 'POST'])
 def dashboard():
     if check_login():
-        return "<h1>Admin Dashboard!</h1>"
+        return render_template("admin/dashboard.html",name=session['adminUsername'])
     else:
         return redirect(url_for("admin.login"))
 
@@ -144,7 +146,7 @@ def get_test_code():
                     "audio_name":filename,
                     "test_time": test_time,
                     "lab_session":lab_session,
-                    "audio_no":audio_no 
+                    "audio_no":audio_no, 
                 })
                 except Exception as e:
                     flash(e)
@@ -152,6 +154,14 @@ def get_test_code():
         return render_template("admin/addQDb.html",testCode = testCode ,form=form)
     else:
         return redirect(url_for("admin.login"))
+    
+
+@admin.route("/download/<testCode>/<Class>")
+def download(testCode,Class):
+    path = os.path.join(os.path.abspath("admin_reports"),f"{Class}_{testCode}_(test-report).csv")
+    return send_file(path,as_attachment=True)
+
+
 @admin.route("/add_questions/<testCode>",methods=['GET', 'POST'])
 def add_questions(testCode):
     if check_login():
@@ -180,15 +190,22 @@ def add_questions(testCode):
             except:
                 flash("Internal Error!")
             
-        return render_template("admin/addQuiz.html",testCode = testCode)
+        return render_template("admin/addQuiz.html",testCode=testCode)
     else:
         return redirect(url_for("admin.login"))
     
-@admin.route("/get_sections/<dept>",methods=['GET', 'POST'])
-def get_sections(dept):
-    sections = []
-
 
 @admin.route("/show_reports",methods=['GET', 'POST'])
+# BSTPEZJ5
 def show_report():
-    pass
+    if check_login():
+        if request.method == "POST":
+            test_code = request.form['test_code']
+            Class = request.form.get('class')
+            fetched_result = list(mongo.db[f"{test_code}-result"].find({"class":Class},{"_id":0,"class":0,"test_code":0}))
+            filename = f"{Class}_{test_code}_(test-report).csv"
+            create_csv(filename=filename,report_details=fetched_result)
+            return render_template("admin/show_all_reports.html",result=fetched_result,testCode=test_code,Class=Class) 
+        return render_template("admin/show_all_reports.html")
+    else:
+        return redirect(url_for("admin.login"))

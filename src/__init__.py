@@ -5,7 +5,7 @@ from datetime import timedelta
 from .routes.main import main
 from .routes.admin import admin
 
-def create_app(config_class=Config):
+def create_app():
     """
     The function creates and configures a Flask application with a specified configuration class,
     initializes the database, registers blueprints for different parts of the application, and creates
@@ -18,7 +18,7 @@ def create_app(config_class=Config):
     :return: an instance of the Flask application.
     """
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    app.config.from_object(obj=Config)
     app.permanent_session_lifetime = timedelta(minutes=60)
  
     mail.init_app(app)

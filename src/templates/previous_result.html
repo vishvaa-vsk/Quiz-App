@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previous Results</title>
+</head>
+<body>
+    <form action="" method="POST" id="resultForm">
+        <label for="testCode">Test Code:</label>
+        <input type="text" name="testCode" autocomplete="off" required>
+        <p>Welcome, {{name}} <br>
+            {% if found %}
+                "Found one record!"
+            {% endif %}
+            </p>
+         
+        <button type="submit" class="btn btn-success">Submit</button>
+
+    </form>
+</body>
+</html>

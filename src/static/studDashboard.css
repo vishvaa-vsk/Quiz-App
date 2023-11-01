@@ -5,7 +5,9 @@
     z-index: 1; 
     top: 0; 
     left: 0;
-    background-color: #8ECDDD; 
+    /* background-color: #8ECDDD;  */
+    /* background-color: #42bb82; */
+    background-color: #176B87;
     overflow-x: hidden; 
   
 }
@@ -13,29 +15,41 @@ body{
     background-color: #F4F7FD;
     font-family:'Montserrat', sans-serif;
 }
-.sidebar a {
+.sidebar a:not(.btn) {
     display: block;
     color: black;
     background-color: whitesmoke;
-    border-radius: 40px 0px 0px 40px;
+    border-radius: 30px 0px 0px 30px;
     padding: 20px;
-    margin: 20px;
+    /* margin: 20px; */
+    margin: 20px 5px 20px 15px;
     text-decoration: none;
+    font-weight: 600;
     text-align: center;
 }
 
 .sidebar a.active {
-    background-color: #22668D;
-    border-radius: 40px 0px 0px 40px;
+    /* background-color: #22668D; */
+    background-color: #64CCC5;
+    /* border-radius: 40px 0px 0px 40px; */
     color: white;
-    
+    font-weight: 600;
+
 }
 
 .sidebar a:hover:not(.active) {
-    background-color: #22668D;
+    /* background-color: #22668D; */
+    background-color: #64CCC5;
     color: white;
+    font-weight: 600;
     transition: width 2s;
 }
+
+
+.btn{
+    margin: 20px 5px 20px 15px;
+}
+
 
 .studName{
     color: white;
@@ -45,6 +59,7 @@ body{
     line-height: normal;
     float: auto;
     margin: 10px;
+    font-weight: bolder;
 }
 
 
@@ -93,45 +108,3 @@ div.content {
     background-color:#EF786B;
     border-radius: 10px;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@media screen and (max-width: 700px) {
-    .sidebar {
-      width: 100%;
-      height: auto;
-      position: relative;
-    }
-    .sidebar a {float: left;}
-    div.content {margin-left: 0;}
-  }
-  
-  /* On screens that are less than 400px, display the bar vertically, instead of horizontally */
-  @media screen and (max-width: 400px) {
-    .sidebar a {
-      text-align: center;
-      float: none;
-    }
-  }

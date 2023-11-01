@@ -14,25 +14,26 @@
         </div>
         <input type="text" name="testCode" id="testCode" placeholder="TEST CODE" onkeydown="writeTest(this)">
         <a href="" class="active">Dash Board</a>
-        <a href="">Previous Test Results</a>
-        <a href="">Take up a new test !</a>
+        <a href="">Download Previous Test Results</a>
+        <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Logout</a>
      </div>
 
     <div class="content">
         <h1>Hello, {{studName}}</h1><br>
-        <p>Welcome to VEC Communicative English Quiz App</p>
-        <div class="prevResults">
-            <h5>Your Previous Performance</h5>
-            <h6>Test : XyAsD12345</h6>
-            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maiores laboriosam accusamus, in magnam dolores aspernatur ea quaerat distinctio obcaecati hic rem, iste cupiditate corrupti ratione. Ullam porro dolores praesentium aperiam.
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, blanditiis deleniti autem sed maiores soluta laboriosam. Quasi voluptas, dolorem id similique perspiciatis, ipsum temporibus eos tempore autem, asperiores incidunt provident?
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Veritatis distinctio rerum nisi, laboriosam rem possimus assumenda. Fugiat sint nulla, repellendus quisquam asperiores pariatur ducimus nemo delectus ipsa. Inventore, assumenda vero.
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla impedit quasi ducimus quia doloremque! Laboriosam debitis esse deleniti vel minus id sed earum, deserunt, a, fugiat labore cum beatae nostrum.
-            </p>
+        <h1>Welcome to VEC Communicative English Lab</h1><br>
+        <div class="prevResults" id="prevResults">
+            <h5>Your Previous Test Performance</h5>
+            <br>
+            <h6 id="testcode"></h6>
+            <br>
+            <p id="name"></p>
+            <p id="score"></p>
+            <p id="percentage"></p>
+            <p id="status"></p>
         </div>
     </div>
 
-      <div class="modal" tabindex="-1" style="display: none;">
+      <div class="modal" tabindex="-1" style="display: none;" id="my-modal">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
@@ -49,11 +50,13 @@
                 </ol>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="confirmButton">Okay</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="confirmButton">Understood</button>
             </div>
           </div>
         </div>
       </div>
+
+      
 
 {% endblock %}
 
@@ -76,6 +79,22 @@
             });
         };
     }
+
+
+    window.onload = ()=>{
+        const prevResultUrl = "{{ url_for('main.get_previous_result') }}";
+        fetch(prevResultUrl,{
+            "method":'POST',
+        }).then(
+            response => response.json()).then(json =>{
+                document.getElementById("testcode").innerHTML = `Test Code: ${json['test_code']}`;
+                document.getElementById("name").innerHTML = `Name: ${json['name']}`;
+                document.getElementById("score").innerHTML = `Score: ${json['score']}`;
+                document.getElementById("percentage").innerHTML = `Percentage: ${json['percentage']}%`;
+                document.getElementById("status").innerHTML = `Status: ${json['status']}`;
+            })
+    }
+
 </script>
 
 {% endblock %}

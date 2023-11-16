@@ -3,4 +3,4 @@ env/
 __pycache__/
 src/static/audios/*
 *.pdf
-admin_reports/
+admin_reports/*

@@ -193,19 +193,25 @@ def add_questions(testCode):
         return render_template("admin/addQuiz.html",testCode=testCode)
     else:
         return redirect(url_for("admin.login"))
-    
+
+@admin.route("/logout",methods=['GET', 'POST'])
+def logout():
+    session.pop('adminUsername')
+    return redirect(url_for("admin.login")) 
 
 @admin.route("/show_reports",methods=['GET', 'POST'])
-# BSTPEZJ5
 def show_report():
     if check_login():
         if request.method == "POST":
             test_code = request.form['test_code']
             Class = request.form.get('class')
             fetched_result = list(mongo.db[f"{test_code}-result"].find({"class":Class},{"_id":0,"class":0,"test_code":0}))
-            filename = f"{Class}_{test_code}_(test-report).csv"
-            create_csv(filename=filename,report_details=fetched_result)
-            return render_template("admin/show_all_reports.html",result=fetched_result,testCode=test_code,Class=Class) 
+            if fetched_result!=[]:
+                filename = f"{Class}_{test_code}_(test-report).csv"
+                create_csv(filename=filename,report_details=fetched_result)
+                return render_template("admin/show_all_reports.html",result=fetched_result,testCode=test_code,Class=Class)
+            else:
+                return render_template("admin/show_all_reports.html",result="",testCode=test_code,Class=Class)
         return render_template("admin/show_all_reports.html")
     else:
         return redirect(url_for("admin.login"))

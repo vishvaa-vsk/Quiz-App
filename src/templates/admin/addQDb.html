@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 {% block title %}Add Questions{% endblock %}
 {% block customCSS %}
-<link rel="stylesheet" href="/app/static/quiz.css">
+<link rel="stylesheet" href="{{ url_for('static',filename='quiz.css') }}">
 {% endblock %}
 {% block bodyContent %}
 
@@ -17,7 +17,7 @@
         {{ form.test_code(class="form-control mb-3",autocomplete="off") }}
         
         {{ form.time.label(class="form-label") }}
-        {{ form.time(class="form-control mb-3") }}
+        {{ form.time(class="form-control mb-3",step=5) }}
 
         {{ form.lab_session.label(class="form-label") }}
         {{ form.lab_session(class="form-control mb-3") }}

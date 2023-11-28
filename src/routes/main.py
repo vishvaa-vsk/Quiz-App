@@ -76,7 +76,6 @@ def reset_request():
             flash("A link has been send to your email for password reset! click that to reset your password")
             if not forgot_users.find_one({"token":token}):
                 mongo.db.forgot_users.insert_one({"token":token,"userId":user['_id']})
-            
     return render_template('resetEmail.html')
 
 @main.route("/verify_reset/<token>",methods=['GET', 'POST'])
@@ -182,8 +181,11 @@ def get_previous_result():
         if request.method == "POST":
             last_test = list(mongo.db.testDetails.find({},{"_id":0},sort=[('_id',pymongo.ASCENDING)]))
             test_code = last_test[0]['test_code']
-            latest_result = mongo.db[f"{test_code}-result"].find_one    ({"name":name},{"_id":0})
-            return latest_result
+            latest_result = mongo.db[f"{test_code}-result"].find_one({"name":name},{"_id":0})
+            if latest_result is not None:
+                return latest_result
+            return jsonify({"testcode":"None","name":"None","score":"None","percentage":"None","status":"None"})
+        return {"testcode":"None","name":"None","score":"None","percentage":"None","status":"None"}
     else:
         return redirect(url_for("main.login"))
     

@@ -2,19 +2,19 @@
 
 {% block title %}VEC Quiz App{% endblock %}
 {% block customCSS %}
-<link rel="stylesheet" href="../static/studDashboard.css">
+<link rel="stylesheet" href="{{ url_for('static',filename='studDashboard.css') }}">
 {% endblock %}
 {% block dashContent %}
 
 
     <div class="sidebar">
         <div class="studBanner">
-            <img src="../static/VEC-logo.png" alt="logo" class="clgLogo">
+            <img src="{{ url_for('static',filename='VEC-logo.png') }}" alt="logo" class="clgLogo">
             <h6 class="studName">{{studName}}</h6>
         </div>
         <input type="text" name="testCode" id="testCode" placeholder="TEST CODE" onkeydown="writeTest(this)">
-        <a href="" class="active">Dash Board</a>
-        <a href="">Download Previous Test Results</a>
+        <a href=""class="active">Dash Board</a>
+        <a href="{{ url_for('main.download_prev_result') }}">Download Previous Test Results</a>
         <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Logout</a>
      </div>
 
@@ -73,6 +73,7 @@
                 type:'POST',
                 data: {'testCode':testCode},
                 success: function(response) { 
+                    console.log(response);
                     window.location.href = response.url;
                 }
             })
@@ -80,8 +81,7 @@
         };
     }
 
-
-    window.onload = ()=>{
+window.onload = ()=>{
         const prevResultUrl = "{{ url_for('main.get_previous_result') }}";
         fetch(prevResultUrl,{
             "method":'POST',

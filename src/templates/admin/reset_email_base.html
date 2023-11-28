@@ -1,20 +1,10 @@
-class TokenEndpoint(object):
-    #: Endpoint name to be registered
-    ENDPOINT_NAME = None
-    #: Supported token types
-    SUPPORTED_TOKEN_TYPES = ('access_token', 'refresh_token')
-    #: Allowed client authenticate methods
-    CLIENT_AUTH_METHODS = ['client_secret_basic']
-
-    def __init__(self, server):
-        self.server = server
-
-    def __call__(self, request):
-        # make it callable for authorization server
-        # ``create_endpoint_response``
-        return self.create_endpoint_response(request)
-
-    def create_endpoint_request(self, request):
-        return self.server.create_oauth2_request(request)
-
-    def authenticate_endpoin
+<h1>Hello {{username}},</h1>
+    
+<p><strong style="font-size: medium;">A request has been received to change the password for your VEC Quiz app account.</strong></p>
+<br>
+<a href="{{ url_for('main.reset_password_verify',token=reset_token,_external=True) }}" style="text-align: center;text-decoration: none;background-color: #F5811F;padding: 15px;color: white;border-radius: 5px;"><strong>Reset Password</strong></a>
+    <br><br>
+<p>If you did not initiate this request, please contact us immediately at communicative english lab!
+</p><br>
+<p style="font-style: italic;color: rgb(245, 245, 245);">Thank you,<br>
+The Communicative English Team</p>

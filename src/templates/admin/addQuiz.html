@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 {% block title %}Add Questions{% endblock %}
 {% block customCSS %}
-<link rel="stylesheet" href="/app/static/quiz.css">
+<link rel="stylesheet" href="{{ url_for('static',filename='quiz.css') }}">
 {% endblock %}
     
 {% block bodyContent %}

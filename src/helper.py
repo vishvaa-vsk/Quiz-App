@@ -1,5 +1,5 @@
 import jwt
-from datetime import datetime,date
+from datetime import datetime,date,timezone,timedelta
 import os
 from os import path
 from dotenv import load_dotenv
@@ -13,13 +13,13 @@ load_dotenv(path.join(basedir,".env"))
 def generate_token(userId,expires=600):
     reset_token = jwt.encode(
         {"payload":f"{userId}",
-         "exp":datetime.datetime.now(tz=datetime.timezone.utc)+datetime.timedelta(seconds=expires)},
+         "exp":datetime.now(tz=timezone.utc)+timedelta(seconds=expires)},
          token_secret_key,
          algorithm="HS256")
     return reset_token
 
 def verify_token(token,userId):
-    data = jwt.decode(token,token_secret_key,leeway=datetime.timedelta(seconds=20),algorithms=["HS256"])
+    data = jwt.decode(token,token_secret_key,leeway=timedelta(seconds=20),algorithms=["HS256"])
     if data['payload'] == str(userId):
         return True
     if jwt.ExpiredSignatureError:

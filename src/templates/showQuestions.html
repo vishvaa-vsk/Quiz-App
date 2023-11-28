@@ -6,7 +6,7 @@
     <title>{{testCode}} Test</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="../static/quesitons.css">
+    <link rel="stylesheet" href="{{ url_for('static',filename='quesitons.css') }}">
 </head>
 <body>
     <div class="sticky-top sticky-sm-top Counter shadow p-1 bg-body-tertiary rounded">
@@ -16,11 +16,10 @@
         </div>
     </div>
     
-    <iframe src="../static/audios/silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
-    <audio controls id="player" autoplay style="width: 100%; margin-top: 15px;">
-        <source src="../static/audios/{{audio}}"> 
-    </audio>
-    
+    <p id="Counter">Remaining Plays: 2</p>
+    <button id="playButton">Play Audio</button>
+    <audio id="audioPlayer" src="../static/audios/{{audio}}"></audio>
+
     <div class="questions">
         <form action="" method="POST" id="Quiz">
         {% for i in testDetails %}
@@ -109,20 +108,39 @@ function progressBar(minutes){
     }
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+    var playButton = document.getElementById('playButton');
+    var audioPlayer = document.getElementById('audioPlayer');
+    var counterElement = document.getElementById('Counter');
+    var remainingPlays = 2;
+
+    playButton.addEventListener('click', function() {
+      if (remainingPlays > 0) {
+        audioPlayer.play();
+        remainingPlays--;
+        counterElement.textContent = 'Remaining Plays: ' + remainingPlays;
+
+        // Listen for the 'ended' event to know when the audio has finished playing
+        audioPlayer.addEventListener('ended', function() {
+          // Allow another play after the audio has fully completed
+          playButton.disabled = false;
+        });
+
+        // Disable the button to prevent interruption while the audio is playing
+        playButton.disabled = true;
+      } else {
+        alert('No more plays remaining!');
+        playButton.disabled = true;
+      }
+    });
+  });
+
 window.onload = function () {
-    var fiveMinutes = 60 * 10;
+    var fiveMinutes = 60 * parseFloat("{{time}}");
     display = document.getElementById('counter');
     Minutes = 10;
     startTimer(fiveMinutes, display);
     progressBar(Minutes);
-
-    var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-  if (!isChrome){
-      $('#audio').remove()
-  }
-  else {
-      $('#player').remove() // just to make sure that it will not have 2x audio in the background 
-  }
 };
 </script>
 

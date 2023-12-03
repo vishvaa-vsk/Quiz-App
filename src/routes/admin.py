@@ -4,7 +4,7 @@ from flask import Blueprint,flash,render_template, send_file,url_for,session,red
 from werkzeug.security import generate_password_hash,check_password_hash
 
 from ..extensions import mongo
-from ..helper import generate_token,verify_token,create_csv
+from ..helper import generate_token,verify_token,create_csv,extract_questions
 from ..send_email import send_email_admin
 from bson.objectid import ObjectId
 import string , random
@@ -25,6 +25,7 @@ class AddAudioForm(FlaskForm):
     lab_session = IntegerField("Lab Session",validators=[DataRequired(),InputRequired()])
     audio_no = IntegerField("Audio number",validators=[DataRequired(),InputRequired()])
     audio_file = FileField("Audio File",validators=[InputRequired()])
+    questions_file = FileField("Excel File",validators=[InputRequired()])
     submit = SubmitField("Submit")
 
 def check_login():
@@ -137,20 +138,30 @@ def get_test_code():
                 test_time = str(form.time.data)
                 lab_session = str(form.lab_session.data)
                 audio_no = str(form.audio_no.data)
-                file = request.files['audio_file']
-                filename = secure_filename(file.filename)
-                file.save(os.path.join('src/static/audios',filename))
+
+                audio_file = request.files['audio_file']
+                audio_filename = secure_filename(audio_file.filename)
+                audio_file.save(os.path.join(os.path.abspath('src/static/audios'),audio_filename))
+
+                questions_file = request.files['questions_file']
+                questions_filename = secure_filename(questions_file.filename)
+                questions_file.save(os.path.join(os.path.abspath('src/static/questions'),questions_filename))
                 try:
                     mongo.db.testDetails.insert_one({
                     "test_code":test_code,
-                    "audio_name":filename,
+                    "audio_name":audio_filename,
                     "test_time": test_time,
                     "lab_session":lab_session,
-                    "audio_no":audio_no, 
+                    "audio_no":audio_no,
+                    "questions_filename":questions_filename 
                 })
+                    questions = extract_questions(filepath=os.path.join(os.path.abspath('src/static/questions'),questions_filename))
+                    mongo.db[testCode].insert_many(questions)
+                    
                 except Exception as e:
                     flash(e)
-            return redirect(url_for('admin.add_questions',testCode = test_code))
+            #return redirect(url_for('admin.add_questions',testCode = test_code))
+            flash("Questions added!")
         return render_template("admin/addQDb.html",testCode = testCode ,form=form)
     else:
         return redirect(url_for("admin.login"))
@@ -162,37 +173,37 @@ def download(testCode,Class):
     return send_file(path,as_attachment=True)
 
 
-@admin.route("/add_questions/<testCode>",methods=['GET', 'POST'])
-def add_questions(testCode):
-    if check_login():
-        if request.method == "POST":
-            question_no,question,choice1,choice2,choice3,choice4,correct_answer, =request.form['question_no'],request.form['question'],request.form['choice1'],request.form['choice2'],request.form['choice3'],request.form['choice4'],request.form.get('choice_select')
-            try:
-                final_answer = ""
-                match correct_answer:
-                    case '1':
-                        final_answer = choice1
-                    case '2':
-                        final_answer = choice2
-                    case '3':
-                        final_answer = choice3
-                    case '4':
-                        final_answer = choice4
-                mongo.db[testCode].insert_one({
-                    "question_no":question_no,
-                    "question":question,
-                    "choice1":choice1,
-                    "choice2":choice2,
-                    "choice3":choice3,
-                    "choice4":choice4,
-                    "correct_ans":final_answer
-                })
-            except:
-                flash("Internal Error!")
+# @admin.route("/add_questions/<testCode>",methods=['GET', 'POST'])
+# def add_questions(testCode):
+#     if check_login():
+#         if request.method == "POST":
+#             question_no,question,choice1,choice2,choice3,choice4,correct_answer, =request.form['question_no'],request.form['question'],request.form['choice1'],request.form['choice2'],request.form['choice3'],request.form['choice4'],request.form.get('choice_select')
+#             try:
+#                 final_answer = ""
+#                 match correct_answer:
+#                     case '1':
+#                         final_answer = choice1
+#                     case '2':
+#                         final_answer = choice2
+#                     case '3':
+#                         final_answer = choice3
+#                     case '4':
+#                         final_answer = choice4
+#                 mongo.db[testCode].insert_one({
+#                     "question_no":question_no,
+#                     "question":question,
+#                     "choice1":choice1,
+#                     "choice2":choice2,
+#                     "choice3":choice3,
+#                     "choice4":choice4,
+#                     "correct_ans":final_answer
+#                 })
+#             except:
+#                 flash("Internal Error!")
             
-        return render_template("admin/addQuiz.html",testCode=testCode)
-    else:
-        return redirect(url_for("admin.login"))
+#         return render_template("admin/addQuiz.html",testCode=testCode)
+#     else:
+#         return redirect(url_for("admin.login"))
 
 @admin.route("/logout",methods=['GET', 'POST'])
 def logout():

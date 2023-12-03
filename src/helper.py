@@ -4,6 +4,8 @@ import os
 from os import path
 from dotenv import load_dotenv
 from flask import render_template
+import pandas as pd
+import json
 
 token_secret_key = os.environ.get("TOKEN_SECRET_KEY")
 
@@ -41,3 +43,16 @@ def create_csv(filename,report_details):
         writer = csv.DictWriter(csvfile,fieldnames=fields)
         writer.writeheader()
         writer.writerows(report_details)
+
+def extract_questions(filepath):
+    file_content = pd.read_excel(filepath,engine='openpyxl')
+    json_object = file_content.to_json(orient='records')
+    raw_dict = json.loads(json_object)
+    questions_list = []
+    for i in raw_dict:
+        list_keys = list(i.keys())
+        for j in list_keys:
+            if j.startswith("Unnamed"):
+                i.pop(j)
+        questions_list.append(i)
+    return questions_list

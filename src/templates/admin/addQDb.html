@@ -6,6 +6,19 @@
 {% block bodyContent %}
 
 <div class="container-lg">
+    {% for message in get_flashed_messages() %}
+    {% if message == "Questions added!" %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{message}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
     <form method="POST" enctype="multipart/form-data">
         <br>
         <div>
@@ -26,7 +39,10 @@
         {{ form.audio_no(class="form-control mb-3") }}
 
         {{ form.audio_file.label(class="form-label") }}
-        {{ form.audio_file(class="form-control mb-3",accept='audio/*') }}     
+        {{ form.audio_file(class="form-control mb-3",accept='audio/*') }}
+        
+        {{ form.questions_file.label(class="form-label") }}
+        {{ form.questions_file(class="form-control mb-3",accept='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') }}
         
         <div class="d-flex justify-content-center">
             {{form.submit(class="btn btn-success")}}

@@ -38,7 +38,7 @@ def login():
 @main.route("/studSignup",methods=["GET","POST"])
 def signup():
     if request.method == "POST":
-        username,Class,regno,passwd,repasswd,email = request.form["studName"],request.form['studClass'],request.form['studRegno'],request.form['studPass'],request.form['studRePass'],request.form['studEmail']
+        username,Class,regno,passwd,repasswd,email = str(request.form["studName"]).capitalize(),str(request.form['studClass']).upper(),str(request.form['studRegno']).upper(),request.form['studPass'],request.form['studRePass'],request.form['studEmail']
         if not mongo.db.users.find_one({"username":username}):
             if passwd == repasswd:
                 hashed_value = generate_password_hash(passwd,method='scrypt')
@@ -176,11 +176,10 @@ def download(testCode,name):
 @main.route("/previous_result",methods=['GET', 'POST'])
 def get_previous_result():
     if check_login():
-        import pymongo
         name = session["username"]
         if request.method == "POST":
-            last_test = list(mongo.db.testDetails.find({},{"_id":0},sort=[('_id',pymongo.ASCENDING)]))
-            test_code = last_test[0]['test_code']
+            last_test = list(mongo.db.testDetails.find({},{"_id":0}))
+            test_code = last_test[-1]['test_code']
             latest_result = mongo.db[f"{test_code}-result"].find_one({"name":name},{"_id":0})
             if latest_result is not None:
                 return latest_result

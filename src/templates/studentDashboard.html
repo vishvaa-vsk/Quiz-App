@@ -12,7 +12,10 @@
             <img src="{{ url_for('static',filename='VEC-logo.png') }}" alt="logo" class="clgLogo">
             <h6 class="studName">{{studName}}</h6>
         </div>
-        <input type="text" name="testCode" id="testCode" placeholder="TEST CODE" onkeydown="writeTest(this)">
+        <div class="d-flex">
+            <input type="text" name="testCode" id="testCode" placeholder="TEST CODE" onkeydown="writeTest(this)">
+            <button id="testButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Go</button>    
+        </div>
         <a href=""class="active">Dash Board</a>
         <a href="{{ url_for('main.download_prev_result') }}">Download Previous Test Results</a>
         <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Logout</a>
@@ -33,28 +36,28 @@
         </div>
     </div>
 
-      <div class="modal" tabindex="-1" style="display: none;" id="my-modal">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Instructions for writing the test!</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <ol>
-                    <li>Finish the test at the specified time.</li>
-                    <li>Audio will play automatically.</li>
-                    <li>You can't write the test after the time is over.</li>
-                    <li>Make sure to click the submit button to submit the test.</li>
-                    <li>After completing the test, the report will be generated.</li>
-                </ol>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="confirmButton">Understood</button>
-            </div>
-          </div>
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Instructions for writing the test</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <ol>
+                <li>Complete the test within the given time frame.</li>
+                <li>You can click the audio for listening only twice, and there won't be any options for pausing or rewinding the audio.</li>
+                <li>It won't be possible to answer the test once the alloted time ends.</li>
+                <li>Remember to click the submit button to turn in your test.</li>
+                <li>Once you've finished the test, a report will automatically be created and be sent to your email provided</li>
+            </ol>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" id="confirmButton" onclick="sendTestCode()">Understood</button>
         </div>
       </div>
+    </div>
+  </div>
 
       
 
@@ -62,6 +65,21 @@
 
 {% block customJS %}
 <script>
+    sendTestCode = () =>{
+        var testCode = document.querySelector("#testCode").value;
+        console.log(testCode)
+        $.ajax({
+            url : `/verify_test/${testCode}`,
+            type:'POST',
+            data: {'testCode':testCode},
+            success: function(response) { 
+                console.log(response);
+                window.location.href = response.url;
+            }
+        });
+    }
+
+
     var writeTest = (input)=>{
         if(event.key == 'Enter'){
             var testCode = input.value;

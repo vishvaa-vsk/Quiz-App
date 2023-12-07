@@ -226,3 +226,20 @@ def show_report():
         return render_template("admin/show_all_reports.html")
     else:
         return redirect(url_for("admin.login"))
+    
+@admin.route('/show_questions',methods=['GET', 'POST'])
+def show_questions():
+    if check_login():
+        test_codes = mongo.db.list_collection_names()
+        for i in test_codes:
+            if i.endswith("result"):
+                test_codes.remove(i)
+        test_codes.remove("testDetails")
+        test_codes.remove("forgot_users")
+        test_codes.remove("users")
+        test_codes.remove("admin")
+        print(test_codes)
+        audio_details = list(mongo.db.testDetails.find({"test_code":test_codes[0]},{"_id":0,"lab_session":0,"audio_no":0,"test_time":0}))
+        questions = list(mongo.db[test_codes[0]].find({},{"_id":0}))
+        print(audio_details)
+    return "Questions"

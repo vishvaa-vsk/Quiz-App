@@ -62,7 +62,7 @@ def dashboard():
         return render_template('studentDashboard.html',studName=studName)
     else:
         return redirect(url_for('main.login'))
-    
+
 
 @main.route("/reset_request",methods=['GET', 'POST'])
 def reset_request():
@@ -126,7 +126,7 @@ def logout():
 @main.route("/test/<testCode>",methods=['GET', 'POST'])
 def write_test(testCode):
     if check_login():
-        
+
         if mongo.db[f"{testCode}-result"].find_one({'name':session["username"]}):
             return f"<h1> Hi {session['username']}, <br> You have already took this test! <br> Try checking your previous report..<br> Contact professors if you don't have an idea about this.."
         else:
@@ -165,7 +165,7 @@ def write_test(testCode):
         return render_template("showQuestions.html",testDetails=test_details,audio=testdetails['audio_name'],time=testdetails['test_time'])
     else:
         return redirect(url_for("main.login"))
-    
+
 
 @main.route("/download/<testCode>/<name>",methods=['GET', 'POST'])
 def download(testCode,name):
@@ -176,11 +176,10 @@ def download(testCode,name):
 @main.route("/previous_result",methods=['GET', 'POST'])
 def get_previous_result():
     if check_login():
-        import pymongo
         name = session["username"]
         if request.method == "POST":
-            last_test = list(mongo.db.testDetails.find({},{"_id":0},sort=[('_id',pymongo.ASCENDING)]))
-            test_code = last_test[0]['test_code']
+            last_test = list(mongo.db.testDetails.find({},{"_id":0}))
+            test_code = last_test[-1]['test_code']
             latest_result = mongo.db[f"{test_code}-result"].find_one({"name":name},{"_id":0})
             if latest_result is not None:
                 return latest_result
@@ -188,7 +187,7 @@ def get_previous_result():
         return {"testcode":"None","name":"None","score":"None","percentage":"None","status":"None"}
     else:
         return redirect(url_for("main.login"))
-    
+
 @main.route("/download_prev_result",methods=['GET', 'POST'])
 def download_prev_result():
     if check_login():
@@ -203,7 +202,7 @@ def download_prev_result():
         return render_template("previous_result.html",name=name)
     else:
         return redirect(url_for("main.login"))
-    
+
 
 @main.route("/report/<testCode>/<name>",methods=['GET', 'POST'])
 def generate_report(testCode,name):
@@ -212,18 +211,18 @@ def generate_report(testCode,name):
             testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
             user_details = mongo.db.users.find_one({"username":name})
             user_test_report = mongo.db[f"{testCode}-result"].find_one({'name':name})
-            
+
             email_template = create_report(
             name=name,testCode=testCode,class_and_sec=user_details['class'],regno=user_details['regno'],status=user_test_report['status'],score=user_test_report['score'],percentage=user_test_report['percentage'],lab_session=testdetails["lab_session"],audio_no=testdetails["audio_no"]
             ,file="report_base.html")
-            
+
             template = create_report(
             name=name,testCode=testCode,class_and_sec=user_details['class'],regno=user_details['regno'],status=user_test_report['status'],score=user_test_report['score'],percentage=user_test_report['percentage'],lab_session=testdetails["lab_session"],audio_no=testdetails["audio_no"]
             ,file="report.html")
             filename = f"{name}'s_{testCode}_report.pdf"
-            
-            pdfkit.from_string(email_template,os.path.join(os.path.abspath("reports"),filename))
-            if os.path.isfile(os.path.join(os.path.abspath("reports"),filename)):
+
+            pdfkit.from_string(email_template,os.path.join(os.path.abspath("Quiz-App/reports/"),filename))
+            if os.path.isfile(os.path.join(os.path.abspath("Quiz-App/reports/"),filename)):
                 send_report(username=name,userEmail=user_details["email"],testCode=testCode,filename=filename)
                 flash("The report has been delivered to your inbox!")
         return template

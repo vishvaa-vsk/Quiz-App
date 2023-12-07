@@ -37,7 +37,7 @@ def create_report(name,class_and_sec,testCode,regno,status,score,percentage,lab_
 def create_csv(filename,report_details):
     import csv
     fields = ['name','score','percentage','status']
-    with open(os.path.join(os.path.abspath("admin_reports"),filename),"w+") as csvfile:
+    with open(os.path.join(os.path.abspath("Quiz-App/admin_reports/"),filename),"w+") as csvfile:
         writer = csv.DictWriter(csvfile,fieldnames=fields)
         writer.writeheader()
         writer.writerows(report_details)

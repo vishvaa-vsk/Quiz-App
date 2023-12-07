@@ -1,6 +1,5 @@
 import os
-import bson
-from flask import Blueprint,flash,render_template, send_file,url_for,session,redirect,request,jsonify
+from flask import Blueprint,flash,render_template, send_file,url_for,session,redirect,request
 from werkzeug.security import generate_password_hash,check_password_hash
 
 from ..extensions import mongo
@@ -11,7 +10,7 @@ import string , random
 
 from flask_wtf import FlaskForm
 from wtforms import StringField,SubmitField,FileField,IntegerField
-from wtforms.validators import DataRequired,InputRequired,regexp
+from wtforms.validators import DataRequired,InputRequired
 from werkzeug.utils import secure_filename
 
 admin = Blueprint("admin",__name__,url_prefix="/admin")
@@ -66,7 +65,7 @@ def signup():
                         flash("Registered successfully!")
                         return redirect(url_for('admin.login'))
                     except Exception as e:
-                        flash(e)       
+                        flash(e)
                 else:
                     flash("Password doesn't match!")
             else:
@@ -108,7 +107,7 @@ def reset_admin_password_verify(token):
             return "<center><h1>Invalid or expired token</h1></center>"
     else:
         return "<center><h1>Invalid or expired token</h1></center>"
-    
+
 @admin.route("/password_reset/<userId>",methods=['GET', 'POST'])
 def reset_password(userId):
     if request.method == "POST":
@@ -139,14 +138,14 @@ def get_test_code():
                 audio_no = str(form.audio_no.data)
                 file = request.files['audio_file']
                 filename = secure_filename(file.filename)
-                file.save(os.path.join('src/static/audios',filename))
+                file.save(os.path.join(os.path.abspath('Quiz-App/src/static/audios/'),filename))
                 try:
                     mongo.db.testDetails.insert_one({
                     "test_code":test_code,
                     "audio_name":filename,
                     "test_time": test_time,
                     "lab_session":lab_session,
-                    "audio_no":audio_no, 
+                    "audio_no":audio_no,
                 })
                 except Exception as e:
                     flash(e)
@@ -154,11 +153,11 @@ def get_test_code():
         return render_template("admin/addQDb.html",testCode = testCode ,form=form)
     else:
         return redirect(url_for("admin.login"))
-    
+
 
 @admin.route("/download/<testCode>/<Class>")
 def download(testCode,Class):
-    path = os.path.join(os.path.abspath("admin_reports"),f"{Class}_{testCode}_(test-report).csv")
+    path = os.path.join(os.path.abspath("Quiz-App/admin_reports/"),f"{Class}_{testCode}_(test-report).csv")
     return send_file(path,as_attachment=True)
 
 
@@ -189,7 +188,7 @@ def add_questions(testCode):
                 })
             except:
                 flash("Internal Error!")
-            
+
         return render_template("admin/addQuiz.html",testCode=testCode)
     else:
         return redirect(url_for("admin.login"))
@@ -197,7 +196,7 @@ def add_questions(testCode):
 @admin.route("/logout",methods=['GET', 'POST'])
 def logout():
     session.pop('adminUsername')
-    return redirect(url_for("admin.login")) 
+    return redirect(url_for("admin.login"))
 
 @admin.route("/show_reports",methods=['GET', 'POST'])
 def show_report():

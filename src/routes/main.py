@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import os
 from flask import Blueprint,flash,render_template,url_for,session,redirect,request,jsonify,send_file
 from werkzeug.security import generate_password_hash,check_password_hash

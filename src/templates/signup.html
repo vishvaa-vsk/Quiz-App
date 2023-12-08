@@ -19,18 +19,58 @@
         <form action="{{ url_for('main.signup') }}" method="POST">
             <div class="form-floating mb-3">
                 <input type="text" class="form-control" name="studName" id="floatingInput" placeholder="Your Name" required>
-                <label for="floatingInput">Student Name</label>
+                <label for="floatingInput">Student Name (eg: Vishvaa K)</label>
               </div>
               <div class="form-floating mb-3">
                 <input type="email" class="form-control" name="studEmail" id="floatingInput" placeholder="Email" required>
                 <label for="floatingInput">Email Address</label>
               </div>
               <div class="form-floating mb-3">
-                <input type="text" style="text-transform: uppercase;" class="form-control" name="studClass" id="floatingInput" placeholder="Email" required > 
-                <label for="floatingInput">Class&Sec</label>
+                <div class="d-flex justify-content-between">
+                  <div class="d-flex justify-content-sm-evenly">
+                    <select class="form-select" id="year">
+                      <option disabled selected>Year</option>
+                      <option value="I">I</option>
+                      <option value="II">II</option>
+                      <option value="III">III</option>
+                      <option value="IV">IV</option>
+                    </select>
+                  </div>
+                  <div class="d-flex justify-content-sm-evenly">
+                    <select class="form-select" name="" id="dept">
+                      <option disabled selected>Department</option>
+                      <option value="CSE">CSE</option>
+                      <option value="AIDS">AIDS</option>
+                      <option value="AUTO">AUTO</option>
+                      <option value="CIVIL">CIVIL</option>
+                      <option value="CSECS">CSECS</option>
+                      <option value="EEE">EEE</option>
+                      <option value="ECE">ECE</option>
+                      <option value="EIE">EIE</option>
+                      <option value="IT">IT</option>
+                      <option value="MECH">MECH</option>
+                    </select>
+                  </div>
+                  <div class="d-flex justify-content-sm-evenly">
+                    <select class="form-select" name="" id="section">
+                      <option disabled selected>Section</option>
+                      <option value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="C">C</option>
+                      <option value="D">D</option>
+                    </select>
+                  </div>
+                  <div class="d-flex justify-content-sm-evenly">
+                    <button type="button" class="btn btn-warning" onclick="updateClassSec()">Update</button>
+                  </div>
+                </div>
               </div>
               <div class="form-floating mb-3">
-                <input type="text" class="form-control" name="studRegno" id="floatingInput" placeholder="Email" required>
+                <input type="text" style="text-transform: uppercase;" class="form-control" name="studClass" id="class-sec" placeholder="Email">
+                <label for="class-sec">Class & Sec</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="studRegno" placeholder="Email" required>
                 <label for="floatingInput">Register Number</label>
               </div>
               <div class="form-floating mb-3">
@@ -45,4 +85,18 @@
         </form>
         <a href="{{ url_for('main.login') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks ">Already have an account? Login here </a><br>
     </div>
+{% endblock %}
+
+{% block customJS %}
+<script>
+
+updateClassSec=()=>{
+  year = document.querySelector("#year").value
+  dept = document.querySelector("#dept").value
+  section = document.querySelector("#section").value
+  classSec = `${year}-${dept}-${section}`
+  document.querySelector("#class-sec").value = classSec
+}
+
+</script>
 {% endblock %}

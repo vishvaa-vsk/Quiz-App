@@ -28,7 +28,7 @@
               <div class="form-floating mb-3">
                 <div class="d-flex justify-content-between">
                   <div class="d-flex justify-content-sm-evenly">
-                    <select class="form-select" id="year">
+                    <select class="form-select" id="year" required >
                       <option disabled selected>Year</option>
                       <option value="I">I</option>
                       <option value="II">II</option>
@@ -37,7 +37,7 @@
                     </select>
                   </div>
                   <div class="d-flex justify-content-sm-evenly">
-                    <select class="form-select" name="" id="dept">
+                    <select class="form-select" name="" id="dept" required>
                       <option disabled selected>Department</option>
                       <option value="CSE">CSE</option>
                       <option value="AIDS">AIDS</option>
@@ -52,7 +52,7 @@
                     </select>
                   </div>
                   <div class="d-flex justify-content-sm-evenly">
-                    <select class="form-select" name="" id="section">
+                    <select class="form-select" name="" id="section" required>
                       <option disabled selected>Section</option>
                       <option value="A">A</option>
                       <option value="B">B</option>
@@ -66,7 +66,7 @@
                 </div>
               </div>
               <div class="form-floating mb-3">
-                <input type="text" style="text-transform: uppercase;" class="form-control" name="studClass" id="class-sec" placeholder="Email">
+                <input type="text" style="text-transform: uppercase;" class="form-control" name="studClass" id="class-sec" placeholder="Class&Sec" required>
                 <label for="class-sec">Class & Sec</label>
               </div>
               <div class="form-floating mb-3">

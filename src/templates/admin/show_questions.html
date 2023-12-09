@@ -11,35 +11,50 @@
     <div class="sidebar">
        <h1>Test Codes</h1>
        {% for testCode in test_codes %}
-            <a href="#">{{testCode}}</a>
+            <button onclick="getTestDetails(this.textContent)" id="testCodes">{{testCode}}</button>
        {% endfor %}
     </div>
     <div class="content">
         {% for i in test_details %}
             <div class="test-container">
-                <h3 id="test_code">Test Code:{{i["test_code"]}}</h3>
+                <h3 id="test_code">Test Code: {{i["test_code"]}}</h3>
                 <div class="d-flex">
-                    <h3 id="audio_name">Audio Name:{{i["audio_name"]}}</h3>
+                    <h3 id="audio_name">Audio Name: {{i["audio_name"]}}</h3>
                     <button>Edit</button>
                 </div>
-                <h3 id="file_name">Questions file name:{{i["questions_filename"]}}</h3>
+                <h3 id="file_name">Questions file name: {{i["questions_filename"]}}</h3>
             </div>
         {% endfor %}
         {% for question in questions %}
         <div class="questions-box">
             <div class="question-details">
-                <h3>question-no: {{question["question_no"]}}</h3>
-                <h3>question: {{question["question"]}}</h3>
-                <h3>choice 1: {{question["choice1"]}}</h3>
-                <h3>choice 2: {{question["choice2"]}}</h3>
-                <h3>choice 3: {{question["choice3"]}}</h3>
-                <h3>choice 4: {{question["choice4"]}}</h3>
-                <h3>correct answer: {{question["correct_ans"]}}</h3>
+                <h3 id="qno">question-no: {{question["question_no"]}}</h3>
+                <h3 id="qusetion">question: {{question["question"]}}</h3>
+                <h3 id="choice1">choice 1: {{question["choice1"]}}</h3>
+                <h3 id="choice2">choice 2: {{question["choice2"]}}</h3>
+                <h3 id="choice3">choice 3: {{question["choice3"]}}</h3>
+                <h3 id="choice4">choice 4: {{question["choice4"]}}</h3>
+                <h3 id="crct-answer">correct answer: {{question["correct_ans"]}}</h3>
             </div>
         </div>
-        {% endfor %}
-        
-        
+        {% endfor %} 
     </div>
+<script>
+    getTestDetails=(testCode)=>{
+        const fetchTestDetailsUrl = "{{ url_for('admin.fetch_test_details',test_code='TESTCODE')}}".replace('TESTCODE',testCode)
+        fetch(fetchTestDetailsUrl,{"method":'POST'}).then(
+            response => response.json()
+        ).then(json=>{
+            console.log(json)
+            document.getElementById("test_code").innerHTML = `Test Code: ${json["test_details"][0]["test_code"]}`;
+            document.getElementById("audio_name").innerHTML = `Audio Name: ${json["test_details"][0]["audio_name"]}`;
+            document.getElementById("file_name").innerHTML = `Questions file name: ${json["test_details"][0]["questions_filename"]}`;
+
+            for(question of json["questions"]){
+                console.log(question)
+            } 
+        })
+    }
+</script>
 </body>
 </html> 

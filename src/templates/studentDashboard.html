@@ -83,7 +83,7 @@
     var writeTest = (input)=>{
         if(event.key == 'Enter'){
             var testCode = input.value;
-            document.querySelector('.modal').style.display = "block";
+            document.querySelector('#staticBackdrop').style.display = "block";
             var confirmButton = document.querySelector("#confirmButton");
             confirmButton.addEventListener('click',function(){
             $.ajax({

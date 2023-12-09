@@ -139,11 +139,11 @@ def get_test_code():
                 # Saving the audio
                 audio_file = request.files['audio_file']
                 audio_filename = secure_filename(audio_file.filename)
-                audio_file.save(os.path.join(os.path.abspath('/src/static/audios/'),audio_filename))
+                audio_file.save(os.path.join(os.path.abspath('src/static/audios/'),audio_filename))
                 # Saving the excel file
                 questions_file = request.files['questions_file']
                 questions_filename = secure_filename(questions_file.filename)
-                questions_file.save(os.path.join(os.path.abspath('/src/static/audios/'),questions_filename))
+                questions_file.save(os.path.join(os.path.abspath('src/static/audios/'),questions_filename))
                 
                 try:
                     mongo.db.testDetails.insert_one({
@@ -154,11 +154,12 @@ def get_test_code():
                     "audio_no":audio_no,
                     "questions_filename":questions_filename
                 })
-                    questions = extract_questions(os.path.join(os.path.abspath('/src/static/audios/'),questions_filename))
-                    print(questions)
+                    questions = extract_questions(os.path.join(os.path.abspath('src/static/audios/'),questions_filename))
+                    mongo.db[test_code].insert_many(questions)
+                    flash("Uploaded Successfully!")
                 except Exception as e:
                     flash(e)
-            return redirect(url_for('admin.add_questions',testCode = test_code))
+            #return redirect(url_for('admin.add_questions',testCode = test_code))
         return render_template("admin/addQDb.html",testCode = testCode ,form=form)
     else:
         return redirect(url_for("admin.login"))

@@ -214,3 +214,15 @@ def show_report():
         return render_template("admin/show_all_reports.html")
     else:
         return redirect(url_for("admin.login"))
+
+@admin.route("/show_questions",methods=['GET', 'POST'])
+def show_questions():
+    if check_login():
+        fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0,"lab_session":0,"audio_no":0}))
+        test_codes=[i["test_code"] for i in fetch_testcodes]
+        fetch_first_test = list(mongo.db.testDetails.find({"test_code":test_codes[0]},{'_id':0,"test_time":0,"lab_session":0,"audio_no":0}))
+        fetch_test_questions = list(mongo.db[fetch_first_test[0]["test_code"]].find({},{"_id":0}))
+        print(fetch_test_questions)
+        return render_template("admin/show_questions.html",test_codes=test_codes,test_details=fetch_first_test,questions=fetch_test_questions)
+    else:
+        return redirect(url_for('admin.login'))

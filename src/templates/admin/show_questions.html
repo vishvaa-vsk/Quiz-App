@@ -5,32 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Details</title>
     <!-- {{ url_for('static',filename='studDashboard.css') }} -->
-    <link rel="stylesheet" href="/src/static/studDashboard.css"> 
+    <link rel="stylesheet" href="{{ url_for('static',filename='studDashboard.css') }}"> 
 </head>
 <body>
     <div class="sidebar">
        <h1>Test Codes</h1>
-       <a href="#">7S05G1K6</a>
-       <a href="#">7S05G1K6</a>
-       
+       {% for testCode in test_codes %}
+            <a href="#">{{testCode}}</a>
+       {% endfor %}
     </div>
     <div class="content">
-        <div class="audio-container">
-            <h3 id="test_code">Test Code:</h3>
-            <h3 id="audio_name">Audio Name:</h3>
-            <button>Edit</button>
-        </div>
+        {% for i in test_details %}
+            <div class="test-container">
+                <h3 id="test_code">Test Code:{{i["test_code"]}}</h3>
+                <div class="d-flex">
+                    <h3 id="audio_name">Audio Name:{{i["audio_name"]}}</h3>
+                    <button>Edit</button>
+                </div>
+                <h3 id="file_name">Questions file name:{{i["questions_filename"]}}</h3>
+            </div>
+        {% endfor %}
+        {% for question in questions %}
         <div class="questions-box">
             <div class="question-details">
-                <h3>question-no:</h3>
-                <h3>question:</h3>
-                <h3>choice 1:</h3>
-                <h3>choice 2:</h3>
-                <h3>choice 3:</h3>
-                <h3>choice 4:</h3>
-                <h3>correct answer:</h3>
+                <h3>question-no: {{question["question_no"]}}</h3>
+                <h3>question: {{question["question"]}}</h3>
+                <h3>choice 1: {{question["choice1"]}}</h3>
+                <h3>choice 2: {{question["choice2"]}}</h3>
+                <h3>choice 3: {{question["choice3"]}}</h3>
+                <h3>choice 4: {{question["choice4"]}}</h3>
+                <h3>correct answer: {{question["correct_ans"]}}</h3>
             </div>
         </div>
+        {% endfor %}
+        
+        
     </div>
 </body>
 </html> 

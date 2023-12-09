@@ -170,39 +170,6 @@ def download(testCode,Class):
     path = os.path.join(os.path.abspath("/admin_reports/"),f"{Class}_{testCode}_(test-report).csv")
     return send_file(path,as_attachment=True)
 
-
-# @admin.route("/add_questions/<testCode>",methods=['GET', 'POST'])
-# def add_questions(testCode):
-#     if check_login():
-#         if request.method == "POST":
-#             question_no,question,choice1,choice2,choice3,choice4,correct_answer, =request.form['question_no'],request.form['question'],request.form['choice1'],request.form['choice2'],request.form['choice3'],request.form['choice4'],request.form.get('choice_select')
-#             try:
-#                 final_answer = ""
-#                 match correct_answer:
-#                     case '1':
-#                         final_answer = choice1
-#                     case '2':
-#                         final_answer = choice2
-#                     case '3':
-#                         final_answer = choice3
-#                     case '4':
-#                         final_answer = choice4
-#                 mongo.db[testCode].insert_one({
-#                     "question_no":question_no,
-#                     "question":question,
-#                     "choice1":choice1,
-#                     "choice2":choice2,
-#                     "choice3":choice3,
-#                     "choice4":choice4,
-#                     "correct_ans":final_answer
-#                 })
-#             except:
-#                 flash("Internal Error!")
-            
-#         return render_template("admin/addQuiz.html",testCode=testCode)
-#     else:
-#         return redirect(url_for("admin.login"))
-
 @admin.route("/logout",methods=['GET', 'POST'])
 def logout():
     session.pop('adminUsername')

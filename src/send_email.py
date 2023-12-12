@@ -13,7 +13,7 @@ def send_report(userEmail,username,testCode,filename):
     msg = Message(f"{username}'s {testCode} Report",sender='testvec26@gmail.com',recipients=[userEmail],)
     msg.body = f"""Hi {username},
 Your summary report for your {testCode} has been generated!"""
-    with current_app.open_resource(os.path.join(os.path.abspath("Quiz-App/reports/"),filename)) as file:
+    with current_app.open_resource(os.path.join(os.path.abspath("reports"),filename)) as file:
         msg.attach(f"{filename}","application/pdf",file.read())
     thr = Thread(target=send_async_mail,args=[app,msg])
     thr.start()

@@ -4,57 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Details</title>
-    <!-- {{ url_for('static',filename='studDashboard.css') }} -->
-    <link rel="stylesheet" href="{{ url_for('static',filename='studDashboard.css') }}"> 
+    <link rel="stylesheet" href="{{ url_for('static',filename='show_questions.css') }}"> 
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
 <body>
     <div class="sidebar">
        <h1>Test Codes</h1>
        {% for testCode in test_codes %}
-            <button onclick="getTestDetails(this.textContent)" id="testCodes">{{testCode}}</button>
+            <a href="{{ url_for('admin.fetch_test_details', testCode=testCode) }}" id="testCodes">{{testCode}}</a>
        {% endfor %}
     </div>
     <div class="content">
         {% for i in test_details %}
-            <div class="test-container">
-                <h3 id="test_code">Test Code: {{i["test_code"]}}</h3>
-                <div class="d-flex">
-                    <h3 id="audio_name">Audio Name: {{i["audio_name"]}}</h3>
-                    <button>Edit</button>
+            <!-- <div class="test-container align-items-center">
+                <h4 id="test_code">Test Code: {{i["test_code"]}}</h4>
+                <div class="d-flex justify-content-end ">
+                    <h4 id="audio_name" class="mx-3">Audio Name: {{i["audio_name"]}}</h4>
+                    <button class="btn btn-info">Edit Audio</button>
+                </div><br>
+                <div class="d-flex justify-content-end ">
+                    <h4  class="mx-3" id="file_name">Questions file name: {{i["questions_filename"]}}</h4>
+                    <button class="btn btn-info">Edit file</button>
                 </div>
-                <h3 id="file_name">Questions file name: {{i["questions_filename"]}}</h3>
+                
+            </div> -->
+            <div class="test-container">
+                <div class="row">
+                    <div class="col">
+                        <h4 id="test_code">Test Code: {{i["test_code"]}}</h4>
+                    </div>
+                    <div class="col">
+                        <div class="d-flex justify-content-end">
+                            <h4 id="audio_name" class="mx-2">Audio Name: {{i["audio_name"]}}</h4>
+                            <button class="btn btn-info">Edit Audio</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <h4>Lab Session: {{i["lab_session"]}}</h4>
+                    </div>
+                    
+                    <div class="col">
+                        <div class="d-flex justify-content-end ">
+                            <h4  class="mx-2" id="file_name">Questions file name: {{i["questions_filename"]}}</h4>
+                            <button class="btn btn-info">Edit file</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h4>Audio No: {{i["audio_no"]}}</h4>
+                </div>
             </div>
+
+
+
         {% endfor %}
         {% for question in questions %}
         <div class="questions-box">
             <div class="question-details">
-                <h3 id="qno">question-no: {{question["question_no"]}}</h3>
-                <h3 id="qusetion">question: {{question["question"]}}</h3>
-                <h3 id="choice1">choice 1: {{question["choice1"]}}</h3>
-                <h3 id="choice2">choice 2: {{question["choice2"]}}</h3>
-                <h3 id="choice3">choice 3: {{question["choice3"]}}</h3>
-                <h3 id="choice4">choice 4: {{question["choice4"]}}</h3>
-                <h3 id="crct-answer">correct answer: {{question["correct_ans"]}}</h3>
+                <h4 id="qno">Question-no: {{question["question_no"]}}</h4>
+                <h4 id="qusetion">Question: {{question["question"]}}</h4>
+                <h4 id="choice1">Choice 1: {{question["choice1"]}}</h4>
+                <h4 id="choice2">Choice 2: {{question["choice2"]}}</h4>
+                <h4 id="choice3">Choice 3: {{question["choice3"]}}</h4>
+                <h4 id="choice4">Choice 4: {{question["choice4"]}}</h4>
             </div>
         </div>
         {% endfor %} 
     </div>
-<script>
-    getTestDetails=(testCode)=>{
-        const fetchTestDetailsUrl = "{{ url_for('admin.fetch_test_details',test_code='TESTCODE')}}".replace('TESTCODE',testCode)
-        fetch(fetchTestDetailsUrl,{"method":'POST'}).then(
-            response => response.json()
-        ).then(json=>{
-            console.log(json)
-            document.getElementById("test_code").innerHTML = `Test Code: ${json["test_details"][0]["test_code"]}`;
-            document.getElementById("audio_name").innerHTML = `Audio Name: ${json["test_details"][0]["audio_name"]}`;
-            document.getElementById("file_name").innerHTML = `Questions file name: ${json["test_details"][0]["questions_filename"]}`;
-
-            for(question of json["questions"]){
-                console.log(question)
-            } 
-        })
-    }
+<script>    
 </script>
 </body>
 </html> 

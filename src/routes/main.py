@@ -152,10 +152,11 @@ def write_test(testCode):
                                 "class":user_class,
                                "test_code":testCode,"score":(total_correct_answer/len(total_questions))*100,"percentage":percentage,
                                "status":"Pass" if percentage >= 50 else "Fail"}
-            except:
-                add_user_result = {"name":session["username"],
-                               "test_code":testCode,"score":0,"percentage":0,
-                               "status":"Pass" if percentage >= 50 else "Fail"}
+            except Exception as e:
+                flash(e)
+                #add_user_result = {"name":session["username"],
+                #               "test_code":testCode,"score":0,"percentage":0,
+                #               "status":"Pass" if percentage >= 50 else "Fail"}
             try:
                 mongo.db[f"{testCode}-result"].insert_one(add_user_result)
                 return redirect(url_for('main.generate_report',testCode=testCode,name=session["username"]))

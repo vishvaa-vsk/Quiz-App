@@ -139,12 +139,12 @@ def get_test_code():
                 # Saving the audio
                 audio_file = request.files['audio_file']
                 audio_filename = secure_filename(audio_file.filename)
-                audio_file.save(os.path.join(os.path.abspath('src/static/audios/'),audio_filename))
+                audio_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/audios/'),audio_filename))
                 # Saving the excel file
                 questions_file = request.files['questions_file']
                 questions_filename = secure_filename(questions_file.filename)
-                questions_file.save(os.path.join(os.path.abspath('src/static/audios/'),questions_filename))
-                
+                questions_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),questions_filename))
+
                 try:
                     mongo.db.testDetails.insert_one({
                     "test_code":test_code,
@@ -154,7 +154,7 @@ def get_test_code():
                     "audio_no":audio_no,
                     "questions_filename":questions_filename
                 })
-                    questions = extract_questions(os.path.join(os.path.abspath('src/static/audios/'),questions_filename))
+                    questions = extract_questions(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),questions_filename))
                     mongo.db[test_code].insert_many(questions)
                     flash("Uploaded Successfully!")
                 except Exception as e:
@@ -205,7 +205,7 @@ def fetch_test_details(test_code):
         return jsonify({"resp":"TESTCODE NOT FOUND"})
     else:
         return redirect(url_for('admin.login'))
-    
+
 @admin.route("/show_questions",methods=['GET', 'POST'])
 def show_questions():
     if check_login():

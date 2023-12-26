@@ -26,7 +26,6 @@ def login():
             storedPasswd = mongo.db.users.find_one({"username":username})["passwd"]
             if check_password_hash(storedPasswd,passwd):
                 session["username"] = username
-
                 return redirect(url_for('main.dashboard'))
             else:
                 flash("Username or password incorrect")
@@ -138,56 +137,6 @@ def write_test(testCode):
             for i in questions:
                 total_questions.append(int(i['question_no']))
         if request.method == "POST":
-<<<<<<< HEAD
-            try:
-                for j in total_questions:
-                    user_answer = request.form[f"option-{j}"]
-                    for i in correct_answers:
-                        if i['question_no'] == str(j):
-                            if i['correct_ans'] == user_answer:
-                                total_correct_answer+=1
-                percentage = (total_correct_answer/len(total_questions))*100
-                user_class = mongo.db.users.find_one({"username":session['username']})['class']
-                add_user_result = {"name":session["username"],
-                                "class":user_class,
-                               "test_code":testCode,"score":(total_correct_answer/len(total_questions))*100,"percentage":percentage,
-                               "status":"Pass" if percentage >= 50 else "Fail"}
-            except Exception as e:
-                flash(e)
-                #add_user_result = {"name":session["username"],
-                #               "test_code":testCode,"score":0,"percentage":0,
-                #               "status":"Pass" if percentage >= 50 else "Fail"}
-            try:
-                mongo.db[f"{testCode}-result"].insert_one(add_user_result)
-                return redirect(url_for('main.generate_report',testCode=testCode,name=session["username"]))
-            except Exception as e:
-                flash(e)
-                flash("Internal error occured!")
-||||||| c0d9a0f
-            try:
-                for j in total_questions:
-                    user_answer = request.form[f"option-{j}"]
-                    for i in correct_answers:
-                        if i['question_no'] == str(j):
-                            if i['correct_ans'] == user_answer:
-                                total_correct_answer+=1
-                percentage = (total_correct_answer/len(total_questions))*100
-                user_class = mongo.db.users.find_one({"username":session['username']})['class']
-                add_user_result = {"name":session["username"],
-                                "class":user_class,
-                               "test_code":testCode,"score":(total_correct_answer/len(total_questions))*100,"percentage":percentage,
-                               "status":"Pass" if percentage >= 50 else "Fail"}
-            except:
-                add_user_result = {"name":session["username"],
-                               "test_code":testCode,"score":0,"percentage":0,
-                               "status":"Pass" if percentage >= 50 else "Fail"}
-            try:
-                mongo.db[f"{testCode}-result"].insert_one(add_user_result)
-                return redirect(url_for('main.generate_report',testCode=testCode,name=session["username"]))
-            except Exception as e:
-                flash(e)
-                flash("Internal error occured!")
-=======
                 try:
                     for j in total_questions:
                         user_answer = request.form[f"option-{j}"]
@@ -197,21 +146,15 @@ def write_test(testCode):
                                     total_correct_answer+=1
                     percentage = (total_correct_answer/len(total_questions))*100
                     user_class = mongo.db.users.find_one({"username":session['username']})['class']
-                    add_user_result = {"name":session["username"],
-                                 "class":user_class,
-                                "test_code":testCode,"score":(total_correct_answer/len(total_questions))*100,"percentage":percentage,
-                                "status":"Pass" if percentage >= 50 else "Fail"}
-                except Exception as e:
-                    add_user_result = {"name":session["username"],
-                                "test_code":testCode,"score":0,"percentage":0,
-                                "status":"Pass" if percentage >= 50 else "Fail"}
+                    add_user_result = {"name":session["username"],"class":user_class,"test_code":testCode,"score":(total_correct_answer/len(total_questions))*100,"percentage":percentage, "status":"Pass" if percentage >= 50 else "Fail" }
+                except:
+                    add_user_result = {"name":session["username"],"test_code":testCode,"score":0,"percentage":0,"status":"Fail"}
                 try:
                     mongo.db[f"{testCode}-result"].insert_one(add_user_result)
                     return redirect(url_for('main.generate_report',testCode=testCode,name=session["username"]))
                 except Exception as e:
                     flash(e)
                     flash("Internal error occured!")
->>>>>>> 91d3e51a83852bf0cf642498ea39a2eeb6578747
         return render_template("showQuestions.html",testDetails=test_details,audio=testdetails['audio_name'],time=testdetails['test_time'])
     else:
         return redirect(url_for("main.login"))
@@ -219,7 +162,7 @@ def write_test(testCode):
 
 @main.route("/download/<testCode>/<name>",methods=['GET', 'POST'])
 def download(testCode,name):
-    path = os.path.join(os.path.abspath("reports"),f"{name}'s_{testCode}_report.pdf")
+    path = os.path.join(os.path.abspath("Quiz-App/reports"),f"{name}'s_{testCode}_report.pdf")
     return send_file(path,as_attachment=True)
 
 
@@ -271,8 +214,8 @@ def generate_report(testCode,name):
             ,file="report.html")
             filename = f"{name}'s_{testCode}_report.pdf"
 
-            pdfkit.from_string(email_template,os.path.join(os.path.abspath("reports"),filename))
-            if os.path.isfile(os.path.join(os.path.abspath("reports"),filename)):
+            pdfkit.from_string(email_template,os.path.join(os.path.abspath("Quiz-App/reports"),filename))
+            if os.path.isfile(os.path.join(os.path.abspath("Quiz-App/reports"),filename)):
                 send_report(username=name,userEmail=user_details["email"],testCode=testCode,filename=filename)
                 flash("The report has been delivered to your inbox!")
         return template

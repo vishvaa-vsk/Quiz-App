@@ -99,6 +99,12 @@ div.content {
     margin-left: 250px;
     padding: 0px 10px;
     /* height: 1000px; */
+    /* margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; */
 }
 
 .prevResults{

@@ -18,6 +18,7 @@
         </div>
         <a href=""class="active">Dash Board</a>
         <a href="{{ url_for('main.download_prev_result') }}">Download Previous Test Results</a>
+        <a href="{{ url_for('main.edit_details') }}" >Edit Your Details</a>
         <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Logout</a>
      </div>
 
@@ -80,7 +81,7 @@
     }
 
 
-    var writeTest = (input)=>{
+    var writeTest=(input)=>{
         if(event.key == 'Enter'){
             var testCode = input.value;
             document.querySelector('#staticBackdrop').style.display = "block";

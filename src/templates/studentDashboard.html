@@ -14,7 +14,7 @@
         </div>
         <div class="d-flex">
             <input type="text" name="testCode" id="testCode" placeholder="TEST CODE" onkeydown="writeTest(this)">
-            <button id="testButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Go</button>    
+            <button id="testButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Go</button>
         </div>
         <a href=""class="active">Dash Board</a>
         <a href="{{ url_for('main.download_prev_result') }}">Download Previous Test Results</a>
@@ -59,7 +59,7 @@
     </div>
   </div>
 
-      
+
 
 {% endblock %}
 
@@ -72,7 +72,7 @@
             url : `/verify_test/${testCode}`,
             type:'POST',
             data: {'testCode':testCode},
-            success: function(response) { 
+            success: function(response) {
                 console.log(response);
                 window.location.href = response.url;
             }
@@ -90,7 +90,7 @@
                 url : `/verify_test/${testCode}`,
                 type:'POST',
                 data: {'testCode':testCode},
-                success: function(response) { 
+                success: function(response) {
                     console.log(response);
                     window.location.href = response.url;
                 }
@@ -104,6 +104,7 @@ window.onload = ()=>{
         fetch(prevResultUrl,{
             "method":'POST',
         }).then(
+
             response => response.json()).then(json =>{
                 document.getElementById("testcode").innerHTML = `Test Code: ${json['test_code']}`;
                 document.getElementById("name").innerHTML = `Name: ${json['name']}`;

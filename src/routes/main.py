@@ -12,7 +12,7 @@ main = Blueprint("main",__name__)
 
 def check_login():
     try:
-        if session["username"] is not None:
+        if session["user_id"] is not None:
             return True
     except:
         return False
@@ -21,11 +21,14 @@ def check_login():
 def login():
     if request.method == "POST":
         session.permanent=True
-        username,passwd = request.form["studName"],request.form["studPass"]
-        if mongo.db.users.find_one({"username":username}):
-            storedPasswd = mongo.db.users.find_one({"username":username})["passwd"]
+        regno,passwd = request.form["studRegno"],request.form["studPass"]
+        if mongo.db.users.find_one({"regno":regno}):
+            storedPasswd = mongo.db.users.find_one({"regno":regno})["passwd"]
+            user_id = ObjectId(mongo.db.users.find_one({"regno":regno})['_id'])
+            username = mongo.db.users.find_one({"regno":regno})['username']
             if check_password_hash(storedPasswd,passwd):
                 session["username"] = username
+                session["user_id"] = str(user_id)
                 return redirect(url_for('main.dashboard'))
             else:
                 flash("Username or password incorrect")
@@ -38,7 +41,7 @@ def login():
 def signup():
     if request.method == "POST":
         username,Class,regno,passwd,repasswd,email = request.form["studName"],request.form['studClass'],request.form['studRegno'],request.form['studPass'],request.form['studRePass'],request.form['studEmail']
-        if not mongo.db.users.find_one({"username":username}):
+        if not mongo.db.users.find_one({"regno":regno}):
             if passwd == repasswd:
                 hashed_value = generate_password_hash(passwd,method='scrypt')
                 try:
@@ -145,10 +148,21 @@ def write_test(testCode):
                                 if str(i['correct_ans']) == str(user_answer):
                                     total_correct_answer+=1
                     percentage = (total_correct_answer/len(total_questions))*100
-                    user_class = mongo.db.users.find_one({"username":session['username']})['class']
-                    add_user_result = {"name":session["username"],"class":user_class,"test_code":testCode,"score":(total_correct_answer/len(total_questions))*100,"percentage":percentage, "status":"Pass" if percentage >= 50 else "Fail" }
-                except:
-                    add_user_result = {"name":session["username"],"test_code":testCode,"score":0,"percentage":0,"status":"Fail"}
+                    user = mongo.db.users.find_one({"_id":ObjectId(str(session['user_id']))})
+                    add_user_result = {
+                        '_id':ObjectId(str(session["user_id"])),
+                        "name":session["username"],
+                                 "class":user['class'],
+                                 "regno":user["regno"],
+                                "test_code":testCode,"score":(total_correct_answer/len(total_questions))*100,"percentage":percentage,
+                                "status":"Pass" if percentage >= 50 else "Fail"}
+                except Exception as e:
+                    # add_user_result = {"name":session["username"],
+                    #             "class":user['class'],
+                    #             "regno":user["regno"],
+                    #             "test_code":testCode,"score":0,"percentage":0,
+                    #             "status":"Pass" if percentage >= 50 else "Fail"}
+                    flash(e)
                 try:
                     mongo.db[f"{testCode}-result"].insert_one(add_user_result)
                     return redirect(url_for('main.generate_report',testCode=testCode,name=session["username"]))
@@ -162,24 +176,20 @@ def write_test(testCode):
 
 @main.route("/download/<testCode>/<name>",methods=['GET', 'POST'])
 def download(testCode,name):
-    path = os.path.join(os.path.abspath("Quiz-App/reports"),f"{name}'s_{testCode}_report.pdf")
+    path = os.path.join(os.path.abspath("reports"),f"{name}'s_{testCode}_report.pdf")
     return send_file(path,as_attachment=True)
 
 
 @main.route("/previous_result",methods=['GET', 'POST'])
 def get_previous_result():
-    if check_login():
-        name = session["username"]
-        if request.method == "POST":
-            last_test = list(mongo.db.testDetails.find({},{"_id":0}))
-            test_code = last_test[-1]['test_code']
-            latest_result = mongo.db[f"{test_code}-result"].find_one({"name":name},{"_id":0})
-            if latest_result is not None:
-                return latest_result
-            return jsonify({"testcode":"None","name":"None","score":"None","percentage":"None","status":"None"})
-        return {"testcode":"None","name":"None","score":"None","percentage":"None","status":"None"}
-    else:
-        return redirect(url_for("main.login"))
+    name = session["username"]
+    if request.method == "POST":
+        last_test = list(mongo.db.testDetails.find({},{"_id":0}))
+        test_code = last_test[-1]['test_code']
+        latest_result = mongo.db[f"{test_code}-result"].find_one({"name":name},{"_id":0})
+        if latest_result is not None:
+            return latest_result
+    return jsonify({"testcode":"None","name":"None","score":"None","percentage":"None","status":"None"})
 
 @main.route("/download_prev_result",methods=['GET', 'POST'])
 def download_prev_result():
@@ -215,9 +225,28 @@ def generate_report(testCode,name):
             filename = f"{name}'s_{testCode}_report.pdf"
 
             pdfkit.from_string(email_template,os.path.join(os.path.abspath("Quiz-App/reports"),filename))
-            if os.path.isfile(os.path.join(os.path.abspath("Quiz-App/reports"),filename)):
+            if os.path.isfile(os.path.join(os.path.abspath("reports"),filename)):
                 send_report(username=name,userEmail=user_details["email"],testCode=testCode,filename=filename)
                 flash("The report has been delivered to your inbox!")
         return template
+    else:
+        return redirect(url_for('main.login'))
+
+@main.route("/get_user_details",methods=['GET', 'POST'])
+def get_user_details():
+    if request.method == "POST":
+        user_id = session.get("user_id")
+        user_details = mongo.db.users.find_one({'_id':ObjectId(user_id)},{'_id':0})
+        return user_details
+    return "METHOD NOT ALLOWED"
+
+@main.route("/edit_details",methods=['GET', 'POST'])
+def edit_details():
+    if check_login():
+        if request.method == "POST":
+            user_id = session.get("user_id")
+            username,regno,Class,email = request.form["studName"],request.form["studRegno"],request.form["studClass"],request.form["studEmail"]
+            mongo.db.users.update_one({"_id":ObjectId(user_id)},{"$set":{"username":username,"regno":regno,"class":Class,"email":email}})
+        return render_template("edit_user_details.html")
     else:
         return redirect(url_for('main.login'))

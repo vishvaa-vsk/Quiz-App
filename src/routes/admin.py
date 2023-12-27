@@ -166,7 +166,7 @@ def get_test_code():
 
 @admin.route("/download/<testCode>/<Class>")
 def download(testCode,Class):
-    path = os.path.join(os.path.abspath("/admin_reports/"),f"{Class}_{testCode}_(test-report).csv")
+    path = os.path.join(os.path.abspath("admin_reports/"),f"{Class}_{testCode}_(test-report).csv")
     return send_file(path,as_attachment=True)
 
 @admin.route("/logout",methods=['GET', 'POST'])

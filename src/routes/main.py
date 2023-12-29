@@ -176,7 +176,7 @@ def write_test(testCode):
 
 @main.route("/download/<testCode>/<name>",methods=['GET', 'POST'])
 def download(testCode,name):
-    path = os.path.join(os.path.abspath("reports"),f"{name}'s_{testCode}_report.pdf")
+    path = os.path.join(os.path.abspath("Quiz-App/reports"),f"{name}'s_{testCode}_report.pdf")
     return send_file(path,as_attachment=True)
 
 
@@ -225,7 +225,7 @@ def generate_report(testCode,name):
             filename = f"{name}'s_{testCode}_report.pdf"
 
             pdfkit.from_string(email_template,os.path.join(os.path.abspath("Quiz-App/reports"),filename))
-            if os.path.isfile(os.path.join(os.path.abspath("reports"),filename)):
+            if os.path.isfile(os.path.join(os.path.abspath("Quiz-App/reports"),filename)):
                 send_report(username=name,userEmail=user_details["email"],testCode=testCode,filename=filename)
                 flash("The report has been delivered to your inbox!")
         return template

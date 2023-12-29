@@ -143,8 +143,8 @@ def get_test_code():
                 # Saving the excel file
                 questions_file = request.files['questions_file']
                 questions_filename = secure_filename(questions_file.filename)
-                questions_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),questions_filename))
-
+                questions_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/audios/'),questions_filename))
+                
                 try:
                     mongo.db.testDetails.insert_one({
                     "test_code":test_code,
@@ -154,12 +154,11 @@ def get_test_code():
                     "audio_no":audio_no,
                     "questions_filename":questions_filename
                 })
-                    questions = extract_questions(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),questions_filename))
+                    questions = extract_questions(os.path.join(os.path.abspath('Quiz-App/src/static/audios/'),questions_filename))
                     mongo.db[test_code].insert_many(questions)
                     flash("Uploaded Successfully!")
                 except Exception as e:
                     flash(e)
-            #return redirect(url_for('admin.add_questions',testCode = test_code))
         return render_template("admin/addQDb.html",testCode = testCode ,form=form)
     else:
         return redirect(url_for("admin.login"))
@@ -192,27 +191,26 @@ def show_report():
     else:
         return redirect(url_for("admin.login"))
 
-@admin.route("/test_details/<test_code>",methods=['GET', 'POST'])
-def fetch_test_details(test_code):
+@admin.route("/test_details/<testCode>",methods=['GET', 'POST'])
+def fetch_test_details(testCode):
     if check_login():
-        print(test_code)
-        fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0,"lab_session":0,"audio_no":0}))
+        fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0}))
         available_testcodes=[i["test_code"] for i in fetch_testcodes]
-        if test_code in available_testcodes:
-            test_details = list(mongo.db.testDetails.find({"test_code":test_code},{'_id':0,"test_time":0,"lab_session":0,"audio_no":0}))
-            fetch_test_questions = list(mongo.db[test_code].find({},{"_id":0}))
-            return jsonify({"test_details":test_details,"questions":fetch_test_questions})
+        if testCode in available_testcodes:
+            test_details = list(mongo.db.testDetails.find({"test_code":testCode},{'_id':0,"test_time":0}))
+            fetch_test_questions = list(mongo.db[testCode].find({},{"_id":0,"correct_ans":0}))
+            return render_template("admin/show_questions.html",test_codes=available_testcodes,test_details=test_details,questions=fetch_test_questions)
         return jsonify({"resp":"TESTCODE NOT FOUND"})
     else:
         return redirect(url_for('admin.login'))
-
+    
 @admin.route("/show_questions",methods=['GET', 'POST'])
 def show_questions():
     if check_login():
-        fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0,"lab_session":0,"audio_no":0}))
+        fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0}))
         test_codes=[i["test_code"] for i in fetch_testcodes]
-        fetch_first_test = list(mongo.db.testDetails.find({"test_code":test_codes[0]},{'_id':0,"test_time":0,"lab_session":0,"audio_no":0}))
-        fetch_test_questions = list(mongo.db[fetch_first_test[0]["test_code"]].find({},{"_id":0}))
+        fetch_first_test = list(mongo.db.testDetails.find({"test_code":test_codes[0]},{'_id':0,"test_time":0}))
+        fetch_test_questions = list(mongo.db[fetch_first_test[0]["test_code"]].find({},{"_id":0,"correct_ans":0}))
         return render_template("admin/show_questions.html",test_codes=test_codes,test_details=fetch_first_test,questions=fetch_test_questions)
     else:
         return redirect(url_for('admin.login'))

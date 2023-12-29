@@ -12,7 +12,7 @@
     <div class="sidebar">
        <h1>Test Codes</h1>
        {% for testCode in test_codes %}
-            <a href="{{ url_for('admin.fetch_test_details', test_code=testCode) }}" id="testCodes">{{testCode}}</a>
+            <a href="{{ url_for('admin.fetch_test_details', testCode=testCode) }}" id="testCodes">{{testCode}}</a>
        {% endfor %}
     </div>
     <div class="content">

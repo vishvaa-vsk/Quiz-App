@@ -47,7 +47,7 @@ def signup():
                 try:
                     addUser = {"username":username,"class":Class,"regno":regno,"email":email,"passwd":hashed_value}
                     mongo.db.users.insert_one(addUser)
-                    flash("Register Successful!")
+                    flash("Register successful!")
                     return redirect(url_for("main.login"))
                 except Exception as e:
                     flash(e)
@@ -163,6 +163,7 @@ def write_test(testCode):
                     #             "test_code":testCode,"score":0,"percentage":0,
                     #             "status":"Pass" if percentage >= 50 else "Fail"}
                     flash(e)
+                    return jsonify({"error":e})
                 try:
                     mongo.db[f"{testCode}-result"].insert_one(add_user_result)
                     return redirect(url_for('main.generate_report',testCode=testCode,name=session["username"]))
@@ -247,6 +248,6 @@ def edit_details():
             user_id = session.get("user_id")
             username,regno,Class,email = request.form["studName"],request.form["studRegno"],request.form["studClass"],request.form["studEmail"]
             mongo.db.users.update_one({"_id":ObjectId(user_id)},{"$set":{"username":username,"regno":regno,"class":Class,"email":email}})            
-        return render_template("edit_user_details.html")
+        return render_template("edit_user_details.html",studName = session["username"])
     else:
         return redirect(url_for('main.login'))

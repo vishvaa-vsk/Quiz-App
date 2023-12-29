@@ -3,7 +3,7 @@ from flask import Blueprint,flash, jsonify,render_template, send_file,url_for,se
 from werkzeug.security import generate_password_hash,check_password_hash
 
 from ..extensions import mongo
-from ..helper import generate_token,verify_token,create_csv,extract_questions
+from ..helper import generate_token,verify_token,create_csv,extract_questions,remove_duplicates
 from ..send_email import send_email_admin
 from bson.objectid import ObjectId
 import string , random
@@ -25,6 +25,16 @@ class AddAudioForm(FlaskForm):
     audio_file = FileField("Audio File",validators=[InputRequired()])
     questions_file = FileField("Questions File",validators=[InputRequired()])
     submit = SubmitField("Submit")
+
+class EditAudioForm(FlaskForm):
+    test_code = StringField("Test code",validators=[DataRequired(),InputRequired()])
+    new_audio_file = FileField("New Audio File",validators=[InputRequired()])
+    update = SubmitField("Update")
+
+class EditQuestionForm(FlaskForm):
+    test_code = StringField("Test code",validators=[DataRequired(),InputRequired()])
+    new_questions_file = FileField("New Questions File",validators=[InputRequired()])
+    update = SubmitField("Update")
 
 def check_login():
     try:
@@ -143,18 +153,19 @@ def get_test_code():
                 # Saving the excel file
                 questions_file = request.files['questions_file']
                 questions_filename = secure_filename(questions_file.filename)
-                questions_file.save(os.path.join(os.path.abspath('src/static/audios/'),questions_filename))
+                questions_file.save(os.path.join(os.path.abspath('src/static/questions/'),questions_filename))
                 
                 try:
-                    mongo.db.testDetails.insert_one({
+                    if not mongo.db.testDetails.find_one({"test_code":test_code}):
+                        mongo.db.testDetails.insert_one({
                     "test_code":test_code,
                     "audio_name":audio_filename,
                     "test_time": test_time,
                     "lab_session":lab_session,
                     "audio_no":audio_no,
-                    "questions_filename":questions_filename
-                })
-                    questions = extract_questions(os.path.join(os.path.abspath('src/static/audios/'),questions_filename))
+                    "questions_filename":questions_filename})
+                        
+                    questions = extract_questions(os.path.join(os.path.abspath('src/static/questions/'),questions_filename))
                     mongo.db[test_code].insert_many(questions)
                     flash("Uploaded Successfully!")
                 except Exception as e:
@@ -194,12 +205,15 @@ def show_report():
 @admin.route("/test_details/<testCode>",methods=['GET', 'POST'])
 def fetch_test_details(testCode):
     if check_login():
+        audio_form = EditAudioForm()
+        question_form = EditQuestionForm()
         fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0}))
-        available_testcodes=[i["test_code"] for i in fetch_testcodes]
+        raw_available_testcodes=[i["test_code"] for i in fetch_testcodes]
+        available_testcodes = remove_duplicates(raw_available_testcodes)
         if testCode in available_testcodes:
             test_details = list(mongo.db.testDetails.find({"test_code":testCode},{'_id':0,"test_time":0}))
             fetch_test_questions = list(mongo.db[testCode].find({},{"_id":0,"correct_ans":0}))
-            return render_template("admin/show_questions.html",test_codes=available_testcodes,test_details=test_details,questions=fetch_test_questions)
+            return render_template("admin/show_questions.html",audio_form=audio_form,question_form=question_form,test_codes=available_testcodes,test_details=test_details,questions=fetch_test_questions)
         return jsonify({"resp":"TESTCODE NOT FOUND"})
     else:
         return redirect(url_for('admin.login'))
@@ -207,10 +221,114 @@ def fetch_test_details(testCode):
 @admin.route("/show_questions",methods=['GET', 'POST'])
 def show_questions():
     if check_login():
+        audio_form = EditAudioForm()
+        question_form = EditQuestionForm()
         fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0}))
-        test_codes=[i["test_code"] for i in fetch_testcodes]
+        raw_test_codes=[i["test_code"] for i in fetch_testcodes]
+        test_codes = remove_duplicates(raw_test_codes)
         fetch_first_test = list(mongo.db.testDetails.find({"test_code":test_codes[0]},{'_id':0,"test_time":0}))
         fetch_test_questions = list(mongo.db[fetch_first_test[0]["test_code"]].find({},{"_id":0,"correct_ans":0}))
-        return render_template("admin/show_questions.html",test_codes=test_codes,test_details=fetch_first_test,questions=fetch_test_questions)
+        return render_template("admin/show_questions.html",question_form=question_form,test_codes=test_codes,test_details=fetch_first_test,questions=fetch_test_questions,audio_form=audio_form)
     else:
         return redirect(url_for('admin.login'))
+    
+@admin.route("/edit_audio_file",methods=['GET', 'POST'])
+def edit_test_audio():
+    if check_login():
+        if request.method == "POST":
+            test_code = request.form["test_code"]
+            audio_file = request.files['new_audio_file']
+            audio_filename = secure_filename(audio_file.filename)
+            audio_file.save(os.path.join(os.path.abspath('src/static/audios/'),audio_filename))
+            try:
+                mongo.db.testDetails.update_one({"test_code":test_code},{"$set":{"audio_name": audio_filename}})
+                flash("Audio updated successfully!")
+                return redirect(url_for("admin.show_questions"))
+            except Exception as e:
+                flash(e)
+        return redirect(url_for("admin.show_questions"))    
+    else:
+        return redirect(url_for("admin.login"))
+    
+@admin.route("/edit_question_file",methods=['GET', 'POST'])
+def edit_test_file():
+    if check_login():
+        if request.method == "POST":
+            test_code = request.form["test_code"]
+            new_question_file = request.files['new_questions_file']
+            new_question_filename = secure_filename(new_question_file.filename)
+            new_question_file.save(os.path.join(os.path.abspath('src/static/questions/'),new_question_filename))
+            try:
+                # Dropping the testcode collection
+                mongo.db[test_code].drop()
+                # Extracting new questions
+                questions = extract_questions(os.path.join(os.path.abspath('src/static/questions/'),new_question_filename))
+                mongo.db[test_code].insert_many(questions)
+                # Updating testdetails in testDetails collection
+                mongo.db.testDetails.update_one({"test_code":test_code},{"$set":{"questions_filename": new_question_filename}})
+                flash("Questions updated successfully")
+
+                return redirect(url_for("admin.show_questions"))
+            except Exception as e:
+                flash(e)
+        return redirect(url_for("admin.show_questions"))    
+    else:
+        return redirect(url_for("admin.login"))
+    
+@admin.route("/delete_testcode",methods=['GET', 'POST'])
+def delete_testcode():
+    if check_login():
+        if request.method == "POST":
+            test_code = request.form["test_code"]
+            try:
+                mongo.db[test_code].drop()
+                mongo.db[f"{test_code}-result"].drop()
+                mongo.db.testDetails.delete_one({"test_code":test_code})
+                flash("Deleted successfully")
+            except Exception as e:
+                flash(e)
+        return redirect(url_for("admin.show_questions"))
+    else:
+        return redirect(url_for("admin.login"))
+
+
+@admin.route("/issues/<testCode>",methods=['GET', 'POST'])
+def fetch_technical_issues(testCode):
+    if check_login():
+        fetch_testcodes = list(mongo.db.testDetails.find({},{"test_code":1}))
+        raw_available_testcodes=[i["test_code"] for i in fetch_testcodes]
+        available_testcodes = remove_duplicates(raw_available_testcodes)
+        if testCode in available_testcodes:
+            zero_results = list(mongo.db[f"{testCode}-result"].find({"score":0}))
+            return render_template("admin/technical_issues.html",test_codes=available_testcodes,zero_results=zero_results)
+        return jsonify({"resp":"TESTCODE NOT FOUND"})
+    else:
+        return redirect(url_for('admin.login'))
+
+
+@admin.route("/technical_issues",methods=['GET', 'POST'])
+def technical_issues():
+    if check_login():
+        fetch_testcodes = list(mongo.db.testDetails.find({},{"test_code":1}))
+        raw_test_codes=[i["test_code"] for i in fetch_testcodes]
+        test_codes = remove_duplicates(raw_test_codes)
+        zero_results = list(mongo.db[f"{test_codes[0]}-result"].find({"score":0},{}))
+        return render_template("admin/technical_issues.html",test_codes=test_codes,zero_results=zero_results)
+    else:
+        return redirect(url_for("admin.login"))
+    
+
+@admin.route("/delete_result",methods=['GET', 'POST'])
+def delete_result():
+    if check_login():
+        if request.method == "POST":
+            obj_id = request.json["obj_id"]
+            test_code = request.json["test_code"]
+            try:
+                mongo.db[f"{test_code}-result"].delete_one({"_id":ObjectId(obj_id)})
+                flash("Deleted successfully!")
+            except Exception as e:
+                flash(e)
+        return redirect(url_for("admin.technical_issues"))
+    else:
+        return redirect(url_for("admin.login"))

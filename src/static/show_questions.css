@@ -7,7 +7,7 @@
     left: 0;
     /* background-color: #8ECDDD;  */
     /* background-color: #42bb82; */
-    background-color: #176B87;
+    background-color: #002D62;
     overflow-x: hidden; 
   
 }
@@ -29,7 +29,7 @@ body{
 
 .sidebar a.active {
     /* background-color: #22668D; */
-    background-color: #64CCC5;
+    background-color: #007FFF;
     /* border-radius: 40px 0px 0px 40px; */
     color: white;
     font-weight: 600;
@@ -38,7 +38,7 @@ body{
 
 .sidebar a:hover:not(.active) {
     /* background-color: #22668D; */
-    background-color: #64CCC5;
+    background-color: #007FFF;
     color: white;
     font-weight: 600;
     transition: width 2s;
@@ -56,5 +56,9 @@ div.content {
     padding: 20px;
 }
 
-
+.questions-box{
+    background-color: white;
+    padding: 20px;
+    width:75%;
+}
 

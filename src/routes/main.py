@@ -246,7 +246,7 @@ def edit_details():
     if check_login():
         if request.method == "POST":
             user_id = session.get("user_id")
-            username,regno,Class,email = request.form["studName"].upper(),request.form["studRegno"],request.form["studClass"].upper(),request.form["studEmail"]
+            username,regno,Class,email = request.form["studName"],request.form["studRegno"],request.form["studClass"],request.form["studEmail"]
             mongo.db.users.update_one({"_id":ObjectId(user_id)},{"$set":{"username":username,"regno":regno,"class":Class,"email":email}})
         return render_template("edit_user_details.html",studName = session["username"])
     else:

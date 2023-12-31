@@ -149,12 +149,12 @@ def get_test_code():
                 # Saving the audio
                 audio_file = request.files['audio_file']
                 audio_filename = secure_filename(audio_file.filename)
-                audio_file.save(os.path.join(os.path.abspath('src/static/audios/'),audio_filename))
+                audio_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/audios/'),audio_filename))
                 # Saving the excel file
                 questions_file = request.files['questions_file']
                 questions_filename = secure_filename(questions_file.filename)
-                questions_file.save(os.path.join(os.path.abspath('src/static/questions/'),questions_filename))
-                
+                questions_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),questions_filename))
+
                 try:
                     if not mongo.db.testDetails.find_one({"test_code":test_code}):
                         mongo.db.testDetails.insert_one({
@@ -164,8 +164,8 @@ def get_test_code():
                     "lab_session":lab_session,
                     "audio_no":audio_no,
                     "questions_filename":questions_filename})
-                        
-                    questions = extract_questions(os.path.join(os.path.abspath('src/static/questions/'),questions_filename))
+
+                    questions = extract_questions(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),questions_filename))
                     mongo.db[test_code].insert_many(questions)
                     flash("Uploaded Successfully!")
                 except Exception as e:
@@ -177,7 +177,7 @@ def get_test_code():
 
 @admin.route("/download/<testCode>/<Class>")
 def download(testCode,Class):
-    path = os.path.join(os.path.abspath("admin_reports/"),f"{Class}_{testCode}_(test-report).csv")
+    path = os.path.join(os.path.abspath("Quiz-App/admin_reports/"),f"{Class}_{testCode}_(test-report).csv")
     return send_file(path,as_attachment=True)
 
 @admin.route("/logout",methods=['GET', 'POST'])
@@ -217,7 +217,7 @@ def fetch_test_details(testCode):
         return jsonify({"resp":"TESTCODE NOT FOUND"})
     else:
         return redirect(url_for('admin.login'))
-    
+
 @admin.route("/show_questions",methods=['GET', 'POST'])
 def show_questions():
     if check_login():
@@ -231,7 +231,7 @@ def show_questions():
         return render_template("admin/show_questions.html",question_form=question_form,test_codes=test_codes,test_details=fetch_first_test,questions=fetch_test_questions,audio_form=audio_form)
     else:
         return redirect(url_for('admin.login'))
-    
+
 @admin.route("/edit_audio_file",methods=['GET', 'POST'])
 def edit_test_audio():
     if check_login():
@@ -239,17 +239,17 @@ def edit_test_audio():
             test_code = request.form["test_code"]
             audio_file = request.files['new_audio_file']
             audio_filename = secure_filename(audio_file.filename)
-            audio_file.save(os.path.join(os.path.abspath('src/static/audios/'),audio_filename))
+            audio_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/audios/'),audio_filename))
             try:
                 mongo.db.testDetails.update_one({"test_code":test_code},{"$set":{"audio_name": audio_filename}})
                 flash("Audio updated successfully!")
                 return redirect(url_for("admin.show_questions"))
             except Exception as e:
                 flash(e)
-        return redirect(url_for("admin.show_questions"))    
+        return redirect(url_for("admin.show_questions"))
     else:
         return redirect(url_for("admin.login"))
-    
+
 @admin.route("/edit_question_file",methods=['GET', 'POST'])
 def edit_test_file():
     if check_login():
@@ -257,12 +257,12 @@ def edit_test_file():
             test_code = request.form["test_code"]
             new_question_file = request.files['new_questions_file']
             new_question_filename = secure_filename(new_question_file.filename)
-            new_question_file.save(os.path.join(os.path.abspath('src/static/questions/'),new_question_filename))
+            new_question_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),new_question_filename))
             try:
                 # Dropping the testcode collection
                 mongo.db[test_code].drop()
                 # Extracting new questions
-                questions = extract_questions(os.path.join(os.path.abspath('src/static/questions/'),new_question_filename))
+                questions = extract_questions(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),new_question_filename))
                 mongo.db[test_code].insert_many(questions)
                 # Updating testdetails in testDetails collection
                 mongo.db.testDetails.update_one({"test_code":test_code},{"$set":{"questions_filename": new_question_filename}})
@@ -271,10 +271,10 @@ def edit_test_file():
                 return redirect(url_for("admin.show_questions"))
             except Exception as e:
                 flash(e)
-        return redirect(url_for("admin.show_questions"))    
+        return redirect(url_for("admin.show_questions"))
     else:
         return redirect(url_for("admin.login"))
-    
+
 @admin.route("/delete_testcode",methods=['GET', 'POST'])
 def delete_testcode():
     if check_login():
@@ -316,7 +316,7 @@ def technical_issues():
         return render_template("admin/technical_issues.html",test_codes=test_codes,zero_results=zero_results)
     else:
         return redirect(url_for("admin.login"))
-    
+
 
 @admin.route("/delete_result",methods=['GET', 'POST'])
 def delete_result():

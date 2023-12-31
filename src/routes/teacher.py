@@ -141,3 +141,69 @@ def show_questions():
         return render_template("teacher/show_questions.html",test_codes=test_codes,test_details=fetch_first_test,questions=fetch_test_questions)
     else:
         return redirect(url_for('teacher.login'))
+    
+@teacher.route("/issues/<testCode>",methods=['GET', 'POST'])
+def fetch_technical_issues(testCode):
+    if check_login():
+        fetch_testcodes = list(mongo.db.testDetails.find({},{"test_code":1}))
+        raw_available_testcodes=[i["test_code"] for i in fetch_testcodes]
+        available_testcodes = remove_duplicates(raw_available_testcodes)
+        if testCode in available_testcodes:
+            zero_results = list(mongo.db[f"{testCode}-result"].find({"score":0}))
+            return render_template("teacher/technical_issues.html",test_codes=available_testcodes,zero_results=zero_results)
+        return jsonify({"resp":"TESTCODE NOT FOUND"})
+    else:
+        return redirect(url_for('teacher.login'))
+
+
+@teacher.route("/technical_issues",methods=['GET', 'POST'])
+def technical_issues():
+    if check_login():
+        fetch_testcodes = list(mongo.db.testDetails.find({},{"test_code":1}))
+        raw_test_codes=[i["test_code"] for i in fetch_testcodes]
+        test_codes = remove_duplicates(raw_test_codes)
+        zero_results = list(mongo.db[f"{test_codes[0]}-result"].find({"score":0},{}))
+        return render_template("teacher/technical_issues.html",test_codes=test_codes,zero_results=zero_results)
+    else:
+        return redirect(url_for("teacher.login"))
+    
+@teacher.route("/delete_result",methods=['GET', 'POST'])
+def delete_result():
+    if check_login():
+        if request.method == "POST":
+            obj_id = request.json["obj_id"]
+            test_code = request.json["test_code"]
+            print(obj_id,test_code)
+            try:
+                mongo.db[f"{test_code}-result"].delete_one({"_id":ObjectId(obj_id)})
+                flash("Deleted successfully!")
+            except Exception as e:
+                flash(e)
+        return redirect(url_for("teacher.technical_issues"))
+    else:
+        return redirect(url_for("teacher.login"))
+    
+
+@teacher.route("/fetch_test_codes/<testCode>",methods=['GET', 'POST'])
+def fetch_test_codes(testCode):
+    if check_login():
+        fetch_testcodes = list(mongo.db.testDetails.find({},{"test_code":1}))
+        raw_available_testcodes=[i["test_code"] for i in fetch_testcodes]
+        available_testcodes = remove_duplicates(raw_available_testcodes)
+        if testCode in available_testcodes:
+            test_results = list(mongo.db[f"{testCode}-result"].find({"teacher":session.get("teacherName")}))
+            return render_template("teacher/view_reports.html",test_codes=available_testcodes,test_results=test_results)
+        return jsonify({"resp":"TESTCODE NOT FOUND"})
+    else:
+        return redirect(url_for('teacher.login'))
+
+@teacher.route("/view_results",methods=['GET', 'POST'])
+def view_results():
+    if check_login():
+        fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0}))
+        raw_test_codes=[i["test_code"] for i in fetch_testcodes]
+        test_codes = remove_duplicates(raw_test_codes)
+        test_results = list(mongo.db[f"{test_codes[0]}-result"].find({"teacher":session.get("teacherName")}))
+        return render_template("teacher/view_reports.html",test_codes=test_codes,test_results=test_results)
+    else:
+        return redirect(url_for("teacher.login"))

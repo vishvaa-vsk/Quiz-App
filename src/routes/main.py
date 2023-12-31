@@ -154,14 +154,10 @@ def write_test(testCode):
                         "name":session["username"],
                                  "class":user['class'],
                                  "regno":user["regno"],
+                                 "teacher":user['teacher'],
                                 "test_code":testCode,"score":(total_correct_answer/len(total_questions))*100,"percentage":percentage,
                                 "status":"Pass" if percentage >= 50 else "Fail"}
                 except Exception as e:
-                    # add_user_result = {"name":session["username"],
-                    #             "class":user['class'],
-                    #             "regno":user["regno"],
-                    #             "test_code":testCode,"score":0,"percentage":0,
-                    #             "status":"Pass" if percentage >= 50 else "Fail"}
                     flash(e)
                     return jsonify({"error":e})
                 try:
@@ -246,8 +242,8 @@ def edit_details():
     if check_login():
         if request.method == "POST":
             user_id = session.get("user_id")
-            username,regno,Class,email = request.form["studName"],request.form["studRegno"],request.form["studClass"],request.form["studEmail"]
-            mongo.db.users.update_one({"_id":ObjectId(user_id)},{"$set":{"username":username,"regno":regno,"class":Class,"email":email}})
+            username,regno,Class,email,teacher = request.form["studName"],request.form["studRegno"],request.form["studClass"].upper(),request.form["studEmail"],request.form.get("teacherName")
+            mongo.db.users.update_one({"_id":ObjectId(user_id)},{"$set":{"username":username,"regno":regno,"class":Class,"email":email,"teacher":teacher}})
         return render_template("edit_user_details.html",studName = session["username"])
     else:
         return redirect(url_for('main.login'))

@@ -19,15 +19,16 @@
         <h3>Sign up as a teacher</h3>
         <form action="{{ url_for('teacher.signup') }}" method="POST">
                 <select class="form-select form-select-lg mb-3" name="teacherName" id="teacher" aria-label="Teacher Name" required>
-                  <option value="Teacher Name" selected>Teacher Name</option>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                  <option value="D">D</option>
-                  <option value="E">E</option>
-                  <option value="F">F</option>
-                  <option value="G">G</option>
-                  <option value="H">H</option>
+                  <option value="Teacher Name" selected disabled>Teacher Name</option>
+                  <option value="Baskaran V">Baskaran V</option>
+                  <option value="Sugapriya S">Sugapriya S</option>
+                  <option value="Balaji A">Balaji A</option>
+                  <option value="Latha J">Latha J</option>
+                  <option value="Dhanalakshmi R">Dhanalakshmi R</option>
+                  <option value="Anand V">Anand V</option>
+                  <option value="Vinothkumar M">Vinothkumar M</option>
+                  <option value="Archana G.M">Archana G.M</option>
+                  <option value="Kirubakaran Amalraj">Kirubakaran Amalraj</option>
                 </select>
               <div class="form-floating mb-3">
                 <input type="email" class="form-control" name="teacherEmail" id="floatingInput" placeholder="Email" required>

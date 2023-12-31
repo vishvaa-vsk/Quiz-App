@@ -44,6 +44,11 @@ def create_csv(filename,report_details):
         writer.writeheader()
         writer.writerows(report_details)
 
+def remove_duplicates(iterable):
+    copy = set(iterable)
+    non_duplicate = list(copy)
+    return non_duplicate
+
 def extract_questions(filepath):
     file_content = pd.read_excel(filepath,engine='openpyxl')
     json_object = file_content.to_json(orient='records')

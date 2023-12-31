@@ -75,6 +75,10 @@ body{
     font-size: 15px;
 }
 
+#testButton{
+    margin-right: 30px;
+}
+
 .studBanner{
     padding: 10px;
     display: flex;
@@ -113,4 +117,26 @@ div.content {
     padding: 15px;
     background-color:#EF786B;
     border-radius: 10px;
+}
+
+.edit-profile{
+    padding: 25px;
+    width: 60%;
+    height: 70%;
+    background-color: white;
+    margin: 30px auto;
+    border: 1px transparent;
+    border-radius: 25px;
+    text-align: center;
+}
+
+.edit-profile form{
+    padding: 10px;
+}
+
+@media screen and (max-width: 600px) {
+    .edit-profile{
+        width: 65%;
+        margin: 75px auto;
+    }
 }

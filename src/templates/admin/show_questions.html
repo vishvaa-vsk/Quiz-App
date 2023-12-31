@@ -10,14 +10,124 @@
 </head>
 <body>
     <div class="sidebar">
-       <h1>Test Codes</h1>
+       <h1 style="color:white; margin: 25px;">Test Codes</h1>
        {% for testCode in test_codes %}
             <a href="{{ url_for('admin.fetch_test_details', testCode=testCode) }}" id="testCodes">{{testCode}}</a>
        {% endfor %}
+       <a href="{{ url_for('admin.dashboard') }}"> Go to Dashboard</a>
     </div>
     <div class="content">
+        {% for message in get_flashed_messages() %}
+            {% if "successfully" in message %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{message}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{message}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+        {% endfor %}
+
         {% for i in test_details %}
-            <div class="test-container">
+        <div class="modal fade" id="editAudioModal" tabindex="-1" aria-labelledby="editAudioModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editAudioModalLabel">Upload new audio file</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ url_for('admin.edit_test_audio') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {{ audio_form.hidden_tag() }}
+                    {{ audio_form.test_code.label(class="form-label") }}
+                    {{ audio_form.test_code(class="form-control mb-3",autocomplete="off") }}
+                    {{ audio_form.new_audio_file.label(class="form-label") }}
+                    {{ audio_form.new_audio_file(class="form-control mb-3",accept='audio/*') }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    {{audio_form.update(class="btn btn-outline-success")}}
+                </div>
+                </form>
+            </div>
+            </div>
+        </div>
+
+
+        <div class="modal fade" id="editQuestionModal" tabindex="-1" aria-labelledby="editQuestionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editQuestionModalLabel">Upload new question file</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ url_for('admin.edit_test_file') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {{ question_form.hidden_tag() }}
+
+                    {{ question_form.test_code.label(class="form-label") }}
+                    {{ question_form.test_code(class="form-control mb-3",autocomplete="off") }}
+
+                    {{ question_form.new_questions_file.label(class="form-label") }}
+                    {{ question_form.new_questions_file(class="form-control mb-3",accept='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    {{question_form.update(class="btn btn-outline-success")}}
+                </div>
+                </form>
+            </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteModalLabel">Delete TestCode ?</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ url_for('admin.delete_testcode') }}" method="POST" id="deleteTestCode">
+                    <div class="modal-body">
+                        <strong class="text-danger">Are you sure to delete ??</strong>
+                        <br>
+                        <strong class="text-info-emphasis" id="deleteMsg">Type "{{i['test_code']}}" to delete the testcode!</strong>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="testCode" name="test_code" placeholder="test code" required
+                            autocomplete="off">
+                            <label for="testCode">Test Code</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" onclick="checkTestCode()">Confirm</button>
+                    </div>
+                </form>
+            </div>
+            </div>
+
+            <script>
+                checkTestCode=()=>{
+                    userTestCode = document.getElementById("testCode").value;
+                    testCode = "{{i['test_code']}}"
+                    deleteForm = document.getElementById("deleteTestCode");
+                    if (userTestCode === testCode){
+                        deleteForm.submit();
+                        return false;
+                    }
+                    else{
+                        document.getElementById("deleteMsg").innerHTML = "Incorrect test code! please try again!..."
+                    }
+                }
+            </script>
+
+        </div>
+
+
+            <div class="test-container shadow p-3 mb-5 bg-body-tertiary rounded">
                 <div class="row">
                     <div class="col">
                         <h4 id="test_code">Test Code: {{i["test_code"]}}</h4>
@@ -25,10 +135,11 @@
                     <div class="col">
                         <div class="d-flex justify-content-end">
                             <h4 id="audio_name" class="mx-2">Audio Name: {{i["audio_name"]}}</h4>
-                            <button class="btn btn-info">Edit Audio</button>
+                            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#editAudioModal">Edit Audio</button>
                         </div>
                     </div>
                 </div>
+                <br>
                 <div class="row">
                     <div class="col">
                         <h4>Lab Session: {{i["lab_session"]}}</h4>
@@ -36,21 +147,29 @@
 
                     <div class="col">
                         <div class="d-flex justify-content-end ">
-                            <h4  class="mx-2" id="file_name">Questions file name: {{i["questions_filename"]}}</h4>
-                            <button class="btn btn-info">Edit file</button>
+                            <h4 class="mx-2" id="file_name">Questions file name: {{i["questions_filename"]}}</h4>
+                            <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#editQuestionModal">Edit file</button>
                         </div>
                     </div>
                 </div>
+                <br>
                 <div class="row">
-                    <h4>Audio No: {{i["audio_no"]}}</h4>
+                    <div class="col">
+                        <h4>Audio No: {{i["audio_no"]}}</h4>
+                    </div>
+                    <div class="col">
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-
-
-
         {% endfor %}
         {% for question in questions %}
-        <div class="questions-box">
+        <div class="questions-box shadow p-3 mb-5 bg-body-tertiary rounded">
             <div class="question-details">
                 <h4 id="qno">Question-no: {{question["question_no"]}}</h4>
                 <h4 id="qusetion">Question: {{question["question"]}}</h4>
@@ -62,7 +181,9 @@
         </div>
         {% endfor %}
     </div>
-<script>
-</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+
 </body>
 </html>

@@ -197,6 +197,11 @@ def fetch_test_codes(testCode):
     else:
         return redirect(url_for('teacher.login'))
 
+@teacher.route("/handing_classes",methods=['GET', 'POST'])
+def add_handling_classes():
+    pass
+
+
 @teacher.route("/view_results",methods=['GET', 'POST'])
 def view_results():
     if check_login():

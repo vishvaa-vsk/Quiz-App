@@ -9,7 +9,7 @@ from bson.objectid import ObjectId
 import string , random
 
 from flask_wtf import FlaskForm
-from wtforms import StringField,SubmitField,FileField,IntegerField
+from wtforms import StringField,SubmitField,FileField,IntegerField,SelectField
 from wtforms.validators import DataRequired,InputRequired
 from werkzeug.utils import secure_filename
 
@@ -18,12 +18,13 @@ admin = Blueprint("admin",__name__,url_prefix="/admin")
 gen_testCode = ''.join(random.sample(string.ascii_uppercase+string.digits,k=8))
 
 class AddAudioForm(FlaskForm):
-    test_code = StringField("Test code",validators=[DataRequired(),InputRequired()])
-    time = IntegerField("Time (in minutes)",validators=[DataRequired(),InputRequired()],render_kw={"step":"10"})
-    lab_session = IntegerField("Lab Session",validators=[DataRequired(),InputRequired()])
-    audio_no = IntegerField("Audio number",validators=[DataRequired(),InputRequired()])
-    audio_file = FileField("Audio File",validators=[InputRequired()])
-    questions_file = FileField("Questions File",validators=[InputRequired()])
+    test_code = StringField(u"Test code",validators=[DataRequired(),InputRequired()])
+    time = IntegerField(u"Time (in minutes)",validators=[DataRequired(),InputRequired()],render_kw={"step":"10"})
+    lab_session = IntegerField(u"Lab Session",validators=[DataRequired(),InputRequired()])
+    test_type = SelectField(u"Test Type",choices=[("lab test","Lab test"),("cie1","CIE1"),("cie2","CIE2"),("model exam","Model Exam"),("univ exam","University Exam")])
+    audio_no = IntegerField(u"Audio number",validators=[DataRequired(),InputRequired()])
+    audio_file = FileField(u"Audio File",validators=[InputRequired()])
+    questions_file = FileField(u"Questions File",validators=[InputRequired()])
     submit = SubmitField("Submit")
 
 class EditAudioForm(FlaskForm):
@@ -146,6 +147,7 @@ def get_test_code():
                 test_time = str(form.time.data)
                 lab_session = str(form.lab_session.data)
                 audio_no = str(form.audio_no.data)
+                test_type = dict(form.test_type.choices).get(form.test_type.data)
                 # Saving the audio
                 audio_file = request.files['audio_file']
                 audio_filename = secure_filename(audio_file.filename)
@@ -161,6 +163,7 @@ def get_test_code():
                     "test_code":test_code,
                     "audio_name":audio_filename,
                     "test_time": test_time,
+                    "test_type":test_type,
                     "lab_session":lab_session,
                     "audio_no":audio_no,
                     "questions_filename":questions_filename})

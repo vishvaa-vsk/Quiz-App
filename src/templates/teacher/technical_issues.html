@@ -57,7 +57,7 @@
                         url : "/teacher/delete_result",
                         data: JSON.stringify({"obj_id":"{{result['_id']}}","test_code":"{{result['test_code']}}"}),
                         success: function(response){
-                            return false;
+                            window.location.href = response.url;
                         }
                     })
                 }

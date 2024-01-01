@@ -16,7 +16,7 @@
        {% endfor %}
        <a href="{{ url_for('admin.dashboard') }}"> Go to Dashboard</a>
     </div>
-    <div class="content d-flex align-items-center justify-content-center">
+    <div class="content">
 
         {% for message in get_flashed_messages() %}
             {% if "successfully" in message %}
@@ -33,6 +33,7 @@
         {% endfor %}
 
         {% for result in zero_results %}
+        <div class="d-flex align-items-center justify-content-center">
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog">
             <div class="modal-content">
@@ -57,13 +58,13 @@
                         url : "/admin/delete_result",
                         data: JSON.stringify({"obj_id":"{{result['_id']}}","test_code":"{{result['test_code']}}"}),
                         success: function(response){
-                            return false;
+                            window.location.href = response.url;
                         }
                     })
                 }
             </script>
         </div>
-        <div class="questions-box shadow p-3 mb-5 bg-body-tertiary rounded">
+        <div class="questions-box shadow p-3 mb-5 bg-body-tertiary rounded d-flex justify-content-between">
             <div class="question-details">
                 <h4 id="qno">Name: {{result["name"]}}</h4>
                 <h4 id="qusetion">Regno: {{result["regno"]}}</h4>
@@ -76,7 +77,9 @@
                 <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
             </div>
         </div>
+        </div>
         {% endfor %}
+        
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>

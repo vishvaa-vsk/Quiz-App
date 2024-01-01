@@ -330,6 +330,7 @@ def delete_result():
             try:
                 mongo.db[f"{test_code}-result"].delete_one({"_id":ObjectId(obj_id)})
                 flash("Deleted successfully!")
+                return jsonify({"url":f"/admin/issues/{test_code}"})
             except Exception as e:
                 flash(e)
         return redirect(url_for("admin.technical_issues"))

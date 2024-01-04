@@ -225,7 +225,8 @@ def generate_report(testCode,name):
             if os.path.isfile(os.path.join(os.path.abspath("Quiz-App/reports"),filename)):
                 send_report(username=name,userEmail=user_details["email"],testCode=testCode,filename=filename)
                 flash("The report has been delivered to your inbox!")
-        return template
+            return template
+        return "REPORT NOT FOUND"
     else:
         return redirect(url_for('main.login'))
 

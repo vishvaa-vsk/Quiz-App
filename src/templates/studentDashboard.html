@@ -16,7 +16,7 @@
             <input type="text" name="testCode" id="testCode" placeholder="TEST CODE" onkeydown="writeTest(this)">
             <button id="testButton" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Go</button>    
         </div>
-        <a href=""class="active">Dash Board</a>
+        <a href="{{ url_for('main.dashboard') }}"class="active">Dash Board</a>
         <a href="{{ url_for('main.download_prev_result') }}">Download Previous Test Results</a>
         <a href="{{ url_for('main.edit_details') }}" >Edit Your Details</a>
         <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Logout</a>

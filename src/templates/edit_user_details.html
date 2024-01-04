@@ -118,8 +118,8 @@
               <option value="Balaji A">Balaji A</option>
               <option value="Latha J">Latha J</option>
               <option value="Dhanalakshmi R">Dhanalakshmi R</option>
-              <option value="Anand V">Anand V</option>
               <option value="Vinothkumar M">Vinothkumar M</option>
+              <option value="Anand V">Anand V</option>
               <option value="Archana G.M">Archana G.M</option>
               <option value="Kirubakaran Amalraj">Kirubakaran Amalraj</option>
             </select>
@@ -162,5 +162,35 @@
           classSec = `${year}-${dept}-${section}`
           document.querySelector("#class-sec").value = classSec
       }
+
+    sendTestCode = () =>{
+        var testCode = document.querySelector("#testCode").value;
+        $.ajax({
+            url : `/verify_test/${testCode}`,
+            type:'POST',
+            data: {'testCode':testCode},
+            success: function(response) { 
+                window.location.href = response.url;
+            }
+        });}
+
+
+    var writeTest=(input)=>{
+        if(event.key == 'Enter'){
+            var testCode = input.value;
+            document.querySelector('#staticBackdrop').style.display = "block";
+            var confirmButton = document.querySelector("#confirmButton");
+            confirmButton.addEventListener('click',function(){
+            $.ajax({
+                url : `/verify_test/${testCode}`,
+                type:'POST',
+                data: {'testCode':testCode},
+                success: function(response) { 
+                    window.location.href = response.url;
+                }
+            })
+            });
+        };
+    }
     </script>
 {% endblock %}

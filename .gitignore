@@ -7,3 +7,4 @@ admin_reports/*
 *.xlsx
 .vscode
 src/static/questions/*
+*.pdf

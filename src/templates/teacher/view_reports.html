@@ -1,27 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports</title>
-    <link rel="stylesheet" href="{{ url_for('static',filename='show_questions.css') }}">
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-</head>
-<body>
-    <div class="sidebar">
-        <h1 style="color:white; margin: 25px;">Test Codes</h1>
-        {% for testCode in test_codes %}
-             <a href="{{ url_for('teacher.fetch_test_codes', testCode=testCode) }}" id="testCodes">{{testCode}}</a>
-        {% endfor %}
-        <a href="{{ url_for('teacher.dashboard') }}"> Go to Dashboard</a>
-     </div>
-     <div class="content">
-        {% for result in test_results %}
-            <div class="question-box">
-                {{ result }}
-            </div>
-        {% endfor %}
-     </div>
-</body>
-</html>
+{% extends "teacher/teacher_base.html" %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static',filename='teacher_report.css') }}">
+{% endblock %}
+{% block title %}Reports{% endblock %}
+  
+{% block bodyContent %}
+  <div class="content">
+    <form action="{{ url_for('teacher.view_results') }}" method="post">
+      <div class="d-flex justify-content-sm-center align-items-center">
+        <div class="d-flex justify-content-sm-start">
+          <div class="p-2">
+            <select name="test_code" id="test_code" class="form-select" required>
+              <option selected disabled>Test Code</option>
+              {% for testCode in test_codes %}
+                <option value="{{testCode}}">{{ testCode|e }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="d-flex justify-content-sm-end p-2 m-2">
+          <div class="p-2">
+              <select class="form-select" id="class" name="classes" required>
+                <option disabled selected>Class</option>
+                {% for Class in classes %}
+                <option value="{{Class}}">{{Class}}</option>
+                {% endfor %}
+              </select>
+          </div>
+          <div class="d-flex justify-content-sm-evenly p-2">
+            <button type="submit" class="btn btn-info">Search</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <br>
+
+    {% if test_results == [] %}
+      <div class="d-flex justify-content-sm-center align-items-center">
+        <h3>No Test Results Found for {{Class}}</h3>
+      </div>
+      <br>
+    {% else %}
+    <div class="d-flex justify-content-sm-center align-items-center">
+      <h3>Test Results for {{Class}}</h3>
+    </div>
+    <br>
+    
+    <table id="report">
+      <tr>
+        <th>S.NO</th>
+        <th>REG.NO</th>
+        <th>NAME</th>
+        <th>SCORE</th>          
+        <th>PERCENTAGE</th>          
+        <th>RESULT</th>          
+      </tr>
+      {% for i in range(test_results | length) %}
+        <tr>
+          <td>{{ i+1 }}</td>
+          <td>{{ test_results[i]["regno"] }}</td>
+          <td>{{ test_results[i]['name'] | upper }}</td>
+          <td>{{ test_results[i]['score'] }}</td>
+          <td>{{ test_results[i]['percentage'] }}</td>
+          <td>{{ test_results[i]['status'] }}</td>
+        </tr>
+      {% endfor %}
+    </table> 
+    {% endif %}
+    
+
+      
+   </div>
+{% endblock %}

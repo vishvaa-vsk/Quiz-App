@@ -11,10 +11,10 @@
 <body>
     <div class="sidebar">
        <h1 style="color:white; margin: 25px;">Test Codes</h1>
+       <a href="{{ url_for('teacher.dashboard') }}"> Go to Dashboard</a>
        {% for testCode in test_codes %}
             <a href="{{ url_for('teacher.fetch_technical_issues', testCode=testCode) }}" id="testCodes">{{testCode}}</a>
        {% endfor %}
-       <a href="{{ url_for('teacher.dashboard') }}"> Go to Dashboard</a>
     </div>
     <div class="content d-flex align-items-center justify-content-center">
 

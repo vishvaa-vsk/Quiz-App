@@ -1,5 +1,5 @@
-import os
-from flask import Blueprint,flash,render_template,url_for,session,redirect,request,jsonify,send_file
+import os,tempfile
+from flask import Blueprint,flash,render_template,url_for,session,redirect,request,jsonify,send_file,make_response
 from werkzeug.security import generate_password_hash,check_password_hash
 from ..extensions import mongo
 from ..helper import generate_token,verify_token,create_report,remove_duplicates
@@ -173,7 +173,6 @@ def delete_result():
         if request.method == "POST":
             obj_id = request.json["obj_id"]
             test_code = request.json["test_code"]
-            print(obj_id,test_code)
             try:
                 mongo.db[f"{test_code}-result"].delete_one({"_id":ObjectId(obj_id)})
                 flash("Deleted successfully!")
@@ -183,25 +182,6 @@ def delete_result():
         return redirect(url_for("teacher.technical_issues"))
     else:
         return redirect(url_for("teacher.login"))
-    
-
-@teacher.route("/fetch_test_codes/<testCode>",methods=['GET', 'POST'])
-def fetch_test_codes(testCode):
-    if check_login():
-        fetch_testcodes = list(mongo.db.testDetails.find({},{"test_code":1}))
-        raw_available_testcodes=[i["test_code"] for i in fetch_testcodes]
-        available_testcodes = remove_duplicates(raw_available_testcodes)
-        if testCode in available_testcodes:
-            test_results = list(mongo.db[f"{testCode}-result"].find({"teacher":session.get("teacherName")}))
-            return render_template("teacher/view_reports.html",test_codes=available_testcodes,test_results=test_results)
-        return jsonify({"resp":"TESTCODE NOT FOUND"})
-    else:
-        return redirect(url_for('teacher.login'))
-
-@teacher.route("/handing_classes",methods=['GET', 'POST'])
-def add_handling_classes():
-    pass
-
 
 @teacher.route("/view_results",methods=['GET', 'POST'])
 def view_results():
@@ -209,7 +189,53 @@ def view_results():
         fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0}))
         raw_test_codes=[i["test_code"] for i in fetch_testcodes]
         test_codes = remove_duplicates(raw_test_codes)
-        test_results = list(mongo.db[f"{test_codes[0]}-result"].find({"teacher":session.get("teacherName")}))
-        return render_template("teacher/view_reports.html",test_codes=test_codes,test_results=test_results)
+        handling_classes = mongo.db.teachers.find_one({"username":session["teacherName"]})["handling_classes"]
+        classes = [i[j] for i in handling_classes for j in range(len(i))]
+        if request.method == "POST":
+            testCode = request.form.get("test_code")
+            Class = request.form.get("classes")
+            test_results = list(mongo.db[f"{testCode}-result"].find({"$and":[{"teacher":session.get("teacherName")},{"class":Class}]}).sort("regno",1))
+            return render_template("teacher/view_reports.html",test_codes=test_codes,classes=classes,test_results=test_results,Class=Class)
+        return render_template("teacher/view_reports.html",test_codes=test_codes,classes=classes)
     else:
         return redirect(url_for("teacher.login"))
+
+# @teacher.route("/delete_class",methods=['GET', 'POST'])
+# def delete_class():
+#     if check_login():
+#         if request.method == "POST":
+#             section = request.json["section"]
+#             try:
+#                 print(section)
+#                 mongo.db.teachers.update_one({"username":session["teacherName"]},{"$pull":{"handling_classes":section}})
+#                 flash("Deleted successfully!")
+#                 return jsonify({"url":"/teacher/handling_classes"})
+#             except Exception as e:
+#                 print(e)
+#         return redirect(url_for("teacher.add_handling_classes"))
+#     else:
+#         return redirect(url_for('teacher.login'))
+
+@teacher.route("/add_classes",methods=['GET', 'POST'])
+def add_classes():
+    Class = request.json["class"]
+    handling_classes = []
+    handling_classes.append(Class)
+    print(handling_classes)
+    try:
+        if mongo.db.teachers.find_one({"$and":[{"username":session["teacherName"]},{"handling_classes":{"$exists":True}}]}):
+            mongo.db.teachers.update_one({"username":session["teacherName"]},{"$push":{"handling_classes":handling_classes}})
+        else:
+            mongo.db.teachers.update_one({"username":session["teacherName"]},{"$push":{"handling_classes":handling_classes}})
+    except Exception as e:
+        print(e)
+    return jsonify({"url":f"/teacher/handling_classes"})
+
+@teacher.route("/handling_classes",methods=['GET', 'POST'])
+def add_handling_classes():
+    if check_login():
+        handling_classes = mongo.db.teachers.find_one({"username":session["teacherName"]})["handling_classes"]
+        classes = [i[j] for i in handling_classes for j in range(len(i))]
+        return render_template("teacher/add_handling_classes.html",Class=classes)
+    else:
+        return redirect(url_for('teacher.login'))

@@ -1,0 +1,23 @@
+#report {
+    font-family: "Lato-Bold", Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  #report td {
+    border: 1px solid #F8F6FF;
+    padding: 10px;
+  }
+  
+  #report tr:nth-child(even){background-color: #F8F6FF;}
+  
+  #report tr:hover {background-color: #F8F6FF;}
+  
+  #report th {
+    /* padding-top: 12px;
+    padding-bottom: 12px; */
+    padding: 20px;
+    text-align: left;
+    background-color: #6C7AE0;
+    color: white;
+  }

@@ -2,19 +2,21 @@ from fpdf import FPDF
 
 class PDF(FPDF):
     def header(self):
-        self.image("/home/vishvaa/projects/Quiz-App/src/VEC-logo.png",10,6,25)
+        self.image("/home/vishvaa/projects/Quiz-App/src/static/VEC-logo.png",10,6,25)
         self.set_font("helvetica",'B',15)
         self.cell(80)
         self.cell(30,10,"VELAMMAL ENGINEERING COLLEGE",border=False,align="C",new_x="LMARGIN",
             new_y="NEXT",)
+        
         self.cell(80)
         self.cell(30,10,"Velammal Newgen Park, Ambattur - Red Hills Road",border=False,align="C",new_x="LMARGIN",
             new_y="NEXT",)
 
         self.cell(0,10,"COURSE WISE MARK LIST",border=False,align="C")
-        self.write_html(f"""""")
-
-        self.ln(20)
+        self.cell(100)
+        self.cell(-380,25,"Academic Year: {{year}} \t\t Programe:{{}} \t\t Batch:{{}}",border=False,align="C")
+        self.cell(130)
+        self.cell(55,40,"Semester:{{}} \t\t Course:{{}}",border=False,align="C",new_x="LMARGIN",new_y="NEXT")
 
     def footer(self):
         self.set_y(-15)

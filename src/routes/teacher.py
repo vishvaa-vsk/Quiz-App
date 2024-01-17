@@ -198,7 +198,7 @@ def view_results():
             testCode = request.form.get("test_code")
             Class = request.form.get("classes")
             test_results = list(mongo.db[f"{testCode}-result"].find({"$and":[{"teacher":session.get("teacherName")},{"class":Class}]}).sort("regno",1))
-            return render_template("teacher/view_reports.html",test_codes=test_codes,classes=classes,test_results=test_results,Class=Class)
+            return render_template("teacher/view_reports.html",test_codes=test_codes,classes=classes,test_results=test_results,Class=Class,test_code=testCode)
         return render_template("teacher/view_reports.html",test_codes=test_codes,classes=classes)
     else:
         return redirect(url_for("teacher.login"))

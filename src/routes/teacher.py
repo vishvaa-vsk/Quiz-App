@@ -234,8 +234,11 @@ def add_classes():
 @teacher.route("/handling_classes",methods=['GET', 'POST'])
 def add_handling_classes():
     if check_login():
-        handling_classes = mongo.db.teachers.find_one({"username":session["teacherName"]})["handling_classes"]
-        classes = [i[j] for i in handling_classes for j in range(len(i))]
+        try:
+            handling_classes = mongo.db.teachers.find_one({"username":session["teacherName"]})["handling_classes"]
+            classes = [i[j] for i in handling_classes for j in range(len(i))]
+        except:
+            classes=[]
         return render_template("teacher/add_handling_classes.html",Class=classes)
     else:
         return redirect(url_for('teacher.login'))

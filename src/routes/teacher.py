@@ -189,8 +189,11 @@ def view_results():
         fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0}))
         raw_test_codes=[i["test_code"] for i in fetch_testcodes]
         test_codes = remove_duplicates(raw_test_codes)
-        handling_classes = mongo.db.teachers.find_one({"username":session["teacherName"]})["handling_classes"]
-        classes = [i[j] for i in handling_classes for j in range(len(i))]
+        try:
+            handling_classes = mongo.db.teachers.find_one({"username":session["teacherName"]})["handling_classes"]
+            classes = [i[j] for i in handling_classes for j in range(len(i))]
+        except:
+            classes = []
         if request.method == "POST":
             testCode = request.form.get("test_code")
             Class = request.form.get("classes")

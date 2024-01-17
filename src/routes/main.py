@@ -203,7 +203,7 @@ def download_prev_result():
                     report = create_report(name=name,testCode=testCode,class_and_sec=user_details['class'],regno=user_details['regno'],status=user_test_report['status'],score=user_test_report['score'],percentage=user_test_report['percentage'],lab_session=testdetails["lab_session"],audio_no=testdetails["audio_no"]
             ,file="report_base.html")
                     filename = f"{name}'s_{testCode}_report.pdf"
-                    pdfkit.from_string(report,os.path.join(os.path.abspath("reports"),filename))
+                    pdfkit.from_string(report,os.path.join(os.path.abspath("Quiz-App/reports"),filename))
                     return download(testCode=testCode,name=name)
         return render_template("previous_result.html",name=name)
     else:

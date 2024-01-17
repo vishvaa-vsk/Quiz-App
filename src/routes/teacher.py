@@ -141,7 +141,7 @@ def show_questions():
         return render_template("teacher/show_questions.html",test_codes=test_codes,test_details=fetch_first_test,questions=fetch_test_questions)
     else:
         return redirect(url_for('teacher.login'))
-    
+
 @teacher.route("/issues/<testCode>",methods=['GET', 'POST'])
 def fetch_technical_issues(testCode):
     if check_login():
@@ -166,7 +166,7 @@ def technical_issues():
         return render_template("teacher/technical_issues.html",test_codes=test_codes,zero_results=zero_results)
     else:
         return redirect(url_for("teacher.login"))
-    
+
 @teacher.route("/delete_result",methods=['GET', 'POST'])
 def delete_result():
     if check_login():

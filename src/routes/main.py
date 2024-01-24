@@ -129,7 +129,7 @@ def logout():
 def write_test(testCode):
     if check_login():
         if mongo.db[f"{testCode}-result"].find_one({'name':session["username"]}):
-                return f"<h1> Hi {session['username']}, <br> You have already took this test! <br> Try checking your previous report..<br> Contact professors if you don't have an idea about this.."
+                return f"<h1> Hi {session['username']}, <br> You have already took this test! <br> Try checking your previous report..<br> Contact professors if you don't have an idea about this..</h1>"
         else:
             test_details = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
             questions = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,}))
@@ -169,6 +169,63 @@ def write_test(testCode):
     else:
         return redirect(url_for("main.login"))
 
+@main.route("/univ_exam",methods=['GET', 'POST'])
+def univ_exam():
+    return render_template("univ_exam.html",studName = session.get("username"))
+    
+@main.route("/verify_univ_test/<testCode>",methods=['GET', 'POST'])
+def verify_univ_test(testCode):
+    if request.method == "POST":
+        if testCode in mongo.db.list_collection_names():
+            if mongo.db.testDetails.find_one({"test_code":testCode})["test_type"]=="University Exam":
+                return jsonify({'url':f'/univ_test/{testCode}'})
+    return "Redirecting to test!"
+
+@main.route("/univ_test/<testCode>",methods=['GET', 'POST'])
+def write_univ_test(testCode):
+    if check_login():
+        if mongo.db[f"{testCode}-result"].find_one({'name':session["username"]}):
+                return f"<h1> Hi {session['username']}, <br> You have already took this test! <br> Try checking your previous report..<br> Contact professors if you don't have an idea about this..</h1>"
+        else:
+            test_details = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
+            questions = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,}))
+            testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
+            test_type = testdetails["test_type"]
+            correct_answers = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,"correct_ans":1}))
+            total_questions = []
+            total_correct_answer = 0
+            for i in questions:
+                total_questions.append(int(i['question_no']))
+        if request.method == "POST":
+                try:
+                    for j in total_questions:
+                        user_answer = request.form[f"option-{j}"]
+                        for i in correct_answers:
+                            if str(i['question_no']) == str(j):
+                                if str(i['correct_ans']) == str(user_answer):
+                                    total_correct_answer+=1
+                    percentage = (total_correct_answer/len(total_questions))*100
+                    user = mongo.db.users.find_one({"_id":ObjectId(str(session['user_id']))})
+                    add_user_result = {
+                        '_id':ObjectId(str(session["user_id"])),
+                        "name":session["username"],
+                                 "class":user['class'],
+                                 "regno":user["regno"],
+                                 "teacher":user['teacher'],
+                                 "test_type":test_type,
+                                "test_code":testCode,"score":(total_correct_answer/len(total_questions))*100,"percentage":percentage,
+                                "status":"Pass" if percentage >= 50 else "Fail"}
+                except Exception as e:
+                    flash(e)
+                try:
+                    mongo.db[f"{testCode}-result"].insert_one(add_user_result)
+                    return render_template("redirect_home.html",studName=session.get("username"))
+                except Exception as e:
+                    flash(e)
+                    flash("Internal error occured!")
+        return render_template("showQuestions.html",testDetails=test_details,audio=testdetails['audio_name'],time=testdetails['test_time'])
+    else:
+        return redirect(url_for("main.login"))
 
 @main.route("/download/<testCode>/<name>",methods=['GET', 'POST'])
 def download(testCode,name):
@@ -182,7 +239,7 @@ def get_previous_result():
     if request.method == "POST":
         last_test = list(mongo.db.testDetails.find({},{"_id":0}))
         test_code = last_test[-1]['test_code']
-        latest_result = mongo.db[f"{test_code}-result"].find_one({"name":name},{"_id":0})
+        latest_result = mongo.db[f"{test_code}-result"].find_one({"$and":[{"name":name},{"test_type":{"$ne":"University Exam"}}]},{"_id":0})
         if latest_result is not None:
             return latest_result
     return jsonify({"testcode":"None","name":"None","score":"None","percentage":"None","status":"None"})

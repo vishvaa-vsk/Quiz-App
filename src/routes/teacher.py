@@ -203,28 +203,27 @@ def view_results():
     else:
         return redirect(url_for("teacher.login"))
 
-# @teacher.route("/delete_class",methods=['GET', 'POST'])
-# def delete_class():
-#     if check_login():
-#         if request.method == "POST":
-#             section = request.json["section"]
-#             try:
-#                 print(section)
-#                 mongo.db.teachers.update_one({"username":session["teacherName"]},{"$pull":{"handling_classes":section}})
-#                 flash("Deleted successfully!")
-#                 return jsonify({"url":"/teacher/handling_classes"})
-#             except Exception as e:
-#                 print(e)
-#         return redirect(url_for("teacher.add_handling_classes"))
-#     else:
-#         return redirect(url_for('teacher.login'))
+@teacher.route("/delete_class",methods=['GET', 'POST'])
+def delete_class():
+    if check_login():
+        if request.method == "POST":
+            section = request.json["section"]
+            try:
+                print(section)
+                mongo.db.teachers.update_one({"username":session["teacherName"]},{"$pull":{"handling_classes":{"$in":[[section]]}}})
+                flash("Deleted successfully!")
+                return jsonify({"url":"/teacher/handling_classes"})
+            except Exception as e:
+                print(e)
+        return redirect(url_for("teacher.add_handling_classes"))
+    else:
+        return redirect(url_for('teacher.login'))
 
 @teacher.route("/add_classes",methods=['GET', 'POST'])
 def add_classes():
     Class = request.json["class"]
     handling_classes = []
     handling_classes.append(Class)
-    print(handling_classes)
     try:
         if mongo.db.teachers.find_one({"$and":[{"username":session["teacherName"]},{"handling_classes":{"$exists":True}}]}):
             mongo.db.teachers.update_one({"username":session["teacherName"]},{"$push":{"handling_classes":handling_classes}})

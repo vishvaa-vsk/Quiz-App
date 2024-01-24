@@ -40,7 +40,43 @@
             <button type="button" class="btn btn-success" onclick="addClassSec()">Add Class</button>
         </div>
     </div>
+    <script>
+        addClassSec=()=>{
+        var year = document.querySelector("#year").value;
+        var dept = document.querySelector("#dept").value;
+        var section = document.querySelector("#section").value;
+        var classSec = `${year}-${dept}-${section}`;
+                $.ajax({
+                        type:"POST",
+                        headers: {"Content-Type": "application/json"},
+                        url : "/teacher/add_classes",
+                        data: JSON.stringify({"class":classSec.toString()}),
+                        success: function(response){
+                            window.location.href = response.url;
+                        }
+                });
+            }
 
+    </script>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Class?</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Do you want to delete this?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-danger" onclick="sendClassSec()">Confirm</button>
+        </div>
+      </div>
+    </div>
+</div>
+    
     <h3 class="d-flex justify-content-center align-items-center">Your Handling Classes</h3><br><br><br><br>
 <!-- position-absolute top-50 start-50 translate-middle -->
     <div class="container" style="width: 50%;">
@@ -50,29 +86,23 @@
             <h4 class="text-center" id="qno">{{section}}</h4>
         </div>
         <div class="">
-            <button type="button" class="btn btn-outline-danger">Delete</button>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
         </div>
     </div>
+    
+    <script>
+        sendClassSec=()=>{
+                    $.ajax({
+                        type:"POST",
+                        headers: {"Content-Type": "application/json"},
+                        url : "/teacher/delete_class",
+                        data: JSON.stringify({"section":"{{section}}"}),
+                        success: function(response){
+                            window.location.href = response.url;
+                        }
+                    })
+                }
+    </script>
     {% endfor %}
    </div>
-{% endblock %}
-{% block customJS %}
-<script>
-
-    addClassSec=()=>{
-            let year = document.querySelector("#year").value;
-            let dept = document.querySelector("#dept").value;
-            let section = document.querySelector("#section").value;
-            var classSec = `${year}-${dept}-${section}`;
-            $.ajax({
-                    type:"POST",
-                    headers: {"Content-Type": "application/json"},
-                    url : "/teacher/add_classes",
-                    data: JSON.stringify({"class":classSec.toString()}),
-                    success: function(response){
-                        window.location.href = response.url;
-                    }
-            });
-        }
-</script>
 {% endblock %}

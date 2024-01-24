@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Answers Recorded</title>
+</head>
+<body>
+    <style>
+        .Heading{
+            background-color: #FFA33C;
+            width: 100%;
+            height: 40%;
+            padding: 20px;
+            color: black;
+            font-family: 'Noto Sans';
+        }
+        .date-time{
+            display: flex;
+            flex-direction: column;
+            align-items:flex-end;
+            flex-wrap: wrap;
+        }
+        hr{
+            margin: 0;
+            padding: 0;
+            border: 3px solid grey;
+            opacity: 1;
+        }
+        .Student-info{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content:space-between;
+            padding: 20px;
+            height: 180px;
+        }
+        .report{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content:space-around;
+            padding: 20px;
+            height: 180px;
+        }
+        .signature{
+            height: 140px;
+        }
+    </style>
+    <div class="d-flex justify-content-center align-items-center">
+        <h1> Hi {{studName}}, <br> Your Answers have been recorded! </h1>
+    </div>
+    <div class="d-flex justify-content-between">
+        <a href="{{ url_for('main.univ_exam') }}" class="btn btn-primary btn-lg">Write another test</a>
+        <a href="{{ url_for('main.logout') }}" class="btn btn-danger btn-lg" id="logout">Logout</a>
+    </div>
+    
+</body>
+</html>

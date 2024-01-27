@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body>
+    <style>
+        .container{
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .college-logo{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+        }
+        .container{
+            display:grid;
+            grid-template-columns: auto auto auto auto;
+            justify-content:space-evenly;
+            align-content: center;
+        }
+        #report {
+    font-family: "Lato-Bold", Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+        }
+  
+  #report td {
+    border: 1px solid #F8F6FF;
+    padding: 10px;
+  }
+  
+  #report tr:nth-child(even){background-color: #F8F6FF;}
+  
+  #report tr:hover {background-color: #F8F6FF;}
+  
+  #report th {
+    padding: 20px;
+    text-align: left;
+    background-color: #6C7AE0;
+    color: white;
+  }
+    </style>
+        <div class="college-logo">
+            <img src="/src/static/VEC-logo.png" alt="" width="100" height="100">
+            <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VELAMMAL ENGINEERING COLLEGE <br>
+                &nbsp;&nbsp;&nbsp;Velammal Newgen Park, Ambattur - Red Hills Road</h3>
+        </div>
+        <br>
+    <div class="container">
+        <div class="row">
+            <div class="col"><h5>Academic Year: {{year}}</h5></div>
+            <div class="col"><h5>Batch: {{batch}}</h5></div>
+            <div class="col"><h5>Semester: {{year}}</h5></div>
+        </div>
+        <div class="row">
+            <div class="col"><h5>Programme: {{class}}</h5></div>
+            <div class="col"><h5>Course: {{course}}</h5></div>
+            <div class="col"><h5>Activity: {{activity}}</h5></div>
+        </div>
+    </div>
+
+    <table id="report">
+        <tr>
+          <th>S.NO</th>
+          <th>REG.NO</th>
+          <th>NAME</th>
+          <th>SCORE</th>          
+          <th>PERCENTAGE</th>          
+          <th>RESULT</th>          
+        </tr>
+        {% for i in range(test_results | length) %}
+          <tr>
+            <td>{{ i+1 }}</td>
+            <td>{{ test_results[i]["regno"] }}</td>
+            <td>{{ test_results[i]['name'] | upper }}</td>
+            <td>{{ test_results[i]['score'] }}</td>
+            <td>{{ test_results[i]['percentage'] }}</td>
+            <td>{{ test_results[i]['status'] }}</td>
+          </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

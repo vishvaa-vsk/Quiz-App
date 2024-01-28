@@ -204,7 +204,7 @@ def show_univ_report():
                 dept = request.form.get("department")
                 regex = None
                 if dept == "CSE":
-                    regex = re.compile(r'^[A-Z]-CSE-[A-Z]$')
+                    regex = re.compile(r'^[A-Z]-CSE(?!\(CS\))-?[A-Z]*$')
                 elif dept != "CSE(CS)":
                     regex = re.compile(f'^[A-Z]-{dept}-[A-Z]$')
                 else:

@@ -99,7 +99,11 @@
           <td>{{ results[i]['name'] | upper }}</td>
           <td>{{ results[i]["class"] | upper}}</td>
           {% for scores in results[i]["scores"] %}
+              {% if scores["score"] == "" %}
+                  <td> <b>NILL</b></td>
+              {% else %}
               <td> <b>{{ scores["score"] }}/100</b> </td>
+              {% endif %}
               {% set total.value = total.value+scores["score"] %}
           {% endfor %}
           <td><b>{{total.value/10}}/40</b></td>

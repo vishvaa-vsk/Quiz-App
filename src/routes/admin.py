@@ -205,10 +205,9 @@ def show_univ_report():
                 regex = None
                 if dept == "CSE":
                     regex = re.compile(r'^[A-Z]-CSE(?!\(CS\))-?[A-Z]*$')
-                elif dept != "CSE(CS)":
-                    regex = re.compile(f'^[A-Z]-{dept}-[A-Z]$')
                 else:
-                    regex = re.compile("CSE\(CS\)")
+                    regex = re.compile(f'^[A-Z]-{dept}-[A-Z]$')
+
                 uncleaned_reports = []
                 for test in test_codes:
                     documents = mongo.db[test].find({"class":{"$regex":regex}})

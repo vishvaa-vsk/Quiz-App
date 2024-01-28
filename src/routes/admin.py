@@ -202,7 +202,7 @@ def show_univ_report():
                 user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
                 test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
                 dept = request.form.get("department")
-                regex = re.compile(dept) if dept != "CSE(CS)" else re.compile("CSE\(CS\)")
+                regex = re.compile(f'^[A-Z]-{dept}(?!\(CS\))-?[A-Z]*$') if dept != "CSE(CS)" else re.compile("CSE\(CS\)")
 
                 uncleaned_reports = []
                 for test in test_codes:

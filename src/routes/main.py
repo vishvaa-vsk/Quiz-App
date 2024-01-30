@@ -250,7 +250,7 @@ def download_prev_result():
         name = session["username"]
         if request.method == "POST":
             testCode = request.form["testCode"]
-            if mongo.db[f"{testCode}-result"].find_one({"name":name}):
+            if mongo.db.testDetails.find_one({"test_code":testCode})["test_type"]!="University Exam" and mongo.db[f"{testCode}-result"].find_one({"name":name}):
                 try:
                     return download(testCode=testCode,name=name)
                 except:
@@ -262,6 +262,8 @@ def download_prev_result():
                     filename = f"{name}'s_{testCode}_report.pdf"
                     pdfkit.from_string(report,os.path.join(os.path.abspath("Quiz-App/reports"),filename))
                     return download(testCode=testCode,name=name)
+            else:
+                flash("University Results can't be downloaded")
         return render_template("previous_result.html",name=name)
     else:
         return redirect(url_for("main.login"))

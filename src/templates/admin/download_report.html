@@ -1,0 +1,99 @@
+{% extends "admin/admin_base.html" %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static',filename='teacher_report.css') }}">
+{% endblock %}
+{% block title %}Download Reports{% endblock %}
+
+{% block bodyContent %}
+<div class="content">
+    <div class="d-flex justify-content-center align-items-center p-5">
+        <div class="downloadBox shadow p-3 mb-5 bg-body-tertiary rounded">
+            <form action="{{url_for('admin.download_univ_report')}}" method="POST">
+                <div>
+                    <label for="exam-name" class="mb-2">Examination Name</label><br>
+                    <select class="form-select" id="exam-name" name="exam_name" required>
+                      <option disabled selected readonly>Exam Name</option>
+                        <option value="Semester End Examinations">Semester End Examinations</option>
+                    </select><br>
+
+                    <label for="exam-date" class="mb-2">Examination Date</label><br>
+                    <input type="date" name="exam_date" id="exam-date" class="form-control"><br>
+
+                    <label for="session" class="mb-2">Session</label><br>
+                    <select class="form-select" id="session" name="exam_session" required>
+                      <option disabled selected readonly>Session</option>
+                      <option value="FN">FN</option>
+                      <option value="AN">AN</option>
+                    </select><br>
+
+                    <label for="sub" class="mb-2">Subject Name</label><br>
+                    <select class="form-select" id="sub" name="exam_subject" required>
+                      <option disabled selected readonly>Subject</option>
+                      <option value="Communicative English Laboratory">Communicative English Laboratory</option>
+                    </select><br>
+
+                    <label for="test_codes" class="mb-2">Exam Codes</label>
+                    <div class="d-flex justify-content-evenly align-items-center">
+                        <div class="p-1">
+                            <select name="first_code" id="first_code" class="form-select" required>
+                            <option selected disabled readonly>Test Code 1</option>
+                            {% for testCode in test_codes %}
+                                <option value="{{testCode}}">{{ testCode|e }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        <div class="p-1">
+                            <select name="second_code" id="second_code" class="form-select" required>
+                            <option selected disabled readonly>Test Code 2</option>
+                            {% for testCode in test_codes %}
+                                <option value="{{testCode}}">{{ testCode|e }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        <div class="p-1">
+                            <select name="third_code" id="third_code" class="form-select" required>
+                            <option selected disabled readonly>Test Code 3</option>
+                            {% for testCode in test_codes %}
+                                <option value="{{testCode}}">{{ testCode|e }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        <div class="p-1">
+                            <select name="fourth_code" id="fourth_code" class="form-select" required>
+                            <option selected disabled readonly>Test Code 4</option>
+                            {% for testCode in test_codes %}
+                                <option value="{{testCode}}">{{ testCode|e }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                    </div><br>
+
+                    <label for="dept" class="mb-2">Department</label>
+                    <div class="">
+                        <select class="form-select" id="dept" name="department" required>
+                          <option disabled selected readonly>Department</option>
+                          <option value="CSE">CSE</option>
+                          <option value="AI&DS">AI&DS</option>
+                          <option value="AUTO">AUTO</option>
+                          <option value="CIVIL">CIVIL</option>
+                          <option value="CSE(CS)">CSE(CS)</option>
+                          <option value="EEE">EEE</option>
+                          <option value="ECE">ECE</option>
+                          <option value="EIE">EIE</option>
+                          <option value="IT">IT</option>
+                          <option value="MECH">MECH</option>
+                        </select>
+                    </div><br>
+
+                    <div class="d-flex justify-content-center align-items-center">
+                        <button type="submit" class="btn btn-outline-success" >Download</button>
+                    </div>        
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

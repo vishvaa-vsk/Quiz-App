@@ -1,5 +1,6 @@
 import os
 from collections import defaultdict
+from pprint import pprint
 import re
 import pdfkit
 from flask import Blueprint,flash, jsonify, make_response,render_template, send_file,url_for,session,redirect,request
@@ -192,8 +193,21 @@ def logout():
     session.pop('adminUsername')
     return redirect(url_for("admin.login"))
 
-@admin.route("/show_univ_reports",methods=['GET', 'POST'])
-def show_univ_report():
+def create_report(test_codes,report_codes,results,dept,exam_date,exam_name,exam_session,exam_subject):
+    import base64
+    with open("src/static/VEC-logo.png", "rb") as img_file:
+        base64_encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
+
+    pdf_report_template = render_template("admin/report_t.html",test_codes=test_codes, report_codes = report_codes , results = results ,dept=dept,base64_encoded_image=base64_encoded_image,exam_date=exam_date,exam_name=exam_name,exam_session=exam_session,exam_subject=exam_subject)
+
+    pdf = HTML(string=pdf_report_template)
+    filename = f"University_report_{dept}.pdf"
+
+    pdf.write_pdf(os.path.join(os.path.abspath("Quiz-App/admin_reports/",filename)))
+
+
+@admin.route("/download_reports",methods=['GET', 'POST'])
+def download_univ_report():
     if check_login():
         univ_tests = list(mongo.db.testDetails.find({"test_type":"University Exam"}))
         univ_testcodes = [i["test_code"] for i in univ_tests]
@@ -202,9 +216,15 @@ def show_univ_report():
                 user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
                 test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
                 dept = request.form.get("department")
+                 
+                exam_name = request.form.get("exam_name")
+                exam_date = request.form.get("exam_date")
+                exam_session = request.form.get("exam_session")
+                exam_subject = request.form.get("exam_subject")
+                
                 regex = None
-                if dept == "CSE":
-                    regex = re.compile(r'^[A-Z]-CSE(?!\(CS\))-?[A-Z]*$')
+                if dept == "CSE(CS)":
+                    regex = re.compile("I-CSE(CS)-A")
                 else:
                     regex = re.compile(f'^[A-Z]-{dept}-[A-Z]$')
 
@@ -216,30 +236,78 @@ def show_univ_report():
 
                 grouped_data = defaultdict(list)
                 for item in uncleaned_reports:
-                    key = (item['name'], item['regno'], item['class'])
+                    key = (item['name'], item['regno'])
                     score = item['score']
                     test_code = item['test_code']
                     grouped_data[key].append({'score': score, 'test_code': test_code})
 
-                cleaned_reports = [{'name': name, 'regno': regno, 'class': class_, 'scores': data} 
-                for (name, regno, class_), data in grouped_data.items()]
+                cleaned_reports = [{'name': name, 'regno': regno,'scores': data} 
+                for (name, regno), data in grouped_data.items()]
 
+                cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
 
                 import base64
                 with open("src/static/VEC-logo.png", "rb") as img_file:
                     base64_encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
 
-                pdf_report_template = render_template("admin/report_template.html",test_codes=univ_testcodes, report_codes = user_test_codes , results = cleaned_reports ,dept=dept,base64_encoded_image=base64_encoded_image)
+                pdf_report_template = render_template("admin/report_t.html", test_codes=univ_testcodes, report_codes=user_test_codes, results=cleaned_reports_sorted, dept=dept, base64_encoded_image=base64_encoded_image, exam_date=exam_date, exam_name=exam_name, exam_session=exam_session, exam_subject=exam_subject)
 
-                pdf = HTML(string=pdf_report_template).write_pdf()
+                # Convert HTML to PDF
+                pdf = pdfkit.from_string(pdf_report_template, False)
+
+                # Send PDF as response
                 filename = f"University_report_{dept}.pdf"
-
                 response = make_response(pdf)
                 response.headers['Content-Type'] = 'application/pdf'
-                response.headers['Content-Disposition'] = f'inline; filename={filename}.pdf'
+                response.headers['Content-Disposition'] = f'inline; filename={filename}'
                 return response
 
-                #return render_template("admin/show_univ_reports.html",test_codes=univ_testcodes, report_codes = user_test_codes , results = cleaned_reports ,dept=dept)
+            except Exception as e:
+                flash(e)
+                return redirect(url_for("admin.show_univ_report"))
+
+        return render_template("admin/download_report.html",test_codes=univ_testcodes)
+    else:
+        return redirect(url_for("admin.login"))
+
+
+@admin.route("/show_univ_reports",methods=['GET', 'POST'])
+def show_univ_report():
+    if check_login():
+        univ_tests = list(mongo.db.testDetails.find({"test_type":"University Exam"}))
+        univ_testcodes = [i["test_code"] for i in univ_tests]
+        if request.method == "POST":
+            try:
+                user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
+                test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
+                dept = request.form.get("department")
+                regex = None
+                if dept == "CSE(CS)":
+                    regex = re.compile("I-CSE(CS)-A")
+                else:
+                    regex = re.compile(f'^[A-Z]-{dept}-[A-Z]$')
+
+                uncleaned_reports = []
+                for test in test_codes:
+                    documents = mongo.db[test].find({"class":{"$regex":regex}})
+                    for result in documents:
+                        uncleaned_reports.append(result)
+
+                grouped_data = defaultdict(list)
+                for item in uncleaned_reports:
+                    key = (item['name'], item['regno'])
+                    score = item['score']
+                    test_code = item['test_code']
+                    grouped_data[key].append({'score': score, 'test_code': test_code})
+
+                cleaned_reports = [{'name': name, 'regno': regno,'scores': data} 
+                for (name, regno), data in grouped_data.items()]
+
+                cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
+
+                pprint(cleaned_reports_sorted)
+
+                return render_template("admin/show_univ_reports.html",test_codes=univ_testcodes, report_codes = user_test_codes , results = cleaned_reports_sorted ,dept=dept)
             except Exception as e:
                 flash(e)
                 return redirect(url_for("admin.show_univ_report"))
@@ -247,6 +315,10 @@ def show_univ_report():
         return render_template("admin/show_univ_reports.html",test_codes=univ_testcodes)
     else:
         return redirect(url_for("admin.login"))
+
+
+
+
     
 @admin.route("/show_model_reports",methods=['GET', 'POST'])
 def show_model_report():
@@ -277,8 +349,8 @@ def show_model_report():
             cleaned_reports = [{'name': name, 'regno': regno, 'class': class_, 'scores': data} 
                 for (name, regno, class_), data in grouped_data.items()]
             
-
-            return render_template("admin/show_model_reports.html",test_codes=model_testcodes, report_codes = user_test_codes , results = cleaned_reports ,dept=dept)
+            cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
+            return render_template("admin/show_model_reports.html",test_codes=model_testcodes, report_codes = user_test_codes , results = cleaned_reports_sorted ,dept=dept)
         return render_template("admin/show_model_reports.html",test_codes=model_testcodes)
     else:
         return redirect(url_for("admin.login"))

@@ -186,7 +186,7 @@ def delete_result():
 @teacher.route("/view_results",methods=['GET', 'POST'])
 def view_results():
     if check_login():
-        fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0}))
+        fetch_testcodes = list(mongo.db.testDetails.find({"test_type": {"$ne": "University Exam"}},{'_id':0,"test_time":0}))
         raw_test_codes=[i["test_code"] for i in fetch_testcodes]
         test_codes = remove_duplicates(raw_test_codes)
         try:

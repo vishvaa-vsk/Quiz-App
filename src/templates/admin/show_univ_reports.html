@@ -1,111 +1,113 @@
 {% extends "admin/admin_base.html" %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static',filename='teacher_report.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='teacher_report.css') }}">
 {% endblock %}
+
 {% block title %}Reports{% endblock %}
   
 {% block bodyContent %}
-  <div class="content">
+<div class="content">
     <form action="{{ url_for('admin.show_univ_report') }}" method="post">
-      <div class="d-flex justify-content-sm-center align-items-center">
-        <div class="d-flex justify-content-sm-start">
-            <div class="p-2">
-                <select name="first_code" id="first_code" class="form-select" required>
-                <option selected disabled>Test Code 1</option>
-                {% for testCode in test_codes %}
-                    <option value="{{testCode}}">{{ testCode|e }}</option>
-                {% endfor %}
-                </select>
+        <div class="d-flex justify-content-sm-center align-items-center">
+            <div class="d-flex justify-content-sm-start">
+                <div class="p-2">
+                    <select name="first_code" id="first_code" class="form-select" required>
+                        <option selected disabled>Test Code 1</option>
+                        {% for testCode in test_codes %}
+                        <option value="{{ testCode }}">{{ testCode|e }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="p-2">
+                    <select name="second_code" id="second_code" class="form-select" required>
+                        <option selected disabled>Test Code 2</option>
+                        {% for testCode in test_codes %}
+                        <option value="{{ testCode }}">{{ testCode|e }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="p-2">
+                    <select name="third_code" id="third_code" class="form-select" required>
+                        <option selected disabled>Test Code 3</option>
+                        {% for testCode in test_codes %}
+                        <option value="{{ testCode }}">{{ testCode|e }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="p-2">
+                    <select name="fourth_code" id="fourth_code" class="form-select" required>
+                        <option selected disabled>Test Code 4</option>
+                        {% for testCode in test_codes %}
+                        <option value="{{ testCode }}">{{ testCode|e }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
-            <div class="p-2">
-                <select name="second_code" id="second_code" class="form-select" required>
-                <option selected disabled>Test Code 2</option>
-                {% for testCode in test_codes %}
-                    <option value="{{testCode}}">{{ testCode|e }}</option>
-                {% endfor %}
-                </select>
+            <div class="d-flex justify-content-sm-end p-2 m-2">
+                <div class="p-2">
+                  <select class="form-select" id="dept" name="department" required>
+                    <option disabled selected>Department</option>
+                    <option value="CSE">CSE</option>
+                    <option value="AI&DS">AI&DS</option>
+                    <option value="AUTO">AUTO</option>
+                    <option value="CIVIL">CIVIL</option>
+                    <option value="CSE(CS)">CSE(CS)</option>
+                    <option value="EEE">EEE</option>
+                    <option value="ECE">ECE</option>
+                    <option value="EIE">EIE</option>
+                    <option value="IT">IT</option>
+                    <option value="MECH">MECH</option>
+                  </select>
+                </div>
+                <div class="d-flex justify-content-sm-evenly p-2">
+                    <button type="submit" class="btn btn-info">Search</button>
+                </div>
             </div>
-            <div class="p-2">
-                <select name="third_code" id="third_code" class="form-select" required>
-                <option selected disabled>Test Code 3</option>
-                {% for testCode in test_codes %}
-                    <option value="{{testCode}}">{{ testCode|e }}</option>
-                {% endfor %}
-                </select>
-            </div>
-            <div class="p-2">
-                <select name="fourth_code" id="fourth_code" class="form-select" required>
-                <option selected disabled>Test Code 4</option>
-                {% for testCode in test_codes %}
-                    <option value="{{testCode}}">{{ testCode|e }}</option>
-                {% endfor %}
-                </select>
-            
         </div>
-        </div>
-        <div class="d-flex justify-content-sm-end p-2 m-2">
-          <div class="p-2">
-              <select class="form-select" id="dept" name="department" required>
-                <option disabled selected>Department</option>
-                <option value="CSE">CSE</option>
-                <option value="AI&DS">AI&DS</option>
-                <option value="AUTO">AUTO</option>
-                <option value="CIVIL">CIVIL</option>
-                <option value="CSE(CS)">CSE(CS)</option>
-                <option value="EEE">EEE</option>
-                <option value="ECE">ECE</option>
-                <option value="EIE">EIE</option>
-                <option value="IT">IT</option>
-                <option value="MECH">MECH</option>
-              </select>
-          </div>
-          <div class="d-flex justify-content-sm-evenly p-2">
-            <button type="submit" class="btn btn-info">Search</button>
-          </div>
-        </div>
-      </div>
     </form>
     <br>
 
     {% if results == [] %}
-      <div class="d-flex justify-content-sm-center align-items-center">
-        <h3>No University Test Results Found for {{dept}} Department</h3>
-      </div>
-      <br>
+    <div class="d-flex justify-content-sm-center align-items-center">
+        <h3>No University Exam Results Found for {{ dept }} Department</h3>
+    </div>
+    <br>
     {% else %}
     <div class="d-flex justify-content-sm-center align-items-center">
-      <h3> University Test Results for {{dept}} Department</h3>
+        <h3>University Exam Results for {{ dept }} Department</h3>
+        <a href="{{url_for('admin.download_univ_report')}}" class="btn btn-outline-success">Download</a>
     </div>
     <br>
     
     <table id="report">
       <tr>
-        <th>S.NO</th>
-        <th>REG.NO</th>
-        <th>NAME</th>
-        <th>CLASS</th>
-        {% for Test in report_codes %}
-          <th>{{ Test }}</th>
-        {% endfor %}
-        <th>TOTAL</th>               
-      </tr>
-      
-      {% for i in range(results | length) %}
-        {%set total = namespace(value=0) %}
-        <tr>
-          <td>{{ i+1 }}</td>
-          <td>{{ results[i]["regno"] }}</td>
-          <td>{{ results[i]['name'] | upper }}</td>
-          <td>{{ results[i]["class"] | upper}}</td>
-          {% for scores in results[i]["scores"] %}
-              <td> <b>{{ scores["score"] }}/100</b> </td>
-              {% set total.value = total.value+scores["score"] %}
+          <th>S.NO</th>
+          <th>REG.NO</th>
+          <th>NAME</th>
+          <th>BRANCH</th>
+          {% for test_code in report_codes %}
+              <th>{{ test_code }} (10 Marks)</th>
           {% endfor %}
-          <td><b>{{total.value/10}}/40</b></td>
-        </tr>
-      {% endfor %}
-    </table> 
+          <th>TOTAL (40 Marks)</th>
+      </tr>
+  
+            {% for i in range(results | length) %}
+                {% set total = namespace(value=0) %}
+                <tr>
+                    <td>{{ i+1 }}</td>
+                    <td>{{ results[i]["regno"] }}</td>
+                    <td>{{ results[i]['name'] | upper }}</td>
+                    <td>{{ dept | upper}}</td>
+                    {% for scores in results[i]["scores"] %}
+                        <td><b>{{ scores["score"]/10 }}/10</b></td>
+                        {% set total.value = total.value + scores["score"] %}
+                    {% endfor %}
+                    <td><b>{{ total.value / 10 }}/40</b></td>
+                </tr>
+            {% endfor %}
+  </table>
+  
     {% endif %}
    </div>
 {% endblock %}

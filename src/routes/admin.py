@@ -216,12 +216,12 @@ def download_univ_report():
                 user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
                 test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
                 dept = request.form.get("department")
-                 
+
                 exam_name = request.form.get("exam_name")
                 exam_date = request.form.get("exam_date")
                 exam_session = request.form.get("exam_session")
                 exam_subject = request.form.get("exam_subject")
-                
+
                 regex = None
                 if dept == "CSE(CS)":
                     regex = re.compile("I-CSE(CS)-A")
@@ -230,7 +230,10 @@ def download_univ_report():
 
                 uncleaned_reports = []
                 for test in test_codes:
-                    documents = mongo.db[test].find({"class":{"$regex":regex}})
+                    if dept == "CSE(CS)":
+                        documents = mongo.db[test].find({"class":"I-CSE(CS)-A"})
+                    else:
+                        documents = mongo.db[test].find({"class":{"$regex":regex}})
                     for result in documents:
                         uncleaned_reports.append(result)
 
@@ -241,13 +244,13 @@ def download_univ_report():
                     test_code = item['test_code']
                     grouped_data[key].append({'score': score, 'test_code': test_code})
 
-                cleaned_reports = [{'name': name, 'regno': regno,'scores': data} 
+                cleaned_reports = [{'name': name, 'regno': regno,'scores': data}
                 for (name, regno), data in grouped_data.items()]
 
                 cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
 
                 import base64
-                with open("src/static/VEC-logo.png", "rb") as img_file:
+                with open("Quiz-App/src/static/VEC-logo.png", "rb") as img_file:
                     base64_encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
 
                 pdf_report_template = render_template("admin/report_t.html", test_codes=univ_testcodes, report_codes=user_test_codes, results=cleaned_reports_sorted, dept=dept, base64_encoded_image=base64_encoded_image, exam_date=exam_date, exam_name=exam_name, exam_session=exam_session, exam_subject=exam_subject)
@@ -259,7 +262,7 @@ def download_univ_report():
                 filename = f"University_report_{dept}.pdf"
                 response = make_response(pdf)
                 response.headers['Content-Type'] = 'application/pdf'
-                response.headers['Content-Disposition'] = f'inline; filename={filename}'
+                response.headers['Content-Disposition'] = 'inline; filename=univ_report.pdf'
                 return response
 
             except Exception as e:
@@ -289,7 +292,10 @@ def show_univ_report():
 
                 uncleaned_reports = []
                 for test in test_codes:
-                    documents = mongo.db[test].find({"class":{"$regex":regex}})
+                    if dept == "CSE(CS)":
+                        documents = mongo.db[test].find({"class":"I-CSE(CS)-A"})
+                    else:
+                        documents = mongo.db[test].find({"class":{"$regex":regex}})
                     for result in documents:
                         uncleaned_reports.append(result)
 
@@ -300,7 +306,7 @@ def show_univ_report():
                     test_code = item['test_code']
                     grouped_data[key].append({'score': score, 'test_code': test_code})
 
-                cleaned_reports = [{'name': name, 'regno': regno,'scores': data} 
+                cleaned_reports = [{'name': name, 'regno': regno,'scores': data}
                 for (name, regno), data in grouped_data.items()]
 
                 cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
@@ -311,7 +317,7 @@ def show_univ_report():
             except Exception as e:
                 flash(e)
                 return redirect(url_for("admin.show_univ_report"))
-            
+
         return render_template("admin/show_univ_reports.html",test_codes=univ_testcodes)
     else:
         return redirect(url_for("admin.login"))
@@ -319,7 +325,7 @@ def show_univ_report():
 
 
 
-    
+
 @admin.route("/show_model_reports",methods=['GET', 'POST'])
 def show_model_report():
     if check_login():
@@ -346,9 +352,9 @@ def show_model_report():
                 test_code = item['test_code']
                 grouped_data[key].append({'score': score, 'test_code': test_code})
 
-            cleaned_reports = [{'name': name, 'regno': regno, 'class': class_, 'scores': data} 
+            cleaned_reports = [{'name': name, 'regno': regno, 'class': class_, 'scores': data}
                 for (name, regno, class_), data in grouped_data.items()]
-            
+
             cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
             return render_template("admin/show_model_reports.html",test_codes=model_testcodes, report_codes = user_test_codes , results = cleaned_reports_sorted ,dept=dept)
         return render_template("admin/show_model_reports.html",test_codes=model_testcodes)

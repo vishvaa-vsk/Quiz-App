@@ -250,26 +250,26 @@ def download_univ_report():
                 else:
                     regex = re.compile(f'^[A-Z]-{dept}-[A-Z]$')
 
-                uncleaned_reports = []
-                for test in test_codes:
-                    if dept == "CSE(CS)":
-                        documents = mongo.db[test].find({"class":"I-CSE(CS)-A"})
-                    else:
-                        documents = mongo.db[test].find({"class":{"$regex":regex}})
-                    for result in documents:
-                        uncleaned_reports.append(result)
+                # uncleaned_reports = []
+                # for test in test_codes:
+                #     if dept == "CSE(CS)":
+                #         documents = mongo.db[test].find({"class":"I-CSE(CS)-A"})
+                #     else:
+                #         documents = mongo.db[test].find({"class":{"$regex":regex}})
+                #     for result in documents:
+                #         uncleaned_reports.append(result)
 
-                grouped_data = defaultdict(list)
-                for item in uncleaned_reports:
-                    key = (item['name'], item['regno'])
-                    score = item['score']
-                    test_code = item['test_code']
-                    grouped_data[key].append({'score': score, 'test_code': test_code})
+                # grouped_data = defaultdict(list)
+                # for item in uncleaned_reports:
+                #     key = (item['name'], item['regno'])
+                #     score = item['score']
+                #     test_code = item['test_code']
+                #     grouped_data[key].append({'score': score, 'test_code': test_code})
 
-                cleaned_reports = [{'name': name, 'regno': regno,'scores': data}
-                for (name, regno), data in grouped_data.items()]
+                # cleaned_reports = [{'name': name, 'regno': regno,'scores': data}
+                # for (name, regno), data in grouped_data.items()]
 
-                cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
+                cleaned_reports_sorted = clean_reports(test_codes)
 
                 import base64
                 with open("Quiz-App/src/static/VEC-logo.png", "rb") as img_file:

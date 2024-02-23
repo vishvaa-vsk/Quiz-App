@@ -69,7 +69,10 @@ def clean_reports(test_codes):
     from collections import defaultdict
     uncleaned_reports = []
     for test in test_codes:
-        documents = mongo.db[test].find({"class":{"$regex":regex}})
+        if dept == "CSE(CS)":
+            documents = mongo.db[test].find({"class":"I-CSE(CS)-A"})
+        else:
+            documents = mongo.db[test].find({"class":{"$regex":regex}})
         for result in documents:
             uncleaned_reports.append(result)
     grouped_data = defaultdict(list)
@@ -79,9 +82,7 @@ def clean_reports(test_codes):
         test_code = item['test_code']
         grouped_data[key].append({'score': score, 'test_code': test_code})
 
-    cleaned_reports = [{'name': name, 'regno': regno,'scores': data}
-    for (name, regno), data in grouped_data.items()]
+    cleaned_reports = [{'name': name, 'regno': regno,'scores': data} for (name, regno), data in grouped_data.items()]
 
     cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
-
     return cleaned_reports_sorted

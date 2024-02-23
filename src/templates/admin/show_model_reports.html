@@ -76,6 +76,7 @@
     {% else %}
     <div class="d-flex justify-content-sm-center align-items-center">
         <h3>Model Exam Results for {{ dept }} Department</h3>
+        <a href="{{url_for('admin.download_model_report')}}" class="btn btn-outline-success">Download</a>
     </div>
     <br>
     

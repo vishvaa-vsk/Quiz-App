@@ -131,13 +131,14 @@ def write_test(testCode):
         if mongo.db[f"{testCode}-result"].find_one({'name':session["username"]}):
                 return f"<h1> Hi {session['username']}, <br> You have already took this test! <br> Try checking your previous report..<br> Contact professors if you don't have an idea about this..</h1>"
         else:
-            test_details = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
-            questions = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,}))
+            questions = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
+            sorted_questions = sorted(questions, key=lambda x: x['question_no'])
+            question_nos = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,}))
             testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
             correct_answers = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,"correct_ans":1}))
             total_questions = []
             total_correct_answer = 0
-            for i in questions:
+            for i in question_nos:
                 total_questions.append(int(i['question_no']))
         if request.method == "POST":
                 try:
@@ -165,7 +166,7 @@ def write_test(testCode):
                 except Exception as e:
                     flash(e)
                     flash("Internal error occured!")
-        return render_template("showQuestions.html",testDetails=test_details,audio=testdetails['audio_name'],time=testdetails['test_time'])
+        return render_template("showQuestions.html",testDetails=sorted_questions,audio=testdetails['audio_name'],time=testdetails['test_time'])
     else:
         return redirect(url_for("main.login"))
 
@@ -187,8 +188,9 @@ def write_univ_test(testCode):
         if mongo.db[f"{testCode}-result"].find_one({'name':session["username"]}):
                 return f"<h1> Hi {session['username']}, <br> You have already took this test! <br> Try checking your previous report..<br> Contact professors if you don't have an idea about this..</h1>"
         else:
-            test_details = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
-            questions = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,}))
+            questions = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
+            question_nos = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,}))
+            sorted_questions = sorted(questions, key=lambda x: x['question_no'])
             testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
             test_type = testdetails["test_type"]
             correct_answers = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,"correct_ans":1}))
@@ -223,7 +225,7 @@ def write_univ_test(testCode):
                 except Exception as e:
                     flash(e)
                     flash("Internal error occured!")
-        return render_template("showQuestions.html",testDetails=test_details,audio=testdetails['audio_name'],time=testdetails['test_time'])
+        return render_template("showQuestions.html",testDetails=sorted_questions,audio=testdetails['audio_name'],time=testdetails['test_time'])
     else:
         return redirect(url_for("main.login"))
 

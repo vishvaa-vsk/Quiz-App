@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from weasyprint import CSS, HTML
 
 from ..extensions import mongo
-from ..helper import generate_token,verify_token,create_csv,extract_questions,remove_duplicates
+from ..helper import generate_token,verify_token,create_csv,extract_questions,remove_duplicates,clean_reports
 from ..send_email import send_email_admin
 from bson.objectid import ObjectId
 import string , random
@@ -206,7 +206,7 @@ def create_report(test_codes,report_codes,results,dept,exam_date,exam_name,exam_
     pdf.write_pdf(os.path.join(os.path.abspath("Quiz-App/admin_reports/",filename)))
 
 
-@admin.route("/download_reports",methods=['GET', 'POST'])
+@admin.route("/download_univ_reports",methods=['GET', 'POST'])
 def download_univ_report():
     if check_login():
         univ_tests = list(mongo.db.testDetails.find({"test_type":"University Exam"}))
@@ -253,7 +253,7 @@ def download_univ_report():
                 with open("Quiz-App/src/static/VEC-logo.png", "rb") as img_file:
                     base64_encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
 
-                pdf_report_template = render_template("admin/report_t.html", test_codes=univ_testcodes, report_codes=user_test_codes, results=cleaned_reports_sorted, dept=dept, base64_encoded_image=base64_encoded_image, exam_date=exam_date, exam_name=exam_name, exam_session=exam_session, exam_subject=exam_subject)
+                pdf_report_template = render_template("admin/report_t.html", title="University Report", test_codes=univ_testcodes, report_codes=user_test_codes, results=cleaned_reports_sorted, dept=dept, base64_encoded_image=base64_encoded_image, exam_date=exam_date, exam_name=exam_name, exam_session=exam_session, exam_subject=exam_subject)
 
                 # Convert HTML to PDF
                 pdf = pdfkit.from_string(pdf_report_template, False)
@@ -270,6 +270,52 @@ def download_univ_report():
                 return redirect(url_for("admin.show_univ_report"))
 
         return render_template("admin/download_report.html",test_codes=univ_testcodes)
+    else:
+        return redirect(url_for("admin.login"))
+
+
+@admin.route("/download_model_reports",methods=['GET', 'POST'])
+def download_model_report():
+    if check_login():
+        model_tests = list(mongo.db.testDetails.find({"test_type":"Model Exam"}))
+        model_testcodes = [i["test_code"] for i in model_tests]
+        if request.method == "POST":
+            try:
+                user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
+                test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
+                dept = request.form.get("department")
+
+                exam_name = request.form.get("exam_name")
+                exam_date = request.form.get("exam_date")
+                exam_session = request.form.get("exam_session")
+                exam_subject = request.form.get("exam_subject")
+
+                cleaned_reports = [{'name': name, 'regno': regno,'scores': data}
+                for (name, regno), data in grouped_data.items()]
+
+                cleaned_reports_sorted = clean_reports(test_codes)
+
+                import base64
+                with open("Quiz-App/src/static/VEC-logo.png", "rb") as img_file:
+                    base64_encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
+
+                pdf_report_template = render_template("admin/report_t.html", title="Model Report", test_codes=model_testcodes, report_codes=user_test_codes, results=cleaned_reports_sorted, dept=dept, base64_encoded_image=base64_encoded_image, exam_date=exam_date, exam_name=exam_name, exam_session=exam_session, exam_subject=exam_subject)
+
+                # Convert HTML to PDF
+                pdf = pdfkit.from_string(pdf_report_template, False)
+
+                # Send PDF as response
+                filename = f"Model_report_{dept}.pdf"
+                response = make_response(pdf)
+                response.headers['Content-Type'] = 'application/pdf'
+                response.headers['Content-Disposition'] = 'inline; filename=model_report.pdf'
+                return response
+
+            except Exception as e:
+                flash(e)
+                return redirect(url_for("admin.show_model_report"))
+
+        return render_template("admin/download_report.html",test_codes=model_testcodes)
     else:
         return redirect(url_for("admin.login"))
 
@@ -321,10 +367,6 @@ def show_univ_report():
         return render_template("admin/show_univ_reports.html",test_codes=univ_testcodes)
     else:
         return redirect(url_for("admin.login"))
-
-
-
-
 
 @admin.route("/show_model_reports",methods=['GET', 'POST'])
 def show_model_report():

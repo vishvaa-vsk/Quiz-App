@@ -90,6 +90,28 @@ def signup():
             flash("You are a student, you can't be a admin!")
     return render_template("admin/signup.html")
 
+@admin.route("/update_password",methods=['GET', 'POST'])
+def change_passwd():
+    if request.method == "POST":
+        email,passwd,new_passwd = request.form['adminEmail'],request.form['adminPass'],request.form['adminNewPasswd']
+        if mongo.db.admin.find_one({"email":email}):
+            storedPasswd = mongo.db.admin.find_one({"email":email})["passwd"]
+            if check_password_hash(storedPasswd,passwd):
+                new_hashed_value = generate_password_hash(new_passwd,method="scrypt")
+                try:
+                    mongo.db.admin.update_one({"email":email},{"$set":{"passwd":new_hashed_value}})
+                    flash("Password changed!")
+                    session.pop("adminUsername")
+                    return redirect(url_for("admin.login"))
+                except:
+                    flash(Exception)
+                    flash("Error while updating the password")
+            else:
+                flash("Password doesn't match")
+        else:
+            flash("User not found")
+    return render_template("admin/change_passwd.html")
+
 @admin.route("/dashboard",methods=['GET', 'POST'])
 def dashboard():
     if check_login():

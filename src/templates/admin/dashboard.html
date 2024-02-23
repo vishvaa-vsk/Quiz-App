@@ -45,7 +45,9 @@
           <div class="d-flex justify-content-end">
             <img src="{{ url_for('static',filename='VEC-logo.png') }}" alt="logo" width="75" style="border-radius: 50%;">
           </div>
+          <a href="{{ url_for('admin.change_passwd') }}" class="btn btn-info">Change password</a>
           <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logout</a>
+          
         </div>
     </nav>
 

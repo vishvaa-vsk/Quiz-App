@@ -492,7 +492,6 @@ def delete_testcode():
     else:
         return redirect(url_for("admin.login"))
 
-
 @admin.route("/issues/<testCode>",methods=['GET', 'POST'])
 def fetch_technical_issues(testCode):
     if check_login():
@@ -505,7 +504,6 @@ def fetch_technical_issues(testCode):
         return jsonify({"resp":"TESTCODE NOT FOUND"})
     else:
         return redirect(url_for('admin.login'))
-
 
 @admin.route("/technical_issues",methods=['GET', 'POST'])
 def technical_issues():

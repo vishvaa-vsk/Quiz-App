@@ -250,25 +250,6 @@ def download_univ_report():
                 else:
                     regex = re.compile(f'^[A-Z]-{dept}-[A-Z]$')
 
-                # uncleaned_reports = []
-                # for test in test_codes:
-                #     if dept == "CSE(CS)":
-                #         documents = mongo.db[test].find({"class":"I-CSE(CS)-A"})
-                #     else:
-                #         documents = mongo.db[test].find({"class":{"$regex":regex}})
-                #     for result in documents:
-                #         uncleaned_reports.append(result)
-
-                # grouped_data = defaultdict(list)
-                # for item in uncleaned_reports:
-                #     key = (item['name'], item['regno'])
-                #     score = item['score']
-                #     test_code = item['test_code']
-                #     grouped_data[key].append({'score': score, 'test_code': test_code})
-
-                # cleaned_reports = [{'name': name, 'regno': regno,'scores': data}
-                # for (name, regno), data in grouped_data.items()]
-
                 cleaned_reports_sorted = clean_reports(test_codes)
 
                 import base64
@@ -311,9 +292,6 @@ def download_model_report():
                 exam_date = request.form.get("exam_date")
                 exam_session = request.form.get("exam_session")
                 exam_subject = request.form.get("exam_subject")
-
-                cleaned_reports = [{'name': name, 'regno': regno,'scores': data}
-                for (name, regno), data in grouped_data.items()]
 
                 cleaned_reports_sorted = clean_reports(test_codes)
 
@@ -358,26 +336,7 @@ def show_univ_report():
                 else:
                     regex = re.compile(f'^[A-Z]-{dept}-[A-Z]$')
 
-                uncleaned_reports = []
-                for test in test_codes:
-                    if dept == "CSE(CS)":
-                        documents = mongo.db[test].find({"class":"I-CSE(CS)-A"})
-                    else:
-                        documents = mongo.db[test].find({"class":{"$regex":regex}})
-                    for result in documents:
-                        uncleaned_reports.append(result)
-
-                grouped_data = defaultdict(list)
-                for item in uncleaned_reports:
-                    key = (item['name'], item['regno'])
-                    score = item['score']
-                    test_code = item['test_code']
-                    grouped_data[key].append({'score': score, 'test_code': test_code})
-
-                cleaned_reports = [{'name': name, 'regno': regno,'scores': data}
-                for (name, regno), data in grouped_data.items()]
-
-                cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
+                cleaned_reports_sorted = clean_reports(test_codes)
 
                 pprint(cleaned_reports_sorted)
 
@@ -403,23 +362,7 @@ def show_model_report():
                 regex = re.compile(dept) if dept != "CSE(CS)" else re.compile("CSE\(CS\)")
             except:
                 flash("Please select testcodes and department!")
-            uncleaned_reports = []
-            for test in test_codes:
-                documents = mongo.db[test].find({"class":{"$regex":regex}})
-                for result in documents:
-                    uncleaned_reports.append(result)
-
-            grouped_data = defaultdict(list)
-            for item in uncleaned_reports:
-                key = (item['name'], item['regno'], item['class'])
-                score = item['score']
-                test_code = item['test_code']
-                grouped_data[key].append({'score': score, 'test_code': test_code})
-
-            cleaned_reports = [{'name': name, 'regno': regno, 'class': class_, 'scores': data}
-                for (name, regno, class_), data in grouped_data.items()]
-
-            cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
+            cleaned_reports_sorted = clean_reports(test_codes)
             return render_template("admin/show_model_reports.html",test_codes=model_testcodes, report_codes = user_test_codes , results = cleaned_reports_sorted ,dept=dept)
         return render_template("admin/show_model_reports.html",test_codes=model_testcodes)
     else:

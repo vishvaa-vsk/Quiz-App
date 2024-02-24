@@ -244,14 +244,9 @@ def download_univ_report():
                 exam_session = request.form.get("exam_session")
                 exam_subject = request.form.get("exam_subject")
 
-                regex = None
-                if dept == "CSE(CS)":
-                    regex = re.compile("I-CSE(CS)-A")
-                else:
-                    regex = re.compile(f'^[A-Z]-{dept}-[A-Z]$')
-
-                cleaned_reports_sorted = clean_reports(test_codes)
-
+                regex = re.compile("I-CSE(CS)-A") if dept == "CSE(CS)" else re.compile(f'^[A-Z]-{dept}-[A-Z]$')
+                cleaned_reports_sorted = clean_reports(test_codes,dept,regex)
+                
                 import base64
                 with open("Quiz-App/src/static/VEC-logo.png", "rb") as img_file:
                     base64_encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
@@ -292,8 +287,9 @@ def download_model_report():
                 exam_date = request.form.get("exam_date")
                 exam_session = request.form.get("exam_session")
                 exam_subject = request.form.get("exam_subject")
-
-                cleaned_reports_sorted = clean_reports(test_codes)
+                
+                regex = re.compile("I-CSE(CS)-A") if dept == "CSE(CS)" else re.compile(f'^[A-Z]-{dept}-[A-Z]$')
+                cleaned_reports_sorted = clean_reports(test_codes,dept,regex)
 
                 import base64
                 with open("Quiz-App/src/static/VEC-logo.png", "rb") as img_file:
@@ -330,15 +326,10 @@ def show_univ_report():
                 user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
                 test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
                 dept = request.form.get("department")
-                regex = None
-                if dept == "CSE(CS)":
-                    regex = re.compile("I-CSE(CS)-A")
-                else:
-                    regex = re.compile(f'^[A-Z]-{dept}-[A-Z]$')
-
-                cleaned_reports_sorted = clean_reports(test_codes)
-
-                pprint(cleaned_reports_sorted)
+                
+                regex = re.compile("I-CSE(CS)-A") if dept == "CSE(CS)" else re.compile(f'^[A-Z]-{dept}-[A-Z]$')
+                
+                cleaned_reports_sorted = clean_reports(test_codes,dept,regex)
 
                 return render_template("admin/show_univ_reports.html",test_codes=univ_testcodes, report_codes = user_test_codes , results = cleaned_reports_sorted ,dept=dept)
             except Exception as e:
@@ -359,10 +350,10 @@ def show_model_report():
                 user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
                 test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
                 dept = request.form.get("department")
-                regex = re.compile(dept) if dept != "CSE(CS)" else re.compile("CSE\(CS\)")
+                regex = re.compile("I-CSE(CS)-A") if dept == "CSE(CS)" else re.compile(f'^[A-Z]-{dept}-[A-Z]$')
             except:
                 flash("Please select testcodes and department!")
-            cleaned_reports_sorted = clean_reports(test_codes)
+            cleaned_reports_sorted = clean_reports(test_codes,dept,regex)
             return render_template("admin/show_model_reports.html",test_codes=model_testcodes, report_codes = user_test_codes , results = cleaned_reports_sorted ,dept=dept)
         return render_template("admin/show_model_reports.html",test_codes=model_testcodes)
     else:

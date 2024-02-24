@@ -65,7 +65,7 @@ def extract_questions(filepath):
         questions_list.append(i)
     return questions_list
 
-def clean_reports(test_codes):
+def clean_reports(test_codes,dept,regex):
     from collections import defaultdict
     uncleaned_reports = []
     for test in test_codes:

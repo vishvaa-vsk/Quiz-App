@@ -1,6 +1,5 @@
 import os
 from collections import defaultdict
-from pprint import pprint
 import re
 import pdfkit
 from flask import Blueprint,flash, jsonify, make_response,render_template, send_file,url_for,session,redirect,request
@@ -8,7 +7,7 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from weasyprint import CSS, HTML
 
 from ..extensions import mongo
-from ..helper import generate_token,verify_token,create_csv,extract_questions,remove_duplicates,clean_reports
+from ..helper import generate_token,verify_token,extract_questions,remove_duplicates,clean_reports
 from ..send_email import send_email_admin
 from bson.objectid import ObjectId
 import string , random

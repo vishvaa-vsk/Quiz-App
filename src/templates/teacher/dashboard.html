@@ -1,0 +1,42 @@
+{% extends "teacher/teacher_base.html" %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block bodyContent %}
+<h1 class="mx-5 mt-5">Welcome, {{name}} !</h1>
+
+<div class="d-flex">
+  <div class="card border-warning text-bg-dark mb-3 m-5 text-wrap" style="max-width: 18rem;">
+    <h5 class="card-header text-wrap">View testcodes</h5>
+    <div class="card-body text-wrap">
+      <p class="card-text" style="text-transform:capitalize;">View existing testcodes! <br><br> View existing testcode and its questions</p>
+      <a href="{{ url_for('teacher.show_questions') }}" class="btn btn-warning"> View testcodes</a>
+    </div>
+  </div>
+
+  <div class="card border-warning text-bg-dark mb-3 m-5 text-wrap" style="max-width: 18rem;">
+    <h5 class="card-header text-wrap">Technical Issues</h5>
+    <div class="card-body text-wrap">
+      <p class="card-text" style="text-transform:capitalize;">Review Technical issues! <br><br> View technical issues and resolve it</p>
+      <a href="{{ url_for('teacher.technical_issues') }}" class="btn btn-warning"> Review Technical Issues</a>
+    </div>
+  </div>
+
+  <div class="card border-warning text-bg-dark mb-3 m-5 text-wrap" style="max-width: 18rem;">
+    <h5 class="card-header text-wrap">View Results</h5>
+    <div class="card-body text-wrap">
+      <p class="card-text" style="text-transform:capitalize;">View individual results! <br><br> View individual student results according to your handling classes</p>
+      <a href="{{ url_for('teacher.view_results') }}" class="btn btn-warning"> View Results</a>
+    </div>
+  </div>
+
+  <div class="card border-warning text-bg-dark mb-3 m-5 text-wrap" style="max-width: 18rem;">
+    <h5 class="card-header text-wrap">Add Your Handling Classes</h5>
+    <div class="card-body text-wrap">
+      <p class="card-text" style="text-transform:capitalize;">Add your handling classes! <br><br> Add your current handling classes</p>
+      <a href="{{ url_for('teacher.add_handling_classes') }}" class="btn btn-warning">Add Handling Classes</a>
+    </div>
+  </div>
+  
+</div>
+{% endblock %}

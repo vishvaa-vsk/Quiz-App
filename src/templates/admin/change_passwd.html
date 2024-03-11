@@ -1,0 +1,38 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}VEC Quiz App{% endblock %}
+
+
+{% block bodyContent %}
+    <br>
+    {% for message in get_flashed_messages() %}
+        {% if message == "Password changed!" %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{message}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{message}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div> 
+        {% endif %}
+    {% endfor %}
+    <div class="ModelBox shadow-lg p-3 mb-5 rounded-3">
+        <h3>Change password</h3>
+        <form action="{{ url_for('admin.change_passwd') }}" method="POST">
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control" name="adminEmail" id="floatingInput" placeholder="Email" required>
+                <label for="floatingInput">Email Address</label>
+              </div> 
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="adminPass" id="floatingInput" placeholder="password" required>
+                <label for="floatingInput">Password</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="adminNewPasswd" id="floatingInput" placeholder="password" required>
+                <label for="floatingInput">New Password</label>
+              </div> 
+            <button type="submit" class="btn btn-lg btn-success">Change password</button>
+        </form>
+    </div>
+{% endblock %}

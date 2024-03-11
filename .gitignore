@@ -4,3 +4,7 @@ __pycache__/
 src/static/audios/*
 *.pdf
 admin_reports/*
+*.xlsx
+.vscode
+src/static/questions/*
+*.pdf

@@ -1,15 +1,19 @@
 import os
-from flask import Blueprint,flash, jsonify,render_template, send_file,url_for,session,redirect,request
+from collections import defaultdict
+import re
+import pdfkit
+from flask import Blueprint,flash, jsonify, make_response,render_template, send_file,url_for,session,redirect,request
 from werkzeug.security import generate_password_hash,check_password_hash
+from weasyprint import CSS, HTML
 
 from ..extensions import mongo
-from ..helper import generate_token,verify_token,create_csv,extract_questions
+from ..helper import generate_token,verify_token,extract_questions,remove_duplicates,clean_reports
 from ..send_email import send_email_admin
 from bson.objectid import ObjectId
 import string , random
 
 from flask_wtf import FlaskForm
-from wtforms import StringField,SubmitField,FileField,IntegerField
+from wtforms import StringField,SubmitField,FileField,IntegerField,SelectField
 from wtforms.validators import DataRequired,InputRequired
 from werkzeug.utils import secure_filename
 
@@ -18,13 +22,24 @@ admin = Blueprint("admin",__name__,url_prefix="/admin")
 gen_testCode = ''.join(random.sample(string.ascii_uppercase+string.digits,k=8))
 
 class AddAudioForm(FlaskForm):
-    test_code = StringField("Test code",validators=[DataRequired(),InputRequired()])
-    time = IntegerField("Time (in minutes)",validators=[DataRequired(),InputRequired()],render_kw={"step":"10"})
-    lab_session = IntegerField("Lab Session",validators=[DataRequired(),InputRequired()])
-    audio_no = IntegerField("Audio number",validators=[DataRequired(),InputRequired()])
-    audio_file = FileField("Audio File",validators=[InputRequired()])
-    questions_file = FileField("Questions File",validators=[InputRequired()])
+    test_code = StringField(u"Test code",validators=[DataRequired(),InputRequired()])
+    time = IntegerField(u"Time (in minutes)",validators=[DataRequired(),InputRequired()],render_kw={"step":"10"})
+    lab_session = IntegerField(u"Lab Session",validators=[DataRequired(),InputRequired()])
+    test_type = SelectField(u"Test Type",choices=[("lab test","Lab test"),("cie1","CIE1"),("cie2","CIE2"),("model exam","Model Exam"),("univ exam","University Exam")])
+    audio_no = IntegerField(u"Audio number",validators=[DataRequired(),InputRequired()])
+    audio_file = FileField(u"Audio File",validators=[InputRequired()])
+    questions_file = FileField(u"Questions File",validators=[InputRequired()])
     submit = SubmitField("Submit")
+
+class EditAudioForm(FlaskForm):
+    test_code = StringField("Test code",validators=[DataRequired(),InputRequired()])
+    new_audio_file = FileField("New Audio File",validators=[InputRequired()])
+    update = SubmitField("Update")
+
+class EditQuestionForm(FlaskForm):
+    test_code = StringField("Test code",validators=[DataRequired(),InputRequired()])
+    new_questions_file = FileField("New Questions File",validators=[InputRequired()])
+    update = SubmitField("Update")
 
 def check_login():
     try:
@@ -73,6 +88,28 @@ def signup():
         else:
             flash("You are a student, you can't be a admin!")
     return render_template("admin/signup.html")
+
+@admin.route("/update_password",methods=['GET', 'POST'])
+def change_passwd():
+    if request.method == "POST":
+        email,passwd,new_passwd = request.form['adminEmail'],request.form['adminPass'],request.form['adminNewPasswd']
+        if mongo.db.admin.find_one({"email":email}):
+            storedPasswd = mongo.db.admin.find_one({"email":email})["passwd"]
+            if check_password_hash(storedPasswd,passwd):
+                new_hashed_value = generate_password_hash(new_passwd,method="scrypt")
+                try:
+                    mongo.db.admin.update_one({"email":email},{"$set":{"passwd":new_hashed_value}})
+                    flash("Password changed!")
+                    session.pop("adminUsername")
+                    return redirect(url_for("admin.login"))
+                except:
+                    flash(Exception)
+                    flash("Error while updating the password")
+            else:
+                flash("Password doesn't match")
+        else:
+            flash("User not found")
+    return render_template("admin/change_passwd.html")
 
 @admin.route("/dashboard",methods=['GET', 'POST'])
 def dashboard():
@@ -136,30 +173,32 @@ def get_test_code():
                 test_time = str(form.time.data)
                 lab_session = str(form.lab_session.data)
                 audio_no = str(form.audio_no.data)
+                test_type = dict(form.test_type.choices).get(form.test_type.data)
                 # Saving the audio
                 audio_file = request.files['audio_file']
                 audio_filename = secure_filename(audio_file.filename)
-                audio_file.save(os.path.join(os.path.abspath('src/static/audios/'),audio_filename))
+                audio_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/audios/'),audio_filename))
                 # Saving the excel file
                 questions_file = request.files['questions_file']
                 questions_filename = secure_filename(questions_file.filename)
-                questions_file.save(os.path.join(os.path.abspath('src/static/audios/'),questions_filename))
-                
+                questions_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),questions_filename))
+
                 try:
-                    mongo.db.testDetails.insert_one({
+                    if not mongo.db.testDetails.find_one({"test_code":test_code}):
+                        mongo.db.testDetails.insert_one({
                     "test_code":test_code,
                     "audio_name":audio_filename,
                     "test_time": test_time,
+                    "test_type":test_type,
                     "lab_session":lab_session,
                     "audio_no":audio_no,
-                    "questions_filename":questions_filename
-                })
-                    questions = extract_questions(os.path.join(os.path.abspath('src/static/audios/'),questions_filename))
+                    "questions_filename":questions_filename})
+
+                    questions = extract_questions(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),questions_filename))
                     mongo.db[test_code].insert_many(questions)
                     flash("Uploaded Successfully!")
                 except Exception as e:
                     flash(e)
-            #return redirect(url_for('admin.add_questions',testCode = test_code))
         return render_template("admin/addQDb.html",testCode = testCode ,form=form)
     else:
         return redirect(url_for("admin.login"))
@@ -167,85 +206,284 @@ def get_test_code():
 
 @admin.route("/download/<testCode>/<Class>")
 def download(testCode,Class):
-    path = os.path.join(os.path.abspath("/admin_reports/"),f"{Class}_{testCode}_(test-report).csv")
+    path = os.path.join(os.path.abspath("Quiz-App/admin_reports/"),f"{Class}_{testCode}_(test-report).csv")
     return send_file(path,as_attachment=True)
-
-
-# @admin.route("/add_questions/<testCode>",methods=['GET', 'POST'])
-# def add_questions(testCode):
-#     if check_login():
-#         if request.method == "POST":
-#             question_no,question,choice1,choice2,choice3,choice4,correct_answer, =request.form['question_no'],request.form['question'],request.form['choice1'],request.form['choice2'],request.form['choice3'],request.form['choice4'],request.form.get('choice_select')
-#             try:
-#                 final_answer = ""
-#                 match correct_answer:
-#                     case '1':
-#                         final_answer = choice1
-#                     case '2':
-#                         final_answer = choice2
-#                     case '3':
-#                         final_answer = choice3
-#                     case '4':
-#                         final_answer = choice4
-#                 mongo.db[testCode].insert_one({
-#                     "question_no":question_no,
-#                     "question":question,
-#                     "choice1":choice1,
-#                     "choice2":choice2,
-#                     "choice3":choice3,
-#                     "choice4":choice4,
-#                     "correct_ans":final_answer
-#                 })
-#             except:
-#                 flash("Internal Error!")
-            
-#         return render_template("admin/addQuiz.html",testCode=testCode)
-#     else:
-#         return redirect(url_for("admin.login"))
 
 @admin.route("/logout",methods=['GET', 'POST'])
 def logout():
     session.pop('adminUsername')
     return redirect(url_for("admin.login"))
 
-@admin.route("/show_reports",methods=['GET', 'POST'])
-def show_report():
+def create_report(test_codes,report_codes,results,dept,exam_date,exam_name,exam_session,exam_subject):
+    import base64
+    with open("src/static/VEC-logo.png", "rb") as img_file:
+        base64_encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
+
+    pdf_report_template = render_template("admin/report_t.html",test_codes=test_codes, report_codes = report_codes , results = results ,dept=dept,base64_encoded_image=base64_encoded_image,exam_date=exam_date,exam_name=exam_name,exam_session=exam_session,exam_subject=exam_subject)
+
+    pdf = HTML(string=pdf_report_template)
+    filename = f"University_report_{dept}.pdf"
+
+    pdf.write_pdf(os.path.join(os.path.abspath("Quiz-App/admin_reports/",filename)))
+
+
+@admin.route("/download_univ_reports",methods=['GET', 'POST'])
+def download_univ_report():
     if check_login():
+        univ_tests = list(mongo.db.testDetails.find({"test_type":"University Exam"}))
+        univ_testcodes = [i["test_code"] for i in univ_tests]
         if request.method == "POST":
-            test_code = request.form['test_code']
-            Class = request.form.get('class')
-            fetched_result = list(mongo.db[f"{test_code}-result"].find({"class":Class},{"_id":0,"class":0,"test_code":0}))
-            if fetched_result!=[]:
-                filename = f"{Class}_{test_code}_(test-report).csv"
-                create_csv(filename=filename,report_details=fetched_result)
-                return render_template("admin/show_all_reports.html",result=fetched_result,testCode=test_code,Class=Class)
-            else:
-                return render_template("admin/show_all_reports.html",result="",testCode=test_code,Class=Class)
-        return render_template("admin/show_all_reports.html")
+            try:
+                user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
+                test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
+                dept = request.form.get("department")
+
+                exam_name = request.form.get("exam_name")
+                exam_date = request.form.get("exam_date")
+                exam_session = request.form.get("exam_session")
+                exam_subject = request.form.get("exam_subject")
+
+                regex = re.compile("I-CSE(CS)-A") if dept == "CSE(CS)" else re.compile(f'^[A-Z]-{dept}-[A-Z]$')
+                cleaned_reports_sorted = clean_reports(test_codes,dept,regex)
+                
+                import base64
+                with open("Quiz-App/src/static/VEC-logo.png", "rb") as img_file:
+                    base64_encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
+
+                pdf_report_template = render_template("admin/report_t.html", title="University Report", test_codes=univ_testcodes, report_codes=user_test_codes, results=cleaned_reports_sorted, dept=dept, base64_encoded_image=base64_encoded_image, exam_date=exam_date, exam_name=exam_name, exam_session=exam_session, exam_subject=exam_subject)
+
+                # Convert HTML to PDF
+                pdf = pdfkit.from_string(pdf_report_template, False)
+
+                # Send PDF as response
+                filename = f"University_report_{dept}.pdf"
+                response = make_response(pdf)
+                response.headers['Content-Type'] = 'application/pdf'
+                response.headers['Content-Disposition'] = 'inline; filename=univ_report.pdf'
+                return response
+
+            except Exception as e:
+                flash(e)
+                return redirect(url_for("admin.show_univ_report"))
+
+        return render_template("admin/download_report.html",test_codes=univ_testcodes)
     else:
         return redirect(url_for("admin.login"))
 
-@admin.route("/test_details/<test_code>",methods=['GET', 'POST'])
-def fetch_test_details(test_code):
+
+@admin.route("/download_model_reports",methods=['GET', 'POST'])
+def download_model_report():
     if check_login():
-        print(test_code)
-        fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0,"lab_session":0,"audio_no":0}))
-        available_testcodes=[i["test_code"] for i in fetch_testcodes]
-        if test_code in available_testcodes:
-            test_details = list(mongo.db.testDetails.find({"test_code":test_code},{'_id':0,"test_time":0,"lab_session":0,"audio_no":0}))
-            fetch_test_questions = list(mongo.db[test_code].find({},{"_id":0}))
-            return jsonify({"test_details":test_details,"questions":fetch_test_questions})
+        model_tests = list(mongo.db.testDetails.find({"test_type":"Model Exam"}))
+        model_testcodes = [i["test_code"] for i in model_tests]
+        if request.method == "POST":
+            try:
+                user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
+                test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
+                dept = request.form.get("department")
+
+                exam_name = request.form.get("exam_name")
+                exam_date = request.form.get("exam_date")
+                exam_session = request.form.get("exam_session")
+                exam_subject = request.form.get("exam_subject")
+                
+                regex = re.compile("I-CSE(CS)-A") if dept == "CSE(CS)" else re.compile(f'^[A-Z]-{dept}-[A-Z]$')
+                cleaned_reports_sorted = clean_reports(test_codes,dept,regex)
+
+                import base64
+                with open("Quiz-App/src/static/VEC-logo.png", "rb") as img_file:
+                    base64_encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
+
+                pdf_report_template = render_template("admin/report_t.html", title="Model Report", test_codes=model_testcodes, report_codes=user_test_codes, results=cleaned_reports_sorted, dept=dept, base64_encoded_image=base64_encoded_image, exam_date=exam_date, exam_name=exam_name, exam_session=exam_session, exam_subject=exam_subject)
+
+                # Convert HTML to PDF
+                pdf = pdfkit.from_string(pdf_report_template, False)
+
+                # Send PDF as response
+                filename = f"Model_report_{dept}.pdf"
+                response = make_response(pdf)
+                response.headers['Content-Type'] = 'application/pdf'
+                response.headers['Content-Disposition'] = 'inline; filename=model_report.pdf'
+                return response
+
+            except Exception as e:
+                flash(e)
+                return redirect(url_for("admin.show_model_report"))
+
+        return render_template("admin/download_report.html",test_codes=model_testcodes)
+    else:
+        return redirect(url_for("admin.login"))
+
+
+@admin.route("/show_univ_reports",methods=['GET', 'POST'])
+def show_univ_report():
+    if check_login():
+        univ_tests = list(mongo.db.testDetails.find({"test_type":"University Exam"}))
+        univ_testcodes = [i["test_code"] for i in univ_tests]
+        if request.method == "POST":
+            try:
+                user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
+                test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
+                dept = request.form.get("department")
+                
+                regex = re.compile("I-CSE(CS)-A") if dept == "CSE(CS)" else re.compile(f'^[A-Z]-{dept}-[A-Z]$')
+                
+                cleaned_reports_sorted = clean_reports(test_codes,dept,regex)
+
+                return render_template("admin/show_univ_reports.html",test_codes=univ_testcodes, report_codes = user_test_codes , results = cleaned_reports_sorted ,dept=dept)
+            except Exception as e:
+                flash(e)
+                return redirect(url_for("admin.show_univ_report"))
+
+        return render_template("admin/show_univ_reports.html",test_codes=univ_testcodes)
+    else:
+        return redirect(url_for("admin.login"))
+
+@admin.route("/show_model_reports",methods=['GET', 'POST'])
+def show_model_report():
+    if check_login():
+        model_tests = list(mongo.db.testDetails.find({"test_type":"Model Exam"}))
+        model_testcodes = [i["test_code"] for i in model_tests]
+        if request.method == "POST":
+            try:
+                user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
+                test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
+                dept = request.form.get("department")
+                regex = re.compile("I-CSE(CS)-A") if dept == "CSE(CS)" else re.compile(f'^[A-Z]-{dept}-[A-Z]$')
+            except:
+                flash("Please select testcodes and department!")
+            cleaned_reports_sorted = clean_reports(test_codes,dept,regex)
+            return render_template("admin/show_model_reports.html",test_codes=model_testcodes, report_codes = user_test_codes , results = cleaned_reports_sorted ,dept=dept)
+        return render_template("admin/show_model_reports.html",test_codes=model_testcodes)
+    else:
+        return redirect(url_for("admin.login"))
+
+@admin.route("/test_details/<testCode>",methods=['GET', 'POST'])
+def fetch_test_details(testCode):
+    if check_login():
+        audio_form = EditAudioForm()
+        question_form = EditQuestionForm()
+        fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0}))
+        raw_available_testcodes=[i["test_code"] for i in fetch_testcodes]
+        available_testcodes = remove_duplicates(raw_available_testcodes)
+        if testCode in available_testcodes:
+            test_details = list(mongo.db.testDetails.find({"test_code":testCode},{'_id':0,"test_time":0}))
+            fetch_test_questions = list(mongo.db[testCode].find({},{"_id":0,"correct_ans":0}))
+            return render_template("admin/show_questions.html",audio_form=audio_form,question_form=question_form,test_codes=available_testcodes,test_details=test_details,questions=fetch_test_questions)
         return jsonify({"resp":"TESTCODE NOT FOUND"})
     else:
         return redirect(url_for('admin.login'))
-    
+
 @admin.route("/show_questions",methods=['GET', 'POST'])
 def show_questions():
     if check_login():
-        fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0,"lab_session":0,"audio_no":0}))
-        test_codes=[i["test_code"] for i in fetch_testcodes]
-        fetch_first_test = list(mongo.db.testDetails.find({"test_code":test_codes[0]},{'_id':0,"test_time":0,"lab_session":0,"audio_no":0}))
-        fetch_test_questions = list(mongo.db[fetch_first_test[0]["test_code"]].find({},{"_id":0}))
-        return render_template("admin/show_questions.html",test_codes=test_codes,test_details=fetch_first_test,questions=fetch_test_questions)
+        audio_form = EditAudioForm()
+        question_form = EditQuestionForm()
+        fetch_testcodes = list(mongo.db.testDetails.find({},{'_id':0,"test_time":0}))
+        raw_test_codes=[i["test_code"] for i in fetch_testcodes]
+        test_codes = remove_duplicates(raw_test_codes)
+        fetch_first_test = list(mongo.db.testDetails.find({"test_code":test_codes[0]},{'_id':0,"test_time":0}))
+        fetch_test_questions = list(mongo.db[fetch_first_test[0]["test_code"]].find({},{"_id":0,"correct_ans":0}))
+        return render_template("admin/show_questions.html",question_form=question_form,test_codes=test_codes,test_details=fetch_first_test,questions=fetch_test_questions,audio_form=audio_form)
     else:
         return redirect(url_for('admin.login'))
+
+@admin.route("/edit_audio_file",methods=['GET', 'POST'])
+def edit_test_audio():
+    if check_login():
+        if request.method == "POST":
+            test_code = request.form["test_code"]
+            audio_file = request.files['new_audio_file']
+            audio_filename = secure_filename(audio_file.filename)
+            audio_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/audios/'),audio_filename))
+            try:
+                mongo.db.testDetails.update_one({"test_code":test_code},{"$set":{"audio_name": audio_filename}})
+                flash("Audio updated successfully!")
+                return redirect(url_for("admin.show_questions"))
+            except Exception as e:
+                flash(e)
+        return redirect(url_for("admin.show_questions"))
+    else:
+        return redirect(url_for("admin.login"))
+
+@admin.route("/edit_question_file",methods=['GET', 'POST'])
+def edit_test_file():
+    if check_login():
+        if request.method == "POST":
+            test_code = request.form["test_code"]
+            new_question_file = request.files['new_questions_file']
+            new_question_filename = secure_filename(new_question_file.filename)
+            new_question_file.save(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),new_question_filename))
+            try:
+                # Dropping the testcode collection
+                mongo.db[test_code].drop()
+                # Extracting new questions
+                questions = extract_questions(os.path.join(os.path.abspath('Quiz-App/src/static/questions/'),new_question_filename))
+                mongo.db[test_code].insert_many(questions)
+                # Updating testdetails in testDetails collection
+                mongo.db.testDetails.update_one({"test_code":test_code},{"$set":{"questions_filename": new_question_filename}})
+                flash("Questions updated successfully")
+
+                return redirect(url_for("admin.show_questions"))
+            except Exception as e:
+                flash(e)
+        return redirect(url_for("admin.show_questions"))
+    else:
+        return redirect(url_for("admin.login"))
+
+@admin.route("/delete_testcode",methods=['GET', 'POST'])
+def delete_testcode():
+    if check_login():
+        if request.method == "POST":
+            test_code = request.form["test_code"]
+            try:
+                mongo.db[test_code].drop()
+                mongo.db[f"{test_code}-result"].drop()
+                mongo.db.testDetails.delete_one({"test_code":test_code})
+                flash("Deleted successfully")
+            except Exception as e:
+                flash(e)
+        return redirect(url_for("admin.show_questions"))
+    else:
+        return redirect(url_for("admin.login"))
+
+@admin.route("/issues/<testCode>",methods=['GET', 'POST'])
+def fetch_technical_issues(testCode):
+    if check_login():
+        fetch_testcodes = list(mongo.db.testDetails.find({},{"test_code":1}))
+        raw_available_testcodes=[i["test_code"] for i in fetch_testcodes]
+        available_testcodes = remove_duplicates(raw_available_testcodes)
+        if testCode in available_testcodes:
+            zero_results = list(mongo.db[f"{testCode}-result"].find({"score":0}))
+            return render_template("admin/technical_issues.html",test_codes=available_testcodes,zero_results=zero_results)
+        return jsonify({"resp":"TESTCODE NOT FOUND"})
+    else:
+        return redirect(url_for('admin.login'))
+
+@admin.route("/technical_issues",methods=['GET', 'POST'])
+def technical_issues():
+    if check_login():
+        fetch_testcodes = list(mongo.db.testDetails.find({},{"test_code":1}))
+        raw_test_codes=[i["test_code"] for i in fetch_testcodes]
+        test_codes = remove_duplicates(raw_test_codes)
+        zero_results = list(mongo.db[f"{test_codes[0]}-result"].find({"score":0},{}))
+        return render_template("admin/technical_issues.html",test_codes=test_codes,zero_results=zero_results)
+    else:
+        return redirect(url_for("admin.login"))
+
+
+@admin.route("/delete_result",methods=['GET', 'POST'])
+def delete_result():
+    if check_login():
+        if request.method == "POST":
+            obj_id = request.json["obj_id"]
+            test_code = request.json["test_code"]
+            try:
+                mongo.db[f"{test_code}-result"].delete_one({"_id":ObjectId(obj_id)})
+                flash("Deleted successfully!")
+                return jsonify({"url":f"/admin/issues/{test_code}"})
+            except Exception as e:
+                flash(e)
+        return redirect(url_for("admin.technical_issues"))
+    else:
+        return redirect(url_for("admin.login"))

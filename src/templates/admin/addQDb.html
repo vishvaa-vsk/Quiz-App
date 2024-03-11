@@ -8,16 +8,16 @@
 <div class="container-lg">
     {% for message in get_flashed_messages() %}
     {% if message == "Questions added!" %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{message}}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endif %}
-    
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% else %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             {{message}}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+    {% endif %}
     {% endfor %}
     <form method="POST" enctype="multipart/form-data">
         <br>
@@ -37,6 +37,9 @@
         
         {{ form.audio_no.label(class="form-label") }}
         {{ form.audio_no(class="form-control mb-3") }}
+
+        {{ form.test_type.label(class="form-label") }}
+        {{ form.test_type(class="form-control mb-3") }}
 
         {{ form.audio_file.label(class="form-label") }}
         {{ form.audio_file(class="form-control mb-3",accept='audio/*') }}

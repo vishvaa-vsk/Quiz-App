@@ -1,0 +1,72 @@
+{% extends "teacher/teacher_base.html" %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static',filename='teacher_report.css') }}">
+{% endblock %}
+{% block title %}Reports{% endblock %}
+  
+{% block bodyContent %}
+  <div class="content">
+    <form action="{{ url_for('teacher.view_results') }}" method="post">
+      <div class="d-flex justify-content-sm-center align-items-center">
+        <div class="d-flex justify-content-sm-start">
+          <div class="p-2">
+            <select name="test_code" id="test_code" class="form-select" required>
+              <option selected disabled>Test Code</option>
+              {% for testCode in test_codes %}
+                <option value="{{testCode}}">{{ testCode|e }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="d-flex justify-content-sm-end p-2 m-2">
+          <div class="p-2">
+              <select class="form-select" id="class" name="classes" required>
+                <option disabled selected>Class</option>
+                {% for Class in classes %}
+                <option value="{{Class}}">{{Class}}</option>
+                {% endfor %}
+              </select>
+          </div>
+          <div class="d-flex justify-content-sm-evenly p-2">
+            <button type="submit" class="btn btn-info">Search</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <br>
+
+    {% if test_results == [] %}
+      <div class="d-flex justify-content-sm-center align-items-center">
+        <h3>No Test Results Found for {{Class}}</h3>
+      </div>
+      <br>
+    {% else %}
+    <div class="d-flex justify-content-sm-center align-items-center">
+      <h3>{{test_code}} Results for {{Class}}</h3>
+    </div>
+    <br>
+    
+    <table id="report">
+      <tr>
+        <th>S.NO</th>
+        <th>REG.NO</th>
+        <th>NAME</th>
+        <th>SCORE</th>          
+        <th>PERCENTAGE</th>          
+        <th>RESULT</th>          
+      </tr>
+      {% for i in range(test_results | length) %}
+        <tr>
+          <td>{{ i+1 }}</td>
+          <td>{{ test_results[i]["regno"] }}</td>
+          <td>{{ test_results[i]['name'] | upper }}</td>
+          <td>{{ test_results[i]['score'] }}</td>
+          <td>{{ test_results[i]['percentage'] }}</td>
+          <td>{{ test_results[i]['status'] }}</td>
+        </tr>
+      {% endfor %}
+    </table> 
+    {% endif %}
+   </div>
+{% endblock %}

@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 from flask import render_template
 import pandas as pd
 import json
+import pytz
+from .extensions import mongo
 
 token_secret_key = os.environ.get("TOKEN_SECRET_KEY")
 
@@ -29,20 +31,18 @@ def verify_token(token,userId):
 
 def create_report(name,class_and_sec,testCode,regno,status,score,percentage,lab_session,audio_no,file):
     today = date.today()
-    now = datetime.now()
+    indiaTz = pytz.timezone("Asia/Kolkata")
+    now = datetime.now(indiaTz)
     todays_date = today.strftime("%d %B %Y")
     todays_time = now.strftime("%H:%M %p")
     template = render_template(f"{file}",name=name,Class=class_and_sec,TestCode=testCode,regno=regno,status=status,score=score,percentage=percentage,time=todays_time,Date=todays_date,lab_session=lab_session,audio_no=audio_no)
     return template
 
 
-def create_csv(filename,report_details):
-    import csv
-    fields = ['name','score','percentage','status']
-    with open(os.path.join(os.path.abspath("admin_reports"),filename),"w+") as csvfile:
-        writer = csv.DictWriter(csvfile,fieldnames=fields)
-        writer.writeheader()
-        writer.writerows(report_details)
+def remove_duplicates(iterable):
+    copy = set(iterable)
+    non_duplicate = list(copy)
+    return non_duplicate
 
 def extract_questions(filepath):
     file_content = pd.read_excel(filepath,engine='openpyxl')
@@ -56,3 +56,25 @@ def extract_questions(filepath):
                 i.pop(j)
         questions_list.append(i)
     return questions_list
+
+def clean_reports(test_codes,dept,regex):
+    from collections import defaultdict
+    uncleaned_reports = []
+    for test in test_codes:
+        if dept == "CSE(CS)":
+            documents = mongo.db[test].find({"class":"I-CSE(CS)-A"})
+        else:
+            documents = mongo.db[test].find({"class":{"$regex":regex}})
+        for result in documents:
+            uncleaned_reports.append(result)
+    grouped_data = defaultdict(list)
+    for item in uncleaned_reports:
+        key = (item['name'], item['regno'])
+        score = item['score']
+        test_code = item['test_code']
+        grouped_data[key].append({'score': score, 'test_code': test_code})
+
+    cleaned_reports = [{'name': name, 'regno': regno,'scores': data} for (name, regno), data in grouped_data.items()]
+
+    cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
+    return cleaned_reports_sorted

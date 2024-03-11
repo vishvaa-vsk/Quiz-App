@@ -8,17 +8,18 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     {% endfor %}
-    
+
     <div class="ModelBox shadow-lg p-3 mb-5 rounded-3">
         <h3>Forgot Password</h3>
-        <form action="{{ url_for('admin.reset_request') }}" method="POST">
+        <form action="{{ url_for('main.reset_request') }}" method="POST">
             <div class="form-text">Enter your email to send a reset link!</div><br>
             <div class="form-floating mb-3">
                 <input type="email" class="form-control" name="resetEmail" id="floatingInput" placeholder="Email" required>
                 <label for="floatingInput">Email</label>
-              </div>   
+            </div> 
             <button type="submit" class="btn btn-lg btn-success">Send email</button>
-        </form>     
+        </form>
     </div>
     
+
 {% endblock %}

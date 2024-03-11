@@ -1,0 +1,108 @@
+{% extends "teacher/teacher_base.html" %}
+{% block title %}Add Handling Classes{% endblock %}
+{% block customCSS %}<link rel="stylesheet" href="{{ url_for('static',filename='show_questions.css') }}">{% endblock %}
+{% block bodyContent %}
+    <div class="h-100 d-flex justify-content-center align-items-center shadow p-3 mb-5 bg-body-tertiary rounded">
+        <div class="p-2">
+            <select class="form-select" id="year" required  >
+            <option disabled selected>Year</option>
+            <option value="I">I</option>
+            <option value="II">II</option>
+            <option value="III">III</option>
+            <option value="IV">IV</option>
+            </select>
+        </div>
+        <div class="p-2">
+            <select class="form-select" name="" id="dept" required>
+            <option disabled selected>Department</option>
+            <option value="CSE">CSE</option>
+            <option value="AI&DS">AI&DS</option>
+            <option value="AUTO">AUTO</option>
+            <option value="CIVIL">CIVIL</option>
+            <option value="CSE(CS)">CSE(CS)</option>
+            <option value="EEE">EEE</option>
+            <option value="ECE">ECE</option>
+            <option value="EIE">EIE</option>
+            <option value="IT">IT</option>
+            <option value="MECH">MECH</option>
+            </select>
+        </div>
+        <div class="p-2">
+            <select class="form-select" name="" id="section" required>
+            <option disabled selected>Section</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            </select>
+        </div>
+        <div class="d-flex justify-content-sm-evenly p-2">
+            <button type="button" class="btn btn-success" onclick="addClassSec()">Add Class</button>
+        </div>
+    </div>
+    <script>
+        addClassSec=()=>{
+        var year = document.querySelector("#year").value;
+        var dept = document.querySelector("#dept").value;
+        var section = document.querySelector("#section").value;
+        var classSec = `${year}-${dept}-${section}`;
+                $.ajax({
+                        type:"POST",
+                        headers: {"Content-Type": "application/json"},
+                        url : "/teacher/add_classes",
+                        data: JSON.stringify({"class":classSec.toString()}),
+                        success: function(response){
+                            window.location.href = response.url;
+                        }
+                });
+            }
+
+    </script>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Class?</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Do you want to delete this?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-danger" onclick="sendClassSec()">Confirm</button>
+        </div>
+      </div>
+    </div>
+</div>
+    
+    <h3 class="d-flex justify-content-center align-items-center">Your Handling Classes</h3><br><br><br><br>
+<!-- position-absolute top-50 start-50 translate-middle -->
+    <div class="container" style="width: 50%;">
+    {% for section in Class %}
+    <div class="questions-box shadow p-3 mb-5 bg-body-tertiary rounded d-flex justify-content-between align-items-center">
+        <div class="question-details" >
+            <h4 class="text-center" id="qno">{{section}}</h4>
+        </div>
+        <div class="">
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
+        </div>
+    </div>
+    
+    <script>
+        sendClassSec=()=>{
+                    $.ajax({
+                        type:"POST",
+                        headers: {"Content-Type": "application/json"},
+                        url : "/teacher/delete_class",
+                        data: JSON.stringify({"section":"{{section}}"}),
+                        success: function(response){
+                            window.location.href = response.url;
+                        }
+                    })
+                }
+    </script>
+    {% endfor %}
+   </div>
+{% endblock %}

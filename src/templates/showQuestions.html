@@ -9,6 +9,18 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='quesitons.css') }}">
 </head>
 <body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  {{message}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
     <div class="sticky-top sticky-sm-top Counter shadow p-1 bg-body-tertiary rounded">
       <span id="counter"></span>
         <div class="progress" role="progressbar" aria-label="Success example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
@@ -28,25 +40,25 @@
                 <label class="form-label">{{i['question_no']}}. {{i['question']}}</label>
               </div>
               <div class="options">
-                  <input class="form-check-input" type="radio" name="option-{{i['question_no']}}" id="flexRadioDefault1" value="{{i['choice1']}}">
+                  <input class="form-check-input" type="radio" name="option-{{i['question_no']}}" id="flexRadioDefault1" value="{{i['choice1']}}" required>
                   <label class="form-check-label" for="flexRadioDefault1">
                     {{i['choice1']}}
                   </label>
               </div>
               <div class="options">
-                  <input class="form-check-input" type="radio" name="option-{{i['question_no']}}" id="flexRadioDefault1" value="{{i['choice2']}}">
+                  <input class="form-check-input" type="radio" name="option-{{i['question_no']}}" id="flexRadioDefault1" value="{{i['choice2']}}" required>
                   <label class="form-check-label" for="flexRadioDefault1">
                     {{i['choice2']}}
                   </label>
               </div>
               <div class="options">
-                  <input class="form-check-input" type="radio" name="option-{{i['question_no']}}" id="flexRadioDefault1" value="{{i['choice3']}}">
+                  <input class="form-check-input" type="radio" name="option-{{i['question_no']}}" id="flexRadioDefault1" value="{{i['choice3']}}" required>
                   <label class="form-check-label" for="flexRadioDefault1">
                     {{i['choice3']}}
                   </label>
               </div>
               <div class="options">
-                  <input class="form-check-input" type="radio" name="option-{{i['question_no']}}" id="flexRadioDefault1" value="{{i['choice4']}}">
+                  <input class="form-check-input" type="radio" name="option-{{i['question_no']}}" id="flexRadioDefault1" value="{{i['choice4']}}" required>
                   <label class="form-check-label" for="flexRadioDefault1">
                     {{i['choice4']}}
                   </label>

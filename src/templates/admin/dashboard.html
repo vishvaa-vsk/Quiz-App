@@ -29,19 +29,32 @@
                 <a class="nav-link" href="{{ url_for('admin.get_test_code') }}">Create New Test</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('admin.show_report') }}">View Reports</a>
+                <a class="nav-link" href="{{ url_for('admin.show_univ_report') }}">View University Reports</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.show_model_report') }}">View Model Reports</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.show_questions') }}">View testcodes</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.technical_issues') }}">View technical issues</a>
+              </li>
             </ul>
           </div>
           <div class="d-flex justify-content-end">
             <img src="{{ url_for('static',filename='VEC-logo.png') }}" alt="logo" width="75" style="border-radius: 50%;">
           </div>
+          <a href="{{ url_for('admin.change_passwd') }}" class="btn btn-info">Change password</a>
           <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logout</a>
+          
         </div>
     </nav>
 
     <h1 class="mx-5 mt-5">Welcome, {{name}} !</h1>
 
     <div class="d-flex">
+
         <div class="card border-warning text-bg-dark mb-3 m-5 " style="max-width: 18rem;">
             <h5 class="card-header">Create New Test</h5>
             <div class="card-body ">
@@ -49,14 +62,40 @@
               <a href="{{ url_for('admin.get_test_code') }}" class="btn btn-warning mt-3"> Create a test</a>
             </div>
         </div>
+
         <div class="card border-warning text-bg-dark mb-3 m-5 " style="max-width: 18rem;">
-            <h5 class="card-header">View Reports</h5>
+            <h5 class="card-header">View University Reports</h5>
             <div class="card-body ">
-              <p class="card-text" style="text-transform:capitalize;">View reports with click! <br><br> View and download reports of individual user with their respective class!</p>
-              <a href="{{ url_for('admin.show_report') }}" class="btn btn-warning"> View reports</a>
+              <p class="card-text" style="text-transform:capitalize;">View reports with a click! <br><br> View and download reports of individual user with their respective departments!</p>
+              <a href="{{ url_for('admin.show_univ_report') }}" class="btn btn-warning"> View University reports</a>
+            </div>
         </div>
+
+        <div class="card border-warning text-bg-dark mb-3 m-5 " style="max-width: 18rem;">
+            <h5 class="card-header">View Model Reports</h5>
+            <div class="card-body ">
+              <p class="card-text" style="text-transform:capitalize;">View reports with a click! <br><br> View and download reports of individual user with their respective departments!</p>
+              <a href="{{ url_for('admin.show_model_report') }}" class="btn btn-warning"> View  Model Reports</a>
+            </div>
+        </div>
+
+        <div class="card border-warning text-bg-dark mb-3 m-5 " style="max-width: 18rem;">
+          <h5 class="card-header">View testcodes</h5>
+          <div class="card-body ">
+            <p class="card-text" style="text-transform:capitalize;">View existing! <br><br> View existing testcode and its questions</p>
+            <a href="{{ url_for('admin.show_questions') }}" class="btn btn-warning"> View testcodes</a>
+          </div>
+        </div>
+
+        <div class="card border-warning text-bg-dark mb-3 m-5 " style="max-width: 18rem;">
+          <h5 class="card-header">Technical Issues</h5>
+          <div class="card-body ">
+            <p class="card-text" style="text-transform:capitalize;">Review Technical issues! <br><br> View technical issues and resolve it</p>
+            <a href="{{ url_for('admin.technical_issues') }}" class="btn btn-warning"> Review Technical Issues</a>
+          </div>
+        </div>
+
     </div>
-    
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>

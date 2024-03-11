@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}VEC Quiz App{% endblock %}
+
+{% block bodyContent %}
+    <br>
+    {% for message in get_flashed_messages() %}
+    {% if message == "Registered successfully!" %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div> 
+    {% endfor %}
+    <div class="ModelBox shadow-lg p-3 mb-5 rounded-3">
+        <h3>Sign up as a teacher</h3>
+        <form action="{{ url_for('teacher.signup') }}" method="POST">
+                <select class="form-select form-select-lg mb-3" name="teacherName" id="teacher" aria-label="Teacher Name" required>
+                  <option value="Teacher Name" selected disabled>Teacher Name</option>
+                  <option value="Baskaran V">Baskaran V</option>
+                  <option value="Sugapriya S">Sugapriya S</option>
+                  <option value="Balaji A">Balaji A</option>
+                  <option value="Latha J">Latha J</option>
+                  <option value="Dhanalakshmi R">Dhanalakshmi R</option>
+                  <option value="Vinothkumar M">Vinothkumar M</option>
+                  <option value="Anand V">Anand V</option>
+                  <option value="Archana G.M">Archana G.M</option>
+                  <option value="Kirubakaran Amalraj">Kirubakaran Amalraj</option>
+                </select>
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control" name="teacherEmail" id="floatingInput" placeholder="Email" required>
+                <label for="floatingInput">Email Address</label>
+              </div>
+                        
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="teacherPass" id="floatingInput" placeholder="password" required>
+                <label for="floatingInput">Password</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="teacherRePass" id="floatingInput" placeholder="password" required>
+                <label for="floatingInput">Confirm Password</label>
+              </div> 
+            <button type="submit" class="btn btn-lg btn-primary">Register</button>
+        </form>
+        <a href="{{ url_for('teacher.login') }}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover loginLinks ">Already have an account? Login here </a><br>
+    </div>
+{% endblock %}

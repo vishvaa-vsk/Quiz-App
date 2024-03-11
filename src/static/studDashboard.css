@@ -75,6 +75,22 @@ body{
     font-size: 15px;
 }
 
+#univ_test_code{
+    margin: 15px;
+    outline: none;
+    width: 110px;
+    display: block;
+    margin-left: 50px;
+    padding:12px;
+    border: 3px solid #22668D;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+#testButton{
+    margin-right: 30px;
+}
+
 .studBanner{
     padding: 10px;
     display: flex;
@@ -99,6 +115,12 @@ div.content {
     margin-left: 250px;
     padding: 0px 10px;
     /* height: 1000px; */
+    /* margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; */
 }
 
 .prevResults{
@@ -107,4 +129,26 @@ div.content {
     padding: 15px;
     background-color:#EF786B;
     border-radius: 10px;
+}
+
+.edit-profile{
+    padding: 25px;
+    width: 60%;
+    height: 70%;
+    background-color: white;
+    margin: 30px auto;
+    border: 1px transparent;
+    border-radius: 25px;
+    text-align: center;
+}
+
+.edit-profile form{
+    padding: 10px;
+}
+
+@media screen and (max-width: 600px) {
+    .edit-profile{
+        width: 65%;
+        margin: 75px auto;
+    }
 }

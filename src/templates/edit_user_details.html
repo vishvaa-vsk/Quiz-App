@@ -1,0 +1,199 @@
+{% extends "dashBase.html" %}
+
+{% block title %}VEC Quiz App{% endblock %}
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static',filename='studDashboard.css') }}">
+{% endblock %}
+
+{% block dashContent %}
+    <div class="sidebar">
+        <div class="studBanner">
+            <img src="{{ url_for('static',filename='VEC-logo.png') }}" alt="logo" class="clgLogo">
+            <h6 class="studName">{{studName}}</h6>
+        </div>
+
+        <div class="d-flex justify-content-evenly">
+            <input type="text" name="testCode" id="testCode" placeholder="TEST CODE" onkeydown="writeTest(this)">
+            <button id="testButton" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Go</button>    
+        </div>
+
+        <a href="{{ url_for('main.dashboard') }}">Dash Board</a>
+        <a href="{{ url_for('main.univ_exam') }}">Write University Exam</a>
+        <a href="{{ url_for('main.download_prev_result') }}">Download Previous Test Results</a>
+        <a href="{{ url_for('main.edit_details') }}" class="active">Edit Your Details</a>
+        <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Logout</a>
+     </div>
+
+
+  <div class="content">
+    <h4>Edit Your Details</h4>
+  <div class="alert alert-info">
+    <h6>Edit the below details if its not in this format</h6>
+    <ol style="font-weight: bold;">
+      <li>Student Name should be ending with thier initial (example: Vishvaa K)</li>
+      <li>Student should update their University Registeration No in the Registeration number field</li>
+      <li>Student should update a valid email if previous one is not correct</li>
+      <li>Student must be updated like this (I-CSE-A). For Mech,EIE,AUTO please mention your class as (I-MECH-A) respectively</li>
+      <li>After making changes to the fields, click sumbit button only once. (Don't click that repeatedly)</li>
+    </ol>
+  </div>
+    <div class="edit-profile shadow-lg p-3 mb-5 bg-body-tertiary rounded">
+      <form action="{{ url_for('main.edit_details') }}" method="POST" id="editDetailsForm">
+        <div class="avatar d-flex justify-content-center align-items-center">
+          <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="" width="150" height="150" style="border-radius: 50%;">
+          <div><button type="button" class="btn btn-info btn-sm">Upload</button></div>
+        </div>
+
+        <div class="d-flex justify-content-evenly align-items-center">
+          <div class="form-floating mt-3" style="width: 70%;">
+            <input type="text" class="form-control" id="studName" name="studName" placeholder="Student Name" autocomplete="off">
+            <label for="studName">Student Name</label>
+          </div>
+        </div>
+        
+        <div class="d-flex justify-content-evenly align-items-center">
+          <div class="form-floating mt-3" style="width: 70%;">
+            <input type="text" class="form-control" id="studRegno" name="studRegno" placeholder="Student Regno" autocomplete="off">
+            <label for="studRegno">Student Registeration No</label>
+          </div>
+        </div>
+        <br>
+        <div class="d-flex justify-content-evenly align-items-center">
+          <div class="form-floating mb-3" style="width: 70%;">
+            <div class="d-flex justify-content-between">
+                  <div class="d-flex justify-content-sm-evenly">
+                    <select class="form-select" id="year" required >
+                      <option disabled selected>Year</option>
+                      <option value="I">I</option>
+                      <option value="II">II</option>
+                      <option value="III">III</option>
+                      <option value="IV">IV</option>
+                    </select>
+                  </div>
+                  <div class="d-flex justify-content-sm-evenly">
+                    <select class="form-select" name="" id="dept" required>
+                      <option disabled selected>Department</option>
+                      <option value="CSE">CSE</option>
+                      <option value="AI&DS">AI&DS</option>
+                      <option value="AUTO">AUTO</option>
+                      <option value="CIVIL">CIVIL</option>
+                      <option value="CSE(CS)">CSE(CS)</option>
+                      <option value="EEE">EEE</option>
+                      <option value="ECE">ECE</option>
+                      <option value="EIE">EIE</option>
+                      <option value="IT">IT</option>
+                      <option value="MECH">MECH</option>
+                      <option value="MBA">MBA</option>
+                      
+                    </select>
+                  </div>
+                  <div class="d-flex justify-content-sm-evenly">
+                    <select class="form-select" name="" id="section" required>
+                      <option disabled selected>Section</option>
+                      <option value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="C">C</option>
+                      <option value="D">D</option>
+                    </select>
+                  </div>
+                  <div class="d-flex justify-content-sm-evenly">
+                    <button type="button" class="btn btn-warning" onclick="updateClassSec()">Update</button>
+                  </div>
+              </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-evenly align-items-center">
+          <div class="form-floating mt-3" style="width: 70%;">
+            <input type="text" class="form-control" id="class-sec" name="studClass" placeholder="Student Class" autocomplete="off" style="text-transform: uppercase
+            ;">
+            <label for="class-sec">Student Class</label>
+          </div>
+        </div>
+        <br>
+
+        <div class="d-flex justify-content-evenly align-items-center">
+          <div class="form-floating" style="width: 70%;">
+            <select class="form-select form-select-lg mb-3" name="teacherName" id="teacher" aria-label="Teacher Name" required>
+              <option value="Teacher Name" selected="selected" disabled>Your Teacher Name</option>
+              <option value="Baskaran V">Baskaran V</option>
+              <option value="Sugapriya S">Sugapriya S</option>
+              <option value="Balaji A">Balaji A</option>
+              <option value="Latha J">Latha J</option>
+              <option value="Dhanalakshmi R">Dhanalakshmi R</option>
+              <option value="Vinothkumar M">Vinothkumar M</option>
+              <option value="Anand V">Anand V</option>
+              <option value="Archana G.M">Archana G.M</option>
+              <option value="Kirubakaran Amalraj">Kirubakaran Amalraj</option>
+            </select>
+            <label for="teacher">Your Teacher Name</label>
+          </div>
+        </div>
+        <div class="d-flex justify-content-evenly align-items-center">
+          <div class="form-floating mt-3" style="width: 70%;">
+            <input type="email" class="form-control" id="studEmail" name="studEmail" placeholder="Student Email" autocomplete="off">
+            <label for="studEmail">Student Email</label>
+          </div>
+        </div>
+        <div class="d-flex justify-content-evenly align-items-center">
+          <button type="submit" class="btn btn-success btn-lg">Submit</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+{% endblock %}
+
+{% block customJS %}
+    <script>
+      window.onload = () =>{
+            const getUserDetailsUrl = "{{ url_for('main.get_user_details') }}";
+            fetch(getUserDetailsUrl,{
+              "method":'POST',
+            }).then(response => response.json()).then(json=>{
+                    document.getElementById("studName").value = json['username'];
+                    document.getElementById("studRegno").value = json['regno'];
+                    document.getElementById("class-sec").value = json['class'];
+                    document.getElementById("studEmail").value = json['email'];
+                    document.querySelector("#teacher").value = json['teacher'];
+            })
+      }
+      updateClassSec=()=>{
+          year = document.querySelector("#year").value
+          dept = document.querySelector("#dept").value
+          section = document.querySelector("#section").value
+          classSec = `${year}-${dept}-${section}`
+          document.querySelector("#class-sec").value = classSec
+      }
+
+    sendTestCode = () =>{
+        var testCode = document.querySelector("#testCode").value;
+        $.ajax({
+            url : `/verify_test/${testCode}`,
+            type:'POST',
+            data: {'testCode':testCode},
+            success: function(response) { 
+                window.location.href = response.url;
+            }
+        });}
+
+
+    var writeTest=(input)=>{
+        if(event.key == 'Enter'){
+            var testCode = input.value;
+            document.querySelector('#staticBackdrop').style.display = "block";
+            var confirmButton = document.querySelector("#confirmButton");
+            confirmButton.addEventListener('click',function(){
+            $.ajax({
+                url : `/verify_test/${testCode}`,
+                type:'POST',
+                data: {'testCode':testCode},
+                success: function(response) { 
+                    window.location.href = response.url;
+                }
+            })
+            });
+        };
+    }
+    </script>
+{% endblock %}

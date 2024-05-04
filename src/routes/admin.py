@@ -25,7 +25,7 @@ class AddAudioForm(FlaskForm):
     test_code = StringField(u"Test code",validators=[DataRequired(),InputRequired()])
     time = IntegerField(u"Time (in minutes)",validators=[DataRequired(),InputRequired()],render_kw={"step":"10"})
     lab_session = IntegerField(u"Lab Session",validators=[DataRequired(),InputRequired()])
-    test_type = SelectField(u"Test Type",choices=[("lab test","Lab test"),("cie1","CIE1"),("cie2","CIE2"),("model exam","Model Exam"),("univ exam","University Exam")])
+    test_type = SelectField(u"Test Type",choices=[("lab test","Lab test"),("cie1","CIE1"),("cie2","CIE2"),("model exam","Model Exam"),("univ exam","University Exam"),("value added","Value added course")])
     audio_no = IntegerField(u"Audio number",validators=[DataRequired(),InputRequired()])
     audio_file = FileField(u"Audio File",validators=[InputRequired()])
     questions_file = FileField(u"Questions File",validators=[InputRequired()])

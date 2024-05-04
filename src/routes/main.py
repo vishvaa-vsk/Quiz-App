@@ -220,6 +220,7 @@ def write_test(testCode):
             sorted_questions = sorted(questions, key=lambda x: x['question_no'])
             question_nos = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,}))
             testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
+            test_type = testdetails["test_type"]
             correct_answers = list(mongo.db[testCode].find({},{"_id":0,"question_no":1,"correct_ans":1}))
             total_questions = []
             total_correct_answer = 0
@@ -247,10 +248,13 @@ def write_test(testCode):
                     flash(e)
                 try:
                     mongo.db[f"{testCode}-result"].insert_one(add_user_result)
-                    return redirect(url_for('main.generate_report',testCode=testCode,name=session["username"]))
+                    if test_type != "value added":
+                        return redirect(url_for('main.generate_report',testCode=testCode,name=session["username"]))
+                    else:
+                        return redirect(url_for('main.generate_certificate',testCode=testCode,name=session["username"]))
                 except Exception as e:
                     flash(e)
-                    flash("Internal error occured!")
+                    flash("Internal error occurred!")
         return render_template("showQuestions.html",testDetails=sorted_questions,audio=testdetails['audio_name'],time=testdetails['test_time'])
     else:
         return redirect(url_for("main.login"))
@@ -334,7 +338,7 @@ def write_univ_test(testCode):
                     return render_template("redirect_home.html",studName=session.get("username"))
                 except Exception as e:
                     flash(e)
-                    flash("Internal error occured!")
+                    flash("Internal error occurred!")
         return render_template("showQuestions.html",testDetails=sorted_questions,audio=testdetails['audio_name'],time=testdetails['test_time'])
     else:
         return redirect(url_for("main.login"))
@@ -439,6 +443,15 @@ def generate_report(testCode,name):
     else:
         return redirect(url_for('main.login'))
 
+@main.route("/generate_certificate/<testCode>/<name>",methods=['GET','POST'])
+def generate_certificate(testCode,name):
+    pass
+#     if check_login():
+#         if mongo.db.users.find_one({"username":name}) and mongo.db[f"{testCode}-result"].find_one({'name':name}):
+#             testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
+#             user_details = mongo.db.users.find_one({"username":name})
+#             user_test_report = mongo.db[f"{testCode}-result"].find_one({'name':name})
+    
 @main.route("/get_user_details",methods=['GET', 'POST'])
 def get_user_details():
     """

@@ -8,3 +8,5 @@ admin_reports/*
 .vscode
 src/static/questions/*
 *.pdf
+Certificate.jpg
+certificate.py

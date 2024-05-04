@@ -119,7 +119,7 @@ def reset_password_verify(token):
     """
     The function `reset_password_verify` checks if a token is valid and redirects to the reset password
     page if it is, otherwise it displays an error message.
-    
+
     :param token: The `token` parameter in the `reset_password_verify` function is used to verify the
     user's request to reset their password. The function checks if the token is valid and not expired
     before allowing the user to proceed with resetting their password
@@ -145,7 +145,7 @@ def reset_password(userId):
     """
     The `reset_password` function in Python handles resetting a user's password by updating it in the
     database after verifying the new password matches the confirmation.
-    
+
     :param userId: The `userId` parameter in the `reset_password` function is used to identify the user
     for whom the password is being reset. It is likely an identifier, such as a unique user ID or
     username, that is used to locate the user in the database and update their password
@@ -172,7 +172,7 @@ def verify_test(testCode):
     """
     The function `verify_test` checks if a POST request contains a specific test code in a MongoDB
     collection and returns a JSON response with a URL if the code exists.
-    
+
     :param testCode: The `testCode` parameter in the `verify_test` function seems to represent a code
     that is being checked against a list of collection names in a MongoDB database. If the `testCode` is
     found in the list of collection names, the function returns a JSON response with a URL pointing to
@@ -201,7 +201,7 @@ def write_test(testCode):
     The `write_test` function in Python checks if a user is logged in, retrieves test questions, allows
     users to submit answers, calculates the percentage score, and stores the result in a MongoDB
     collection.
-    
+
     :param testCode: The `testCode` parameter in the `write_test` function is used to identify the
     specific test for which the user wants to write a test. It is used to fetch questions, details, and
     correct answers related to that particular test from the database. The function checks if the user
@@ -264,13 +264,13 @@ def univ_exam():
     parameters "univ_exam.html" and "studName = session.get("username")".
     """
     return render_template("univ_exam.html",studName = session.get("username"))
-    
+
 @main.route("/verify_univ_test/<testCode>",methods=['GET', 'POST'])
 def verify_univ_test(testCode):
     """
     It seems like you have pasted a code snippet for a function named `verify_univ_test`, but it appears
     to be incomplete. How can I assist you with this function?
-    
+
     :param testCode: It seems like you were about to provide some information about the `testCode`
     parameter in the `verify_univ_test` function. Could you please provide more details or let me know
     how I can assist you further with this function?
@@ -286,7 +286,7 @@ def write_univ_test(testCode):
     """
     This Python function is designed to handle writing university tests, including checking if a user
     has already taken the test, processing user answers, and storing the results in a MongoDB database.
-    
+
     :param testCode: The `testCode` parameter is used to identify a specific test within the system. It
     is used to retrieve test questions, details, and results related to that particular test
     :return: The function `write_univ_test` returns different responses based on certain conditions. If
@@ -344,7 +344,7 @@ def download(testCode,name):
     """
     The function `download` generates a file path for a PDF report based on the test code and name, and
     then sends the file for download.
-    
+
     :param testCode: The `testCode` parameter is likely a unique identifier or code associated with a
     specific test or quiz. It is used to generate a customized report file for the test taker
     :param name: The `name` parameter in the `download` function represents the name of the user for
@@ -404,7 +404,7 @@ def generate_report(testCode,name):
     """
     The function `generate_report` generates a test report for a user based on their test code and name,
     and sends the report via email.
-    
+
     :param testCode: The `testCode` parameter in the `generate_report` function seems to represent a
     unique identifier for a specific test. It is used to retrieve test details and results from the
     database related to that particular test. This code snippet appears to be part of a web application

@@ -25,7 +25,7 @@ fonttools==4.47.0
 fpdf2==2.7.7
 gunicorn==22.0.0
 html5lib==1.1
-idna==3.6
+idna==3.7
 ipify==1.0.0
 itsdangerous==2.1.2
 Jinja2==3.1.4

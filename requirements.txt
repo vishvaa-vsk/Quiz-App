@@ -55,7 +55,7 @@ vine==5.1.0
 wcwidth==0.2.12
 weasyprint==61.0
 webencodings==0.5.1
-Werkzeug==3.0.1
+Werkzeug==3.0.3
 wkhtmltopdf==0.2
 WTForms==3.1.1
 zopfli==0.2.3

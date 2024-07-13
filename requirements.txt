@@ -36,7 +36,7 @@ openpyxl==3.1.2
 packaging==23.2
 pandas==2.1.4
 pdfkit==1.0.0
-pillow==10.2.0
+pillow==10.3.0
 prompt-toolkit==3.0.43
 pycparser==2.21
 pydyf==0.8.0

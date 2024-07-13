@@ -46,7 +46,7 @@ pyphen==0.14.0
 python-dateutil==2.8.2
 python-dotenv==1.0.0
 pytz==2023.3.post1
-requests==2.31.0
+requests==2.32.2
 six==1.16.0
 tinycss2==1.2.1
 tzdata==2023.4

@@ -43,6 +43,7 @@ def login():
             if check_password_hash(storedPasswd,passwd):
                 session["username"] = username
                 session["user_id"] = str(user_id)
+                session["regno"] = regno
                 return redirect(url_for('main.dashboard'))
             else:
                 flash("Username or password incorrect")
@@ -249,9 +250,9 @@ def write_test(testCode):
                 try:
                     mongo.db[f"{testCode}-result"].insert_one(add_user_result)
                     if test_type != "value added":
-                        return redirect(url_for('main.generate_report',testCode=testCode,name=session["username"]))
+                        return redirect(url_for('main.generate_report',testCode=testCode,name=session["username"],regno=session['regno']))
                     else:
-                        return redirect(url_for('main.generate_certificate',testCode=testCode,name=session["username"]))
+                        return redirect(url_for('main.generate_certificate',testCode=testCode,name=session["username"],regno=session['regno']))
                 except Exception as e:
                     flash(e)
                     flash("Internal error occurred!")
@@ -394,7 +395,7 @@ def download_prev_result():
                     report = create_report(name=name,testCode=testCode,class_and_sec=user_details['class'],regno=user_details['regno'],status=user_test_report['status'],score=user_test_report['score'],percentage=user_test_report['percentage'],lab_session=testdetails["lab_session"],audio_no=testdetails["audio_no"]
             ,file="report_base.html")
                     filename = f"{name}'s_{testCode}_report.pdf"
-                    pdfkit.from_string(report,os.path.join(os.path.abspath("Quiz-App/reports"),filename))
+                    pdfkit.from_string(report,os.path.join(os.path.abspath("reports"),filename))
                     return download(testCode=testCode,name=name)
             else:
                 flash("University Results can't be downloaded")
@@ -403,8 +404,8 @@ def download_prev_result():
         return redirect(url_for("main.login"))
 
 
-@main.route("/report/<testCode>/<name>",methods=['GET', 'POST'])
-def generate_report(testCode,name):
+@main.route("/report/<testCode>/<name>/<regno>",methods=['GET', 'POST'])
+def generate_report(testCode,name,regno):
     """
     The function `generate_report` generates a test report for a user based on their test code and name,
     and sends the report via email.
@@ -420,10 +421,10 @@ def generate_report(testCode,name):
     NOT FOUND".
     """
     if check_login():
-        if mongo.db.users.find_one({"username":name}) and mongo.db[f"{testCode}-result"].find_one({'name':name}):
+        if mongo.db.users.find_one({"regno":regno}) and mongo.db[f"{testCode}-result"].find_one({'regno':regno}):
             testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
-            user_details = mongo.db.users.find_one({"username":name})
-            user_test_report = mongo.db[f"{testCode}-result"].find_one({'name':name})
+            user_details = mongo.db.users.find_one({"regno":regno})
+            user_test_report = mongo.db[f"{testCode}-result"].find_one({'regno':regno})
 
             email_template = create_report(
             name=name,testCode=testCode,class_and_sec=user_details['class'],regno=user_details['regno'],status=user_test_report['status'],score=user_test_report['score'],percentage=user_test_report['percentage'],lab_session=testdetails["lab_session"],audio_no=testdetails["audio_no"]
@@ -443,9 +444,9 @@ def generate_report(testCode,name):
     else:
         return redirect(url_for('main.login'))
 
-@main.route("/generate_certificate/<testCode>/<name>",methods=['GET','POST'])
-def generate_certificate(testCode,name):
-    pass
+# @main.route("/generate_certificate/<testCode>/<name>",methods=['GET','POST'])
+# def generate_certificate(testCode,name):
+#     pass
 #     if check_login():
 #         if mongo.db.users.find_one({"username":name}) and mongo.db[f"{testCode}-result"].find_one({'name':name}):
 #             testdetails = mongo.db.testDetails.find_one({"test_code":testCode})

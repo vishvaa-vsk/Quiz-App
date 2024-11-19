@@ -383,6 +383,7 @@ def download_prev_result():
     """
     if check_login():
         regno = session['regno']
+        name = session['username']
         if request.method == "POST":
             testCode = request.form["testCode"]
             if mongo.db.testDetails.find_one({"test_code":testCode})["test_type"]!="University Exam" and mongo.db[f"{testCode}-result"].find_one({"name":regno}):

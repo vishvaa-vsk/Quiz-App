@@ -1,4 +1,4 @@
-{% extends "teacher/teacher_base.html" %}
+{% extends "admin/admin_base.html" %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='teacher_report.css') }}">
@@ -8,7 +8,7 @@
   
 {% block bodyContent %}
 <div class="content">
-    <form action="{{ url_for('teacher.view_results') }}" method="post">
+    <form action="{{ url_for('admin.show_model_report') }}" method="post">
         <div class="d-flex justify-content-sm-center align-items-center">
             <div class="d-flex justify-content-sm-start">
                 <div class="p-2">
@@ -45,17 +45,24 @@
                 </div>
             </div>
             <div class="d-flex justify-content-sm-end p-2 m-2">
-              <div class="p-2">
-                <select class="form-select" id="class" name="classes" required>
-                  <option disabled selected>Class</option>
-                  {% for Class in classes %}
-                    <option value="{{Class}}">{{ Class|e }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="d-flex justify-content-sm-evenly p-2">
-                <button type="submit" class="btn btn-info">Search</button>
-              </div>
+                <div class="p-2">
+                  <select class="form-select" id="dept" name="department" required>
+                    <option disabled selected>Department</option>
+                    <option value="CSE">CSE</option>
+                    <option value="AI&DS">AI&DS</option>
+                    <option value="AUTO">AUTO</option>
+                    <option value="CIVIL">CIVIL</option>
+                    <option value="CSE(CS)">CSE(CS)</option>
+                    <option value="EEE">EEE</option>
+                    <option value="ECE">ECE</option>
+                    <option value="EIE">EIE</option>
+                    <option value="IT">IT</option>
+                    <option value="MECH">MECH</option>
+                  </select>
+                </div>
+                <div class="d-flex justify-content-sm-evenly p-2">
+                    <button type="submit" class="btn btn-info">Search</button>
+                </div>
             </div>
         </div>
     </form>
@@ -63,12 +70,13 @@
 
     {% if results == [] %}
     <div class="d-flex justify-content-sm-center align-items-center">
-        <h3>No Lab Test Results Found for {{ Class }} Class</h3>
+        <h3>No Lab Test Results Found for {{ dept }} Department</h3>
     </div>
     <br>
     {% else %}
     <div class="d-flex justify-content-sm-center align-items-center">
-        <h3>Lab Test Results for {{ Class }} Department</h3>
+        <h3>Lab Test Results for {{ dept }} Department</h3>
+        <a href="{{url_for('admin.download_model_report')}}" class="btn btn-outline-success">Download</a>
     </div>
     <br>
     

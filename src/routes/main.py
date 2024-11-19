@@ -214,7 +214,7 @@ def write_test(testCode):
     report for the test
     """
     if check_login():
-        if mongo.db[f"{testCode}-result"].find_one({'name':session["username"]}):
+        if mongo.db[f"{testCode}-result"].find_one({'regno':session["regno"]}):
                 return f"<h1> Hi {session['username']}, <br> You have already took this test! <br> Try checking your previous report..<br> Contact professors if you don't have an idea about this..</h1>"
         else:
             questions = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
@@ -300,7 +300,7 @@ def write_univ_test(testCode):
     display a message indicating that the user has already taken the test. If the user has not
     """
     if check_login():
-        if mongo.db[f"{testCode}-result"].find_one({'name':session["username"]}):
+        if mongo.db[f"{testCode}-result"].find_one({'regno':session["regno"]}):
                 return f"<h1> Hi {session['username']}, <br> You have already took this test! <br> Try checking your previous report..<br> Contact professors if you don't have an idea about this..</h1>"
         else:
             questions = list(mongo.db[testCode].find({},{"_id":0,'correct_ans':0}))
@@ -364,11 +364,11 @@ def download(testCode,name):
 
 @main.route("/previous_result",methods=['GET', 'POST'])
 def get_previous_result():
-    name = session["username"]
+    regno = session['regno']
     if request.method == "POST":
         last_test = list(mongo.db.testDetails.find({},{"_id":0}))
         test_code = last_test[-1]['test_code']
-        latest_result = mongo.db[f"{test_code}-result"].find_one({"$and":[{"name":name},{"test_type":{"$ne":"University Exam"}}]},{"_id":0})
+        latest_result = mongo.db[f"{test_code}-result"].find_one({"$and":[{"regno":regno},{"test_type":{"$ne":"University Exam"}}]},{"_id":0})
         if latest_result is not None:
             return latest_result
     return jsonify({"testcode":"None","name":"None","score":"None","percentage":"None","status":"None"})
@@ -382,24 +382,25 @@ def download_prev_result():
     template based on certain conditions.
     """
     if check_login():
-        name = session["username"]
+        regno = session['regno']
+        name = session['username']
         if request.method == "POST":
             testCode = request.form["testCode"]
-            if mongo.db.testDetails.find_one({"test_code":testCode})["test_type"]!="University Exam" and mongo.db[f"{testCode}-result"].find_one({"name":name}):
+            if mongo.db.testDetails.find_one({"test_code":testCode})["test_type"]!="University Exam" and mongo.db[f"{testCode}-result"].find_one({"name":regno}):
                 try:
                     return download(testCode=testCode,name=name)
                 except:
                     testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
-                    user_details = mongo.db.users.find_one({"username":name})
-                    user_test_report = mongo.db[f"{testCode}-result"].find_one({'name':name})
-                    report = create_report(name=name,testCode=testCode,class_and_sec=user_details['class'],regno=user_details['regno'],status=user_test_report['status'],score=user_test_report['score'],percentage=user_test_report['percentage'],lab_session=testdetails["lab_session"],audio_no=testdetails["audio_no"]
+                    user_details = mongo.db.users.find_one({"regno":regno})
+                    user_test_report = mongo.db[f"{testCode}-result"].find_one({'regno':regno})
+                    report = create_report(name=user_details['name'],testCode=testCode,class_and_sec=user_details['class'],regno=user_details['regno'],status=user_test_report['status'],score=user_test_report['score'],percentage=user_test_report['percentage'],lab_session=testdetails["lab_session"],audio_no=testdetails["audio_no"]
             ,file="report_base.html")
                     filename = f"{name}'s_{testCode}_report.pdf"
                     pdfkit.from_string(report,os.path.join(os.path.abspath("reports"),filename))
-                    return download(testCode=testCode,name=name)
+                    return download(testCode=testCode,name=user_details['name'])
             else:
                 flash("University Results can't be downloaded")
-        return render_template("previous_result.html",name=name)
+        return render_template("previous_result.html",name=user_details['name'])
     else:
         return redirect(url_for("main.login"))
 

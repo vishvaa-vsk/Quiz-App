@@ -314,6 +314,48 @@ def download_model_report():
     else:
         return redirect(url_for("admin.login"))
 
+@admin.route("/download_lab_reports",methods=['GET', 'POST'])
+def download_lab_report():
+    if check_login():
+        lab_tests = list(mongo.db.testDetails.find({"test_type":"Lab Test"}))
+        lab_testcodes = [i["test_code"] for i in lab_tests]
+        if request.method == "POST":
+            try:
+                user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
+                test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
+                dept = request.form.get("department")
+
+                exam_name = request.form.get("exam_name")
+                exam_date = request.form.get("exam_date")
+                exam_session = request.form.get("exam_session")
+                exam_subject = request.form.get("exam_subject")
+                
+                regex = re.compile("I-CSE(CS)-A") if dept == "CSE(CS)" else re.compile(f'^[A-Z]-{dept}-[A-Z]$')
+                cleaned_reports_sorted = clean_reports(test_codes,dept,regex)
+
+                import base64
+                with open("Quiz-App/src/static/VEC-logo.png", "rb") as img_file:
+                    base64_encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
+
+                pdf_report_template = render_template("admin/report_t.html", title="Lab Report", test_codes=lab_testcodes, report_codes=user_test_codes, results=cleaned_reports_sorted, dept=dept, base64_encoded_image=base64_encoded_image, exam_date=exam_date, exam_name=exam_name, exam_session=exam_session, exam_subject=exam_subject)
+
+                # Convert HTML to PDF
+                pdf = pdfkit.from_string(pdf_report_template, False)
+
+                # Send PDF as response
+                filename = f"lab_report_{dept}.pdf"
+                response = make_response(pdf)
+                response.headers['Content-Type'] = 'application/pdf'
+                response.headers['Content-Disposition'] = 'inline; filename=lab_report.pdf'
+                return response
+
+            except Exception as e:
+                flash(e)
+                return redirect(url_for("admin.show_lab_report"))
+
+        return render_template("admin/download_report.html",test_codes=lab_testcodes)
+    else:
+        return redirect(url_for("admin.login"))
 
 @admin.route("/show_univ_reports",methods=['GET', 'POST'])
 def show_univ_report():
@@ -355,6 +397,25 @@ def show_model_report():
             cleaned_reports_sorted = clean_reports(test_codes,dept,regex)
             return render_template("admin/show_model_reports.html",test_codes=model_testcodes, report_codes = user_test_codes , results = cleaned_reports_sorted ,dept=dept)
         return render_template("admin/show_model_reports.html",test_codes=model_testcodes)
+    else:
+        return redirect(url_for("admin.login"))
+
+@admin.route("/show_lab_reports",methods=['GET', 'POST'])
+def show_lab_report():
+    if check_login():
+        lab_tests = list(mongo.db.testDetails.find({"test_type":"Lab Test"}))
+        lab_testcodes = [i["test_code"] for i in lab_tests]
+        if request.method == "POST":
+            try:
+                user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
+                test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
+                dept = request.form.get("department")
+                regex = re.compile("I-CSE(CS)-A") if dept == "CSE(CS)" else re.compile(f'^[A-Z]-{dept}-[A-Z]$')
+            except:
+                flash("Please select testcodes and department!")
+            cleaned_reports_sorted = clean_reports(test_codes,dept,regex)
+            return render_template("admin/show_lab_reports.html",test_codes=lab_testcodes, report_codes = user_test_codes , results = cleaned_reports_sorted ,dept=dept)
+        return render_template("admin/show_lab_reports.html",test_codes=lab_testcodes)
     else:
         return redirect(url_for("admin.login"))
 

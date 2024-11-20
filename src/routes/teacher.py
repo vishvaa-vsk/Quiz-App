@@ -2,7 +2,7 @@ import os,tempfile
 from flask import Blueprint,flash,render_template,url_for,session,redirect,request,jsonify,send_file,make_response
 from werkzeug.security import generate_password_hash,check_password_hash
 from ..extensions import mongo
-from ..helper import generate_token,verify_token,create_report,remove_duplicates
+from ..helper import generate_token,verify_token,create_report,remove_duplicates,clean_teacher_reports
 from bson.objectid import ObjectId
 from ..send_email import send_reset_email
 import pdfkit
@@ -195,10 +195,16 @@ def view_results():
         except:
             classes = []
         if request.method == "POST":
-            testCode = request.form.get("test_code")
-            Class = request.form.get("classes")
-            test_results = list(mongo.db[f"{testCode}-result"].find({"$and":[{"teacher":session.get("teacherName")},{"class":Class}]}).sort("regno",1))
-            return render_template("teacher/view_reports.html",test_codes=test_codes,classes=classes,test_results=test_results,Class=Class,test_code=testCode)
+            try:
+                user_test_codes = [request.form.get("first_code"),request.form.get("second_code"),request.form.get("third_code"),request.form.get("fourth_code")]
+                test_codes = [f'{request.form.get("first_code")}-result',f'{request.form.get("second_code")}-result',f'{request.form.get("third_code")}-result',f'{request.form.get("fourth_code")}-result']
+                Class = request.form.get("classes")
+                # return render_template("teacher/view_reports.html",test_codes=test_codes,classes=classes,test_results=test_results,Class=Class,test_code=testCode)
+            except:
+                flash("Please select testcodes and department!")
+            clean_reports = clean_teacher_reports(test_codes,session["teacherName"],Class)
+            # return render_template("admin/show_lab_reports.html",test_codes=lab_testcodes, report_codes = user_test_codes , results = cleaned_reports_sorted ,dept=dept)
+            return render_template("teacher/view_reports.html",test_codes=test_codes,report_codes=user_test_codes,results=clean_reports,classes=classes)
         return render_template("teacher/view_reports.html",test_codes=test_codes,classes=classes)
     else:
         return redirect(url_for("teacher.login"))

@@ -78,3 +78,21 @@ def clean_reports(test_codes,dept,regex):
 
     cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
     return cleaned_reports_sorted
+
+def clean_teacher_reports(test_codes,teacherName,Class):
+    from collections import defaultdict
+    uncleaned_reports = []
+    for test in test_codes:
+        documents = mongo.db[test].find({"$and":[{"teacher":teacherName},{"class":Class}]}).sort("regno",1)
+        for result in documents:
+            uncleaned_reports.append(result)
+    grouped_data = defaultdict(list)
+    for item in uncleaned_reports:
+        key = (item['name'], item['regno'])
+        score = item['score']
+        test_code = item['test_code']
+        grouped_data[key].append({'score': score, 'test_code': test_code})
+
+    cleaned_reports = [{'name': name, 'regno': regno,'scores': data} for (name, regno), data in grouped_data.items()]
+    cleaned_reports_sorted = sorted(cleaned_reports, key=lambda x: x['regno'])
+    return cleaned_reports_sorted

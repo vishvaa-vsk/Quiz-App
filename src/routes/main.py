@@ -393,14 +393,14 @@ def download_prev_result():
                     testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
                     user_details = mongo.db.users.find_one({"regno":regno})
                     user_test_report = mongo.db[f"{testCode}-result"].find_one({'regno':regno})
-                    report = create_report(name=user_details['name'],testCode=testCode,class_and_sec=user_details['class'],regno=user_details['regno'],status=user_test_report['status'],score=user_test_report['score'],percentage=user_test_report['percentage'],lab_session=testdetails["lab_session"],audio_no=testdetails["audio_no"]
+                    report = create_report(name=name,testCode=testCode,class_and_sec=user_details['class'],regno=user_details['regno'],status=user_test_report['status'],score=user_test_report['score'],percentage=user_test_report['percentage'],lab_session=testdetails["lab_session"],audio_no=testdetails["audio_no"]
             ,file="report_base.html")
                     filename = f"{name}'s_{testCode}_report.pdf"
                     pdfkit.from_string(report,os.path.join(os.path.abspath("reports"),filename))
-                    return download(testCode=testCode,name=user_details['name'])
+                    return download(testCode=testCode,name=name)
             else:
                 flash("University Results can't be downloaded")
-        return render_template("previous_result.html",name=user_details['name'])
+        return render_template("previous_result.html",name=name)
     else:
         return redirect(url_for("main.login"))
 

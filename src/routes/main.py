@@ -386,7 +386,7 @@ def download_prev_result():
         name = session['username']
         if request.method == "POST":
             testCode = request.form["testCode"]
-            if mongo.db.testDetails.find_one({"test_code":testCode})["test_type"]!="University Exam" and mongo.db[f"{testCode}-result"].find_one({"name":regno}):
+            if mongo.db.testDetails.find_one({"test_code":testCode})["test_type"]!="University Exam" and mongo.db[f"{testCode}-result"].find_one({"regno":regno}):
                 try:
                     return download(testCode=testCode,name=name)
                 except:
@@ -453,7 +453,7 @@ def generate_report(testCode,name,regno):
 #             testdetails = mongo.db.testDetails.find_one({"test_code":testCode})
 #             user_details = mongo.db.users.find_one({"username":name})
 #             user_test_report = mongo.db[f"{testCode}-result"].find_one({'name':name})
-    
+
 @main.route("/get_user_details",methods=['GET', 'POST'])
 def get_user_details():
     """

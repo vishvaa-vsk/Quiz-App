@@ -14,10 +14,10 @@
         </div>
         <div class="d-flex justify-content-evenly">
             <input type="text" name="testCode" id="testCode" placeholder="TEST CODE" onkeydown="writeTest(this)">
-            <button id="testButton" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Go</button>    
+            <button id="testButton" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Go</button>
         </div>
-        <a href="{{ url_for('main.dashboard') }}"class="active">Dash Board</a>        
-        <a href="{{ url_for('main.univ_exam') }}">Write University Exam</a>        
+        <a href="{{ url_for('main.dashboard') }}"class="active">Dash Board</a>
+        <a href="{{ url_for('main.univ_exam') }}">Write University Exam</a>
         <a href="{{ url_for('main.download_prev_result') }}">Download Previous Test Results</a>
         <!-- <a href="{{ url_for('main.edit_details') }}" >Edit Your Details</a> -->
         <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Logout</a>
@@ -25,7 +25,7 @@
 
     <div class="content">
         <h1>Hello, {{studName}}</h1><br>
-        <h1>Welcome to VEC Communicative English Lab</h1><br>
+        <h1>Welcome to VEC Technical English Lab</h1><br>
         <div class="prevResults" id="prevResults">
             <h5>Your Previous Test Performance</h5>
             <br>
@@ -61,7 +61,7 @@
     </div>
   </div>
 
-      
+
 
 {% endblock %}
 
@@ -74,7 +74,7 @@
             url : `/verify_test/${testCode}`,
             type:'POST',
             data: {'testCode':testCode},
-            success: function(response) { 
+            success: function(response) {
                 window.location.href = response.url;
             }
         });
@@ -91,7 +91,7 @@
                 url : `/verify_test/${testCode}`,
                 type:'POST',
                 data: {'testCode':testCode},
-                success: function(response) { 
+                success: function(response) {
                     window.location.href = response.url;
                 }
             })

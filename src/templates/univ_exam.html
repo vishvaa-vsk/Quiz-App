@@ -13,10 +13,10 @@
     </div>
     <div class="d-flex justify-content-evenly">
         <input type="text" name="testCode" id="testCode" placeholder="TEST CODE">
-        <button id="testButton" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Go</button>    
+        <button id="testButton" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Go</button>
     </div>
-    <a href="{{ url_for('main.dashboard') }}">Dash Board</a>        
-    <a href="{{url_for('main.univ_exam')}}" class="active">Write University Exam</a>        
+    <a href="{{ url_for('main.dashboard') }}">Dash Board</a>
+    <a href="{{url_for('main.univ_exam')}}" class="active">Write University Exam</a>
     <a href="{{ url_for('main.download_prev_result') }}">Download Previous Test Results</a>
     <!-- <a href="{{ url_for('main.edit_details') }}" >Edit Your Details</a> -->
     <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Logout</a>
@@ -24,12 +24,12 @@
 
 <div class="content">
     <h1>Hello, {{studName}}</h1><br>
-    <h1>Welcome to VEC Communicative English Lab</h1><br>
+    <h1>Welcome to VEC Technical English Lab - SEE</h1><br>
     <div class="test_container d-flex justify-content-center align-items-center">
         <h2>Enter your test code here</h2>
         <div class="d-flex">
             <input type="text" name="testCode" id="univ_test_code" placeholder="TEST CODE" onkeydown="writeTest(this)">
-            <button id="testButton" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Write Test</button>    
+            <button id="testButton" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Write Test</button>
         </div>
     </div>
 </div>
@@ -57,7 +57,7 @@
     </div>
   </div>
 
-      
+
 
 {% endblock %}
 <!-- 07ZVBML8 -->
@@ -69,7 +69,7 @@
             url : `/verify_univ_test/${testCode}`,
             type:'POST',
             data: {'testCode':testCode},
-            success: function(response) { 
+            success: function(response) {
                 window.location.href = response.url;
             }
         });
@@ -86,7 +86,7 @@
                 url : `/verify_univ_test/${testCode}`,
                 type:'POST',
                 data: {'testCode':testCode},
-                success: function(response) { 
+                success: function(response) {
                     window.location.href = response.url;
                 }
             })
